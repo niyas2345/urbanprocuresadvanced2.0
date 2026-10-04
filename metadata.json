@@ -1,0 +1,6 @@
+{
+  "name": "Urban Procures Advanced",
+  "description": "Next-generation procurement and RFQ platform for property owners, contractors, and vendors powered by Cloudflare.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
