@@ -9,7 +9,7 @@ const json=(body:unknown,status=200)=>Response.json(body,{status});
 let clock=0,refreshes=0,messages=0,unauthorized=0;
 const fetcher:typeof fetch=async(input,init)=>{
  const url=String(input);
- verify(init?.redirect==='error','credentials cannot follow redirects');
+ verify(init?.redirect==='manual','credentials cannot follow redirects');
  verify(!!init?.signal,'provider call has bounded timeout');
  if(url.endsWith('/oauth/v2/token')){
   verify(url==='https://accounts.zoho.ae/oauth/v2/token','refresh uses UAE Accounts endpoint');

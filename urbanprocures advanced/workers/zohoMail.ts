@@ -33,10 +33,11 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
   inFlight=(async()=>{
    try {
     const response=await fetcher((config.accountsOrigin??providers[config.mailOrigin])+'/oauth/v2/token',{
-     method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),
+     method:'POST',redirect:'manual',signal:AbortSignal.timeout(15000),
      headers:{'Content-Type':'application/x-www-form-urlencoded'},
      body:new URLSearchParams({grant_type:'refresh_token',client_id:config.clientId,client_secret:config.clientSecret,refresh_token:config.refreshToken})
     });
+    if(response.status>=300&&response.status<400)throw new ZohoOAuthError(response.status,'redirect_refused');
     let data:any;try{data=await response.json();}catch{throw new ZohoOAuthError(response.status,'unexpected_response');}
     const seconds=Number(data.expires_in??data.expires_in_sec);
     if(!response.ok||data.error||typeof data.access_token!=='string'||!data.access_token||data.access_token.length>4096||!Number.isFinite(seconds)||seconds<=0)throw new ZohoOAuthError(response.status,safeOAuthCodes.has(data.error)?data.error:'invalid_token_response');
@@ -53,7 +54,7 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
    let response:Response,data:any;
    try {
     response=await fetcher(`${config.mailOrigin}/api/accounts/${encodeURIComponent(config.accountId)}/messages`,{
-     method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),
+     method:'POST',redirect:'manual',signal:AbortSignal.timeout(15000),
      headers:{Authorization:'Zoho-oauthtoken '+token,'Content-Type':'application/json'},
      body:JSON.stringify({fromAddress:config.fromAddress,...message,mailFormat:'plaintext'})
     });data=await response.json();

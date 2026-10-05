@@ -23,6 +23,7 @@
     "test:operations": "node scripts/test-operations.mjs",
     "test:wrangler-migrations": "node scripts/test-wrangler-migrations.mjs",
     "test:zoho-oauth": "tsx scripts/test-zoho-oauth.ts",
+    "test:zoho-runtime": "node scripts/test-zoho-runtime.mjs",
     "test:staging": "node scripts/test-deployed-staging.mjs"
   },
   "dependencies": {
