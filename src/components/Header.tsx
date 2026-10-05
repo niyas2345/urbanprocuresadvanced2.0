@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { UserRole } from '../types/index.ts';
-import { mockStore } from '../data/mockStore.ts';
 import { ArrowUpRight, ChevronDown } from 'lucide-react';
 
 interface HeaderProps {
@@ -28,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, activeR
             onClick={() => setRoleMenuOpen(!roleMenuOpen)}
             className="flex items-center gap-1.5 text-[11px] text-[#e3edeb] hover:text-white px-2 py-0.5 rounded transition-colors"
           >
-            <span>Role:</span>
+            <span>Portal:</span>
             <span className="font-bold text-[#eb6a32] capitalize">{activeRole}</span>
             <ChevronDown className="w-3 h-3 text-[#b6c7c9]" />
           </button>
@@ -41,7 +40,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, activeR
               <button
                 onClick={() => {
                   onRoleChange('public');
-                  mockStore.setActiveUser('public');
                   setRoleMenuOpen(false);
                 }}
                 className="w-full text-left px-3 py-1.5 text-xs hover:bg-[#f7f6f2]"
@@ -51,7 +49,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, activeR
               <button
                 onClick={() => {
                   onRoleChange('contractor');
-                  mockStore.setActiveUser('contractor');
                   setRoleMenuOpen(false);
                 }}
                 className="w-full text-left px-3 py-1.5 text-xs hover:bg-[#f7f6f2]"
@@ -61,7 +58,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, activeR
               <button
                 onClick={() => {
                   onRoleChange('vendor');
-                  mockStore.setActiveUser('vendor');
                   setRoleMenuOpen(false);
                 }}
                 className="w-full text-left px-3 py-1.5 text-xs hover:bg-[#f7f6f2]"
@@ -71,7 +67,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, activeR
               <button
                 onClick={() => {
                   onRoleChange('admin');
-                  mockStore.setActiveUser('admin');
                   setRoleMenuOpen(false);
                 }}
                 className="w-full text-left px-3 py-1.5 text-xs hover:bg-[#f7f6f2]"

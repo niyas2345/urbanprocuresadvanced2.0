@@ -1,46 +1,34 @@
+# ISOLATED ADVANCED ONLY. No production routes, resources, or credentials.
+# Placeholder bindings intentionally prevent remote deployment until separately provisioned.
 name = "urbanprocures-advanced-worker"
 main = "index.ts"
 compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = false
 
 [vars]
-ENVIRONMENT = "production"
-PLATFORM_DOMAIN = "urbanprocures.com"
+ENVIRONMENT = "advanced-development"
+PLATFORM_DOMAIN = "localhost"
 SERVICE_CHARGE_DEFAULT_PERCENT = "0.025"
 SERVICE_CHARGE_MINIMUM_AED = "500"
 SITE_VISIT_FEE_AED = "100"
 
-# Cloudflare D1 Database binding
 [[d1_databases]]
 binding = "DB"
-database_name = "urbanprocures-d1"
-database_id = "d1-urbanprocures-prod-01"
-migrations_dir = "../migrations"
+database_name = "urbanprocures-advanced-db"
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "../database/migrations"
 
-# Cloudflare R2 Document Bucket
 [[r2_buckets]]
 binding = "DOCUMENTS_BUCKET"
-bucket_name = "urbanprocures-documents"
+bucket_name = "urbanprocures-advanced-documents"
 
-# Cloudflare KV for sessions & rate limiting
-[[kv_namespaces]]
-binding = "SESSIONS_KV"
-id = "kv_sessions_urbanprocures"
+# KV and Queues are omitted: no implemented Worker route currently requires them.
+# Run: node scripts/check-isolation.mjs before any future infrastructure action.
+# Canonical migrations are for EMPTY new Advanced resources only. Existing snapshots need preflight/upgrade.
 
-[[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "kv_ratelimit_urbanprocures"
-
-# Cloudflare Queues for Email & Invitation background tasks
-[[queues.producers]]
-binding = "INVITATIONS_QUEUE"
-queue = "urbanprocures-invitations"
-
-[[queues.producers]]
-binding = "EMAIL_NOTIFICATIONS_QUEUE"
-queue = "urbanprocures-emails"
-
-[[queues.consumers]]
-queue = "urbanprocures-emails"
-max_batch_size = 10
-max_batch_timeout = 5
+[assets]
+directory = "../../dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = true

@@ -1,0 +1,34 @@
+{
+  "accountId": "dcb411ece67dfdfb730635133ed31825",
+  "accountName": "Abdeenniyas23@gmail.com's Account",
+  "verifiedAt": "2026-10-05T01:25:47.616054+00:00",
+  "existingWorkers": [
+    "urbanporcures-2-0",
+    "urbanprocures-native-maintenance"
+  ],
+  "existingD1": [
+    {
+      "name": "urban-procure-audit-preview",
+      "id": "cc56fc57-e3cf-43cf-831d-7820c9ca15ae"
+    },
+    {
+      "name": "urban-procure-db",
+      "id": "15f861d6-4a86-445e-b56a-66d1b3bc04ba"
+    }
+  ],
+  "existingR2": [
+    "urban-procure-preview-quote-documents",
+    "urban-procure-preview-rfq-documents",
+    "urban-procure-quote-documents",
+    "urban-procure-rfq-documents",
+    "urban-procures-bucket",
+    "urbanporcures-2-0-backups"
+  ],
+  "stagingWorker": "urbanprocures-advanced-staging-20261005",
+  "stagingDatabaseName": "urbanprocures-advanced-staging-20261005-db",
+  "stagingBucket": "urbanprocures-advanced-staging-20261005-documents",
+  "stagingUrl": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "productionModified": false,
+  "stagingDatabaseId": "eb82db72-864e-4835-b230-3903f77706f2",
+  "stagingBucketCreated": true
+}

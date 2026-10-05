@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { mockStore } from '../data/mockStore.ts';
-import { RFQ, Quotation, VendorProfile } from '../types/index.ts';
+import {AccountDocuments} from '../components/AccountDocuments.tsx';
+import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api.ts';
+import { TermsClickwrap, TermsReacceptance, type TermsDocument } from '../components/TermsClickwrap.tsx';
+import { RFQ, Quotation, VendorProfile, User } from '../types/index.ts';
 import { useToast } from '../components/ToastContext.tsx';
 import { HardHat, FileText, CheckCircle2, Lock, Unlock, ArrowRight, ShieldCheck, ChevronRight, AlertCircle, Award, Clock, LogIn, UserPlus, LogOut, Upload, Phone, Mail, Building2 } from 'lucide-react';
 import { DocumentViewerModal } from '../components/DocumentViewerModal.tsx';
@@ -18,8 +21,8 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
 
   // Auth State
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [loginEmail, setLoginEmail] = useState('bids@emiratesjoinery.ae');
-  const [loginPassword, setLoginPassword] = useState('password');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [regError, setRegError] = useState<string | null>(null);
   const [quoteError, setQuoteError] = useState<string | null>(null);
@@ -34,33 +37,35 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
 
-  // Terms Modal State (Click-Wrap)
-  const [termsModalOpen, setTermsModalOpen] = useState(false);
-  const [termsAgreedCheckbox, setTermsAgreedCheckbox] = useState(false);
-
+  const [termsModalOpen,setTermsModalOpen]=useState(false);
+  const [regAccepted,setRegAccepted]=useState(false);
+  const [regTerms,setRegTerms]=useState<TermsDocument|null>(null);
+  const [currentUser,setCurrentUser]=useState<User|null>(null);
+  const [vendor,setVendor]=useState<VendorProfile|null>(null);
+  const [hasAcceptedTerms,setHasAcceptedTerms]=useState(false);
+  useEffect(()=>{const blocked=()=>setHasAcceptedTerms(false);window.addEventListener('urbanprocures:terms-required',blocked);return()=>window.removeEventListener('urbanprocures:terms-required',blocked);},[]);
+  const [eligibleRfqs,setEligibleRfqs]=useState<RFQ[]>([]);
+  const [myQuotations,setMyQuotations]=useState<Quotation[]>([]);
+  const [dataError,setDataError]=useState('');
   // Quotation Submission State
   const [quoteLeadTime, setQuoteLeadTime] = useState('24');
   const [quoteValidity, setQuoteValidity] = useState('30');
-  const [quotePaymentTerms, setQuotePaymentTerms] = useState('25% advance mobilization, 65% progressive delivery, 10% post-handover');
-  const [quoteNotes, setQuoteNotes] = useState('FSC certified timber, 10-year warranty on acoustic core, samples submitted within 3 days');
+  const [quotePaymentTerms, setQuotePaymentTerms] = useState('');
+  const [quoteNotes, setQuoteNotes] = useState('');
   const [itemRates, setItemRates] = useState<Record<string, number>>({});
   const [quoteAttachment, setQuoteAttachment] = useState<File | null>(null);
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
 
-  // Session
-  const currentUser = mockStore.getCurrentUser();
-  const isVendorLoggedIn = mockStore.activeRole === 'vendor' && !!currentUser;
-  const vendor = mockStore.getVendorProfile(currentUser?.id);
-
-  const eligibleRfqs = vendor ? mockStore.getRfqsForVendor(vendor.id) : [];
-  const matchingRfqs = eligibleRfqs.filter((r) => {
-    if (categoryFilter === 'all') return true;
-    if (!vendor || !vendor.tradeCategories || vendor.tradeCategories.length === 0) return true;
-    return vendor.tradeCategories.some((cat) => r.category.toLowerCase().includes(cat.toLowerCase()) || cat.toLowerCase().includes(r.category.toLowerCase()));
-  });
-
-  const hasAcceptedTerms = !!vendor?.termsAcceptedAt;
-  const myQuotations = vendor ? mockStore.getQuotationsForRfq('all', 'vendor', vendor.id) : [];
+  const refreshVendor=async()=>{
+    const session=await api.auth.me();
+    if(!session.authenticated || session.user.role!=='vendor'){setCurrentUser(null);setVendor(null);return;}
+    setCurrentUser(session.user);setVendor(session.vendor);setHasAcceptedTerms(session.termsAccepted===true);
+    setDataError('');setEligibleRfqs([]);setMyQuotations([]);
+    if(session.termsAccepted)try{setEligibleRfqs(await api.vendor.getMatchingRfqs());setMyQuotations(await api.vendor.getMyQuotes());}catch(err:any){setDataError(err.message);}
+  };
+  useEffect(()=>{refreshVendor().catch(err=>setDataError(err.message));},[]);
+  const isVendorLoggedIn=currentUser?.role==='vendor';
+  const matchingRfqs=eligibleRfqs;
 
   // Calculate total quote amount from item rates
   const calculateTotal = (rfq: RFQ) => {
@@ -70,95 +75,36 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
     }, 0);
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError(null);
-    const res = mockStore.login(loginEmail, loginPassword);
-    if (!res.success) {
-      setLoginError(res.error || 'Login failed.');
-      showToast(res.error || 'Login failed', 'error');
-    } else {
-      setActiveTab('rfqs');
-      showToast(`Welcome back, ${res.user?.email}`, 'success');
-    }
+  const handleLoginSubmit=async(e:React.FormEvent)=>{
+    e.preventDefault();setLoginError(null);
+    try{const res=await api.auth.login(loginEmail,loginPassword);if(res.user.role!=='vendor'){await api.auth.logout();throw new Error('Vendor account required.');}await refreshVendor();setActiveTab('rfqs');}
+    catch(err:any){setLoginError(err.message);}
+  };
+  const handleRegisterSubmit=async(e:React.FormEvent)=>{
+    e.preventDefault();setRegError(null);
+    if(!regAccepted||!regTerms){setRegError('Explicit acceptance of current Vendor Terms is required.');return;}
+    try{
+      await api.auth.registerVendor({companyName:regCompany.trim(),tradeLicenseNumber:regLicense.trim(),tradeCategories:regCategories,emiratesServiced:regEmirates,emirate:regEmirates[0],address:`${regEmirates[0]}, UAE`,contactPerson:regContact.trim(),contactPhone:regPhone.trim(),email:regEmail.trim(),password:regPassword,acceptTerms:regAccepted,termsVersionId:regTerms.id});
+      await refreshVendor();setActiveTab('rfqs');showToast('Vendor registration recorded. Verification is pending.','success');
+    }catch(err:any){setRegError(err.message);}
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setRegError(null);
-    if (!regCompany.trim() || !regLicense.trim() || !regEmail.trim() || !regPhone.trim() || !regContact.trim()) {
-      setRegError('Please fill in all required vendor organization details.');
-      return;
-    }
-
-    mockStore.registerVendor({
-      companyName: regCompany.trim(),
-      tradeLicenseNumber: regLicense.trim(),
-      tradeCategories: regCategories,
-      emiratesServiced: regEmirates,
-      contactPerson: regContact.trim(),
-      contactPhone: regPhone.trim(),
-      email: regEmail.trim(),
-      password: regPassword || 'password',
-    });
-
-    setActiveTab('rfqs');
-    showToast(`Vendor account for ${regCompany} successfully created!`, 'success', 'Account Registered');
-  };
-
-  const handleTermsAcceptSubmit = () => {
-    if (!termsAgreedCheckbox || !vendor) return;
-    mockStore.acceptVendorTerms(vendor.id);
-    setTermsModalOpen(false);
-    showToast('Vendor Terms & Conditions (v2026.1) accepted. Click-wrap audit evidence registered!', 'success', 'Terms Verified');
-  };
-
-  const handleQuotationSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setQuoteError(null);
-    if (!selectedRfq || !vendor) return;
-
-    if (!hasAcceptedTerms) {
-      setTermsModalOpen(true);
-      return;
-    }
-
-    const total = calculateTotal(selectedRfq);
-    if (total <= 0) {
-      setQuoteError('Please enter valid unit rates for the Bill of Quantities items.');
-      return;
-    }
-
+  const handleQuotationSubmit=async(e:React.FormEvent)=>{
+    e.preventDefault();setQuoteError(null);if(!selectedRfq||!vendor)return;
+    if(!hasAcceptedTerms){setTermsModalOpen(true);return;}
     setIsSubmittingQuote(true);
-    setTimeout(() => {
-      const res = mockStore.submitQuotation({
-        rfqId: selectedRfq.id,
-        vendorId: vendor.id,
-        totalAmountAed: total,
-        leadTimeDays: parseInt(quoteLeadTime) || 30,
-        validityDays: parseInt(quoteValidity) || 30,
-        paymentTerms: quotePaymentTerms,
-        notes: quoteNotes,
-        items: selectedRfq.items.map((item) => ({
-          rfqItemId: item.id,
-          unitRateAed: itemRates[item.id] || 0,
-          totalPriceAed: (itemRates[item.id] || 0) * item.quantity,
-        })),
-      });
-
-      setIsSubmittingQuote(false);
-      setSelectedRfq(null);
-      if (res.success) {
-        showToast('Quotation submitted successfully under strict pre-award identity masking!', 'success', 'Bid Submitted');
-        setActiveTab('my_quotes');
-      } else {
-        showToast(res.error || 'Failed to submit quotation', 'error');
-      }
-    }, 300);
+    try{
+      const attachments=quoteAttachment?[{fileName:quoteAttachment.name,fileType:quoteAttachment.type,documentPurpose:'other',dataUrl:await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result as string);reader.onerror=()=>reject(Error('File could not be read'));reader.readAsDataURL(quoteAttachment);})}]:[];
+      await api.vendor.submitQuote(selectedRfq.id,{attachments,leadTimeDays:Number(quoteLeadTime),validityDays:Number(quoteValidity),paymentTerms:quotePaymentTerms,notes:quoteNotes,items:selectedRfq.items.map(item=>({rfqItemId:item.id,unitRateAed:itemRates[item.id]||0}))});
+      await refreshVendor();setSelectedRfq(null);setActiveTab('my_quotes');showToast('Quotation saved.','success');
+    }catch(err:any){setQuoteError(err.message);}finally{setIsSubmittingQuote(false);}
   };
+  if(isVendorLoggedIn && (!hasAcceptedTerms||termsModalOpen))return <TermsReacceptance role="vendor" onAccepted={()=>{setTermsModalOpen(false);refreshVendor();}}/>;
 
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#123540] pb-16 font-['DM_Sans']">
+      {currentUser?<AccountDocuments/>:<PasswordRecovery/>}
+      {dataError && <p role="alert" className="p-4 bg-white border border-[#e1e7e4] text-red-700 text-xs">{dataError}</p>}
       {/* Header Banner (Approved Design) */}
       <div className="bg-[#123f47] text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-[#0e3037]">
         <div className="max-w-[1240px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -197,12 +143,12 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                 ) : (
                   <span className="flex items-center gap-1.5 text-xs text-[#e3edeb] bg-[#082631] border border-[#194048] px-3 py-1.5 rounded-[5px] font-medium font-mono">
                     <CheckCircle2 className="w-4 h-4 text-[#eb6a32]" />
-                    Terms v2026.1 Accepted
+                    Current Terms Accepted
                   </span>
                 )}
                 <button
                   onClick={() => {
-                    mockStore.logout();
+                    api.auth.logout().then(()=>{setCurrentUser(null);setVendor(null);setEligibleRfqs([]);setMyQuotations([]);setHasAcceptedTerms(false);});
                     showToast('You have been signed out successfully.', 'info');
                   }}
                   className="text-xs text-[#c3d9d8] hover:text-white flex items-center gap-1 px-2 py-1 ml-2"
@@ -237,7 +183,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                 Vendor Login
               </button>
               <button
-                onClick={() => setAuthMode('register')}
+                onClick={() => {setRegAccepted(false);setRegTerms(null);setAuthMode('register');}}
                 className={`flex-1 py-3 text-sm font-bold font-['Manrope'] border-b-2 transition-colors flex items-center justify-center gap-2 ${
                   authMode === 'register'
                     ? 'border-[#eb6a32] text-[#123540]'
@@ -277,10 +223,6 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                     onChange={(e) => setLoginPassword(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-[5px] border border-[#bccbca] text-sm focus:outline-none focus:border-[#eb6a32]"
                   />
-                </div>
-
-                <div className="p-3 bg-[#f7f6f2] rounded border border-[#e1e7e4] text-[11px] text-[#63797b]">
-                  <strong>Pre-seeded Demo Vendor:</strong> <code>bids@emiratesjoinery.ae</code> / <code>password</code>
                 </div>
 
                 <button
@@ -388,11 +330,13 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                   />
                 </div>
 
+                <TermsClickwrap role="vendor" checked={regAccepted} onChange={setRegAccepted} onDocument={setRegTerms}/>
                 <button
                   type="submit"
+                  disabled={!regAccepted || !regTerms}
                   className="w-full bg-[#123540] hover:bg-[#082631] text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-all shadow-sm active:translate-y-0.5"
                 >
-                  Register Vendor Account
+                  ACCEPT TERMS & COMPLETE REGISTRATION
                 </button>
               </form>
             )}
@@ -478,7 +422,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                     </div>
                   ) : (
                     matchingRfqs.map((rfq) => {
-                      const award = mockStore.getAwardForRfq(rfq.id);
+                      const award = (rfq as any).award;
                       const isWon = award && award.vendorId === vendor?.id;
 
                       return (
@@ -809,9 +753,9 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                     </div>
                   ) : (
                     myQuotations.map((quote) => {
-                      const rfq = mockStore.getRfqById(quote.rfqId);
+                      const rfq = (quote as any).rfq as RFQ | undefined;
                       const isAwarded = quote.status === 'awarded';
-                      const contractor = isAwarded && rfq ? mockStore.getAllContractors().find((c) => c.id === rfq.contractorId) : null;
+                      const contractor = isAwarded ? (quote as any).contractorContact : null;
 
                       return (
                         <div
@@ -897,80 +841,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
         )}
       </div>
 
-      {/* MANDATORY CLICK-WRAP TERMS & CONDITIONS MODAL */}
-      {termsModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#082631]/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white border border-[#e1e7e4] w-full max-w-xl rounded-[6px] shadow-[0_20px_50px_rgba(18,53,64,0.25)] overflow-hidden flex flex-col max-h-[85vh]">
-            <div className="px-6 py-4 bg-[#123f47] text-white flex items-center justify-between">
-              <h3 className="text-sm font-extrabold font-['Manrope'] flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#eb6a32]" />
-                Urban Procures Vendor Terms & Conditions (v2026.1)
-              </h3>
-              <button
-                onClick={() => setTermsModalOpen(false)}
-                className="text-[#c3d9d8] hover:text-white"
-              >
-                &times;
-              </button>
-            </div>
 
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs text-[#63797b] leading-relaxed border-b border-[#e1e7e4] bg-[#f7f6f2]/50">
-              <p className="font-semibold text-[#123540]">
-                Please review and accept the official Urban Procures Vendor Participation Agreement. All acceptances are immutably logged with timestamp, user ID, and IP address.
-              </p>
-
-              <div className="space-y-3 p-4 bg-white border border-[#e1e7e4] rounded text-[11px] text-[#123540]">
-                <div>
-                  <strong className="text-[#123540] block mb-1">1. Pre-Award Confidentiality & Identity Masking</strong>
-                  Vendors agree not to solicit or disclose contractor or client contact information outside the platform prior to formal award. All communication must occur through the Urban Procures procurement engine.
-                </div>
-                <div>
-                  <strong className="text-[#123540] block mb-1">2. Service Charge Acknowledgement</strong>
-                  The vendor acknowledges that platform remuneration is governed as a regulated <strong>Service Charge</strong> (2.5% standard benchmark / AED 500 minimum threshold) calculated at the time of award.
-                </div>
-                <div>
-                  <strong className="text-[#123540] block mb-1">3. UAE Trade License Validity</strong>
-                  The vendor confirms and warrants that their organization holds an active, unrestricted trade license issued by the relevant UAE economic authority.
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 bg-white space-y-4">
-              <label className="flex items-start gap-3 cursor-pointer text-xs text-[#123540]">
-                <input
-                  type="checkbox"
-                  checked={termsAgreedCheckbox}
-                  onChange={(e) => setTermsAgreedCheckbox(e.target.checked)}
-                  className="mt-0.5 rounded border-[#bccbca] text-[#eb6a32] focus:ring-[#eb6a32] w-4 h-4"
-                />
-                <span>
-                  I have read, understood, and accept the <strong>Vendor Participation Terms (Version v2026.1)</strong> on behalf of <strong>{vendor?.companyName}</strong>.
-                </span>
-              </label>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setTermsModalOpen(false)}
-                  className="px-4 py-2 rounded-[4px] border border-[#bccbca] text-xs font-semibold text-[#123540] hover:bg-[#f7f6f2]"
-                >
-                  Decline
-                </button>
-                <button
-                  type="button"
-                  disabled={!termsAgreedCheckbox}
-                  onClick={handleTermsAcceptSubmit}
-                  className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-6 py-2 rounded-[5px] text-xs shadow-sm disabled:opacity-50 transition-colors"
-                >
-                  Record Acceptance & Proceed
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Document Inspector Modal */}
       {inspectDoc && (
         <DocumentViewerModal
           document={inspectDoc}

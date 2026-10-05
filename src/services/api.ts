@@ -4,23 +4,9 @@
 
 const API_BASE = '/api';
 
-export function getAuthToken(): string | null {
-  try {
-    return localStorage.getItem('urbanprocures_token');
-  } catch {
-    return null;
-  }
-}
-
-export function setAuthToken(token: string | null) {
-  try {
-    if (token) {
-      localStorage.setItem('urbanprocures_token', token);
-    } else {
-      localStorage.removeItem('urbanprocures_token');
-    }
-  } catch {}
-}
+// Browser sessions use server-set HttpOnly cookies; raw session tokens are not persisted.
+export function getAuthToken():string|null {return null;}
+export function setAuthToken(_token:string|null) {try{localStorage.removeItem('urbanprocures_token');}catch{}}
 
 async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers || {});
@@ -36,15 +22,28 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     headers,
   });
 
-  const data = await response.json();
-  if (!response.ok || data.success === false) {
-    throw new Error(data.error || 'Server request failed');
+  const data: unknown = await response.json();
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('Invalid server response');
+  }
+  const envelope = data as { success?: boolean; error?: string; code?: string };
+  if (!response.ok || envelope.success === false) {
+    if (envelope.code && ['TERMS_ACCEPTANCE_REQUIRED','REACCEPTANCE_REQUIRED'].includes(envelope.code)) {
+      window.dispatchEvent(new CustomEvent('urbanprocures:terms-required'));
+    }
+    throw new Error(envelope.error || 'Server request failed');
   }
 
-  return data;
+  return data as T;
 }
 
 export const api = {
+  terms: {
+    get: (role: 'vendor' | 'contractor' | 'get_a_quote', viewed=false) => request(`/terms?role=${role}${viewed?'&viewed=true':''}`),
+    status: () => request('/terms/status'),
+    accept: (termsVersionId:string) => request('/terms/accept',{method:'POST',body:JSON.stringify({acceptTerms:true,termsVersionId})}),
+    adminEvidence: (offset=0,publicConsent=false) => request(`/admin/terms/acceptances?offset=${offset}${publicConsent?'&type=get_a_quote':''}`),
+  },
   // Authentication & Session
   auth: {
     login: async (email: string, password?: string) => {
@@ -99,6 +98,7 @@ export const api = {
       const res = await request('/contractor/rfqs');
       return res.data;
     },
+    updateRfq:async(id:string,data:any)=>{const res=await request(`/contractor/rfqs/${id}`,{method:'PUT',body:JSON.stringify(data)});return res.data;},
     createRfq: async (data: any) => {
       const res = await request('/contractor/rfqs', {
         method: 'POST',
@@ -156,8 +156,14 @@ export const api = {
       const res = await request('/admin/rfqs');
       return res.data;
     },
+    getAwards:async()=>{const res=await request('/admin/awards');return res.data;},
+    getQuotations:async()=>{const res=await request('/admin/quotations');return res.data;},
+    verifyContractor:(id:string)=>request(`/admin/contractors/${id}/verification`,{method:'PATCH',body:JSON.stringify({verified:true})}),
+    releaseDocument:(id:string)=>request(`/admin/documents/${id}/release`,{method:'POST',body:JSON.stringify({identityReviewConfirmed:true})}),
+    verifyVendor: (id:string,status:string) => request(`/admin/vendors/${id}/verification`,{method:'PATCH',body:JSON.stringify({status})}),
+    scheduleSiteVisit: (id:string,scheduledDate:string,inspectorName:string) => request(`/admin/public-quotes/${id}`,{method:'PATCH',body:JSON.stringify({status:'site_visit_scheduled',scheduledDate,inspectorName})}),
     publishRfq: async (id: string) => {
-      return request(`/admin/rfqs/${id}/publish`, { method: 'POST' });
+      return request(`/admin/rfqs/${id}/publish`, { method: 'POST',body:JSON.stringify({identityReviewConfirmed:true}) });
     },
     getUsers: async () => {
       const res = await request('/admin/users');

@@ -1,7 +1,7 @@
 // Urban Procures Advanced
 // Identity Masking & Data Sanitization Engine
 
-import { RFQ, Quotation, ContractorProfile, VendorProfile } from '../shared/types.ts';
+import type { RFQ, Quotation, ContractorProfile, VendorProfile } from '../shared/types.ts';
 
 export class IdentityMaskingService {
   /**

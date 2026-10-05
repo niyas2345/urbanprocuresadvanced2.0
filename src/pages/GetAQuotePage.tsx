@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TermsClickwrap, type TermsDocument } from '../components/TermsClickwrap.tsx';
 import { api } from '../services/api.ts';
 import { PropertyType, PublicQuoteRequest } from '../types/index.ts';
 import { useToast } from '../components/ToastContext.tsx';
@@ -25,6 +26,9 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
   const [selectedFile, setSelectedFile] = useState<{ file: File; dataUrl?: string } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
+  const [consent,setConsent]=useState(false);
+  const [consentTerms,setConsentTerms]=useState<TermsDocument|null>(null);
+
   // Submission State
   const [submittedRequest, setSubmittedRequest] = useState<PublicQuoteRequest | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,6 +51,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    if(!consent || !consentTerms){setFormError('Please affirmatively accept the Get a Quote Terms and Privacy Notice.');return;}
 
     if (!customerName.trim() || !customerPhone.trim() || !customerEmail.trim() || !description.trim()) {
       setFormError('Please fill in your name, contact phone, email, and work description.');
@@ -79,9 +84,11 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
         budgetBracket,
         siteVisitRequested,
         attachments,
+        acceptTerms:consent,termsVersionId:consentTerms.id,
       });
 
       setSubmittedRequest(res.data);
+      setConsent(false);
       showToast(`Quotation request ${res.data.referenceCode || res.data.reference_code} created successfully!`, 'success', 'Request Submitted');
     } catch (err: any) {
       setFormError(err.message || 'Failed to submit quote request. Please try again.');
@@ -108,7 +115,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
           </h2>
 
           <p className="text-[#63797b] text-sm mt-3 leading-relaxed">
-            Your quotation request has been received and saved to Cloudflare D1.
+            Your quotation request has been received.
             {submittedRequest.siteVisitRequested || (submittedRequest as any).site_visit_requested ? (
               <span className="block mt-2 font-semibold text-[#123540] bg-[#f7f6f2] p-3 rounded border border-[#e1e7e4]">
                 ★ AED 100 Site Visit Selected: An Urban Procures representative will contact you to arrange an on-site dimension inspection.
@@ -378,7 +385,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
                     type="file"
                     id="quote-file"
                     className="hidden"
-                    accept="image/*,.pdf,.dwg,.dxf,.xlsx,.xls"
+                    accept="image/png,image/jpeg,.pdf"
                     onChange={handleFileChange}
                   />
                   {selectedFile ? (
@@ -486,6 +493,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
             </div>
           )}
 
+          <TermsClickwrap role="get_a_quote" checked={consent} onChange={setConsent} onDocument={setConsentTerms}/>
           {/* Submit Action */}
           <div className="pt-4 border-t border-[#e1e7e4] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-xs text-[#63797b]">
@@ -495,7 +503,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !consent || !consentTerms}
               className="w-full sm:w-auto bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold py-3.5 px-8 rounded-[5px] text-sm transition-all inline-flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5 disabled:opacity-50"
             >
               <span>{isSubmitting ? 'Submitting...' : 'Submit Quotation Request'}</span>

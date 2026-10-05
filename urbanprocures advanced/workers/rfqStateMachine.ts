@@ -1,7 +1,7 @@
 // Urban Procures Advanced
 // Deterministic Procurement Workflow State Machine
 
-import { RFQStatus } from '../shared/types.ts';
+import type { RFQStatus } from '../shared/types.ts';
 
 export interface StateTransitionResult {
   allowed: boolean;

@@ -1,6 +1,6 @@
+import {PasswordRecovery} from './components/PasswordRecovery.tsx';
 import React, { useState, useEffect } from 'react';
 import { UserRole } from './types/index.ts';
-import { mockStore } from './data/mockStore.ts';
 import { ToastProvider } from './components/ToastContext.tsx';
 import { Header } from './components/Header.tsx';
 import { Footer } from './components/Footer.tsx';
@@ -37,26 +37,22 @@ export default function App() {
       // Automatically adjust perspective to fit destination if helpful
       if (path.startsWith('/contractor')) {
         setActiveRole('contractor');
-        mockStore.setActiveUser('contractor');
       } else if (path.startsWith('/vendor')) {
         setActiveRole('vendor');
-        mockStore.setActiveUser('vendor');
       } else if (path.startsWith('/admin')) {
         setActiveRole('admin');
-        mockStore.setActiveUser('admin');
       } else if (path === '/get-a-quote') {
         setActiveRole('public');
-        mockStore.setActiveUser('public');
       }
     }
   };
 
   const handleRoleChange = (role: UserRole) => {
     setActiveRole(role);
-    mockStore.setActiveUser(role);
   };
 
   const renderCurrentPage = () => {
+    if(currentPath==='/reset-password')return <PasswordRecovery reset/>;
     if (currentPath === '/get-a-quote') {
       return <GetAQuotePage onNavigate={navigate} />;
     }

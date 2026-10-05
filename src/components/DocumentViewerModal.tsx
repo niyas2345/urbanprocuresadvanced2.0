@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAuthToken } from '../services/api.ts';
 import { DocumentMetadata } from '../types/index.ts';
 import { X, FileText, Download, CheckCircle, ShieldAlert, Eye, HardDrive, Check, Copy } from 'lucide-react';
 
 interface DocumentViewerModalProps {
-  document: (DocumentMetadata & { dataUrl?: string }) | null;
+  document: (DocumentMetadata & { dataUrl?: string; sha256Hash?: string }) | null;
   onClose: () => void;
   viewerRole?: string;
 }
@@ -12,6 +13,8 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
 
+  const [preview,setPreview]=useState(''),[error,setError]=useState('');
+  useEffect(()=>{let url='',cancelled=false;setPreview('');setError('');if(document?.id){fetch(`/api/documents/${document.id}/view`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}}).then(async res=>{if(!res.ok)throw Error('Document access failed');url=URL.createObjectURL(await res.blob());if(!cancelled)setPreview(url);else URL.revokeObjectURL(url);}).catch(err=>{if(!cancelled)setError(err.message);});}else if(document?.dataUrl)setPreview(document.dataUrl);return()=>{cancelled=true;if(url)URL.revokeObjectURL(url);};},[document?.id]);
   if (!document) return null;
 
   const isPdf = document.fileType?.includes('pdf') || document.fileName.endsWith('.pdf');
@@ -26,60 +29,12 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
     else return (bytes / 1048576).toFixed(2) + ' MB';
   };
 
-  const handleDownload = () => {
-    if (document.id) {
-      const a = window.document.createElement('a');
-      a.href = `/api/documents/${document.id}/download`;
-      a.download = document.fileName;
-      window.document.body.appendChild(a);
-      a.click();
-      window.document.body.removeChild(a);
-      setDownloadSuccess(true);
-      setTimeout(() => setDownloadSuccess(false), 3000);
-      return;
-    }
-
-    if (document.dataUrl) {
-      const a = window.document.createElement('a');
-      a.href = document.dataUrl;
-      a.download = document.fileName;
-      window.document.body.appendChild(a);
-      a.click();
-      window.document.body.removeChild(a);
-    } else {
-      // Create synthetic sample file content representing the Cloudflare R2 document
-      let content = `Urban Procures Cloudflare R2 Storage Service\n`;
-      content += `Document: ${document.fileName}\n`;
-      content += `R2 Key: ${document.r2ObjectKey}\n`;
-      content += `Purpose: ${document.documentPurpose}\n`;
-      content += `Created At: ${document.createdAt}\n`;
-      content += `Integrity: Cloudflare SHA256-verified\n\n`;
-
-      if (isSheet) {
-        content += `Item No,Description,Quantity,Unit,Estimated Rate AED,Total AED\n`;
-        content += `1,Acoustic Fluted Wall Paneling,340,sqm,420,142800\n`;
-        content += `2,Fire-Rated Acoustic Pivot Doors,12,nos,2900,34800\n`;
-      } else {
-        content += `Architectural Drawing & Technical Specifications for UAE Municipality & Civil Defence Compliance.\n`;
-      }
-
-      const blob = new Blob([content], { type: document.fileType || 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = window.document.createElement('a');
-      a.href = url;
-      a.download = document.fileName;
-      window.document.body.appendChild(a);
-      a.click();
-      window.document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 3000);
+  const handleDownload = async () => {
+    try {const res=await fetch(`/api/documents/${document.id}/download`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}});if(!res.ok)throw Error('Document download failed');const url=URL.createObjectURL(await res.blob());const a=window.document.createElement('a');a.href=url;a.download=document.fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setDownloadSuccess(true);}catch(err:any){setError(err.message);}
   };
 
   const handleCopyKey = () => {
-    navigator.clipboard?.writeText(document.r2ObjectKey);
+    navigator.clipboard?.writeText(document.id);
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2500);
   };
@@ -101,7 +56,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
                 </span>
               </h3>
               <p className="text-xs text-[#c3d9d8] flex items-center gap-2 mt-0.5">
-                <span>R2 Storage Key: <code className="text-[#f6a47f] font-mono">{document.r2ObjectKey}</code></span>
+                <span>Document reference: <code className="text-[#f6a47f] font-mono">{document.id}</code></span>
                 <span>·</span>
                 <span>{formatBytes(document.fileSizeBytes)}</span>
               </p>
@@ -151,96 +106,14 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
             </div>
             <div>
               <span className="text-[#63797b] block mb-0.5 text-[11px] font-semibold">R2 Integrity</span>
-              <span className="text-[#123f47] font-mono text-[11px] font-bold">SHA256-VERIFIED</span>
+              <span className="text-[#123f47] font-mono text-[11px] font-bold">{document.sha256Hash ? document.sha256Hash.slice(0,16) : 'Hash unavailable'}</span>
             </div>
           </div>
 
           {/* Interactive Document Preview Canvas */}
           <div className="border border-[#e1e7e4] rounded-[6px] bg-white overflow-hidden min-h-[360px] flex flex-col items-center justify-center p-6 text-center relative shadow-sm">
-            {/* If uploaded real image */}
-            {isImage && (document.dataUrl || document.id) ? (
-              <div className="max-w-full space-y-3">
-                <img
-                  src={document.dataUrl || `/api/documents/${document.id}/view`}
-                  alt={document.fileName}
-                  className="max-h-[400px] w-auto mx-auto rounded border border-[#e1e7e4] object-contain shadow-sm"
-                />
-                <p className="text-xs text-[#63797b]">Uploaded site photograph preview</p>
-              </div>
-            ) : isPdf ? (
-              <div className="space-y-4 max-w-lg">
-                <div className="w-16 h-16 rounded-full bg-[#eb6a32]/10 flex items-center justify-center mx-auto text-[#eb6a32]">
-                  <FileText className="w-8 h-8" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-[#123540] mb-1 font-['Manrope']">
-                    Architectural Drawing & Specification Document
-                  </h4>
-                  <p className="text-xs text-[#63797b] mb-4">
-                    Rendered via Cloudflare R2 secure edge reader. High-resolution drawings and technical specifications verified.
-                  </p>
-                  <div className="p-4 bg-[#f7f6f2] rounded border border-[#e1e7e4] text-left font-mono text-xs text-[#123540] space-y-1.5">
-                    <div className="text-[#eb6a32] font-bold">[PDF SPECIFICATION EXTRACT]</div>
-                    <div>File: {document.fileName}</div>
-                    <div>Dimensions: Architectural Plan & Elevations</div>
-                    <div>Format: Vector PDF (Autodesk AutoCAD / Revit)</div>
-                    <div>Status: Verified and ready for contractor take-off</div>
-                  </div>
-                </div>
-              </div>
-            ) : isDwg ? (
-              <div className="space-y-4 max-w-lg">
-                <div className="w-16 h-16 rounded-full bg-[#123f47]/10 flex items-center justify-center mx-auto text-[#123f47]">
-                  <HardDrive className="w-8 h-8" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-[#123540] mb-1 font-['Manrope']">
-                    AutoCAD Drawing Model (DWG / DXF)
-                  </h4>
-                  <p className="text-xs text-[#63797b] mb-4">
-                    Coordinated architectural drawing layers (Wall partitions, reflected ceiling layout, dimensions).
-                  </p>
-                  <div className="p-4 bg-[#f7f6f2] rounded border border-[#e1e7e4] text-left font-mono text-xs text-[#123540] space-y-1.5">
-                    <div className="text-[#123f47] font-bold">[CAD METADATA INSPECTED]</div>
-                    <div>Drawing: {document.fileName}</div>
-                    <div>Layers: A-WALL, A-DOOR, A-CLNG, M-DIFFUSER, E-LIGHT</div>
-                    <div>Metric Standards: UAE Municipality Compliance</div>
-                  </div>
-                </div>
-              </div>
-            ) : isSheet ? (
-              <div className="space-y-4 max-w-lg">
-                <div className="w-16 h-16 rounded-full bg-[#123f47]/10 flex items-center justify-center mx-auto text-[#123f47]">
-                  <CheckCircle className="w-8 h-8 text-[#eb6a32]" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-[#123540] mb-1 font-['Manrope']">
-                    Bill of Quantities (BoQ Spreadsheet)
-                  </h4>
-                  <p className="text-xs text-[#63797b] mb-4">
-                    Itemized schedule with descriptions, units, and quantities.
-                  </p>
-                  <div className="p-4 bg-[#f7f6f2] rounded border border-[#e1e7e4] text-left font-mono text-xs text-[#123540] space-y-1.5">
-                    <div className="text-[#123f47] font-bold">[SPREADSHEET SCHEMA VERIFIED]</div>
-                    <div>Workbook: {document.fileName}</div>
-                    <div>Worksheets: Summary, BoQ_Items, General_Conditions</div>
-                    <div>Line Items: Matching active RFQ line-item database records</div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4 max-w-lg">
-                <div className="w-16 h-16 rounded-full bg-[#123f47]/10 flex items-center justify-center mx-auto text-[#123f47]">
-                  <Eye className="w-8 h-8 text-[#eb6a32]" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-[#123540] mb-1 font-['Manrope']">{document.fileName}</h4>
-                  <p className="text-xs text-[#63797b]">
-                    Uploaded attachment securely stored in Cloudflare R2 bucket: <code className="text-[#eb6a32]">urbanprocures-documents</code>
-                  </p>
-                </div>
-              </div>
-            )}
+            {error?<p role="alert">{error}</p>:!preview?<p>Loading document…</p>:isImage?<img src={preview} alt={document.fileName} className="max-h-[400px] max-w-full object-contain"/>:isPdf?<iframe title={document.fileName} src={preview} className="w-full h-[480px]"/>:<p>Use Download to open this file.</p>}
+
           </div>
         </div>
 

@@ -146,7 +146,7 @@ export const DocsViewerPage: React.FC<DocsViewerPageProps> = ({ onNavigate }) =>
                   <div>
                     <h4 className="font-bold text-slate-900">2. Service Charge Terminology & Formula</h4>
                     <p>
-                      Platform charge is always termed <strong>SERVICE CHARGE</strong> (never &quot;commission&quot;). Standard rule: 2.5% of final awarded contract value with a minimum threshold of AED 500.00.
+                      Standard Vendor <strong>SERVICE CHARGE</strong>: 2.5% of the awarded value or AED 500, whichever is higher. Contractor / Client Service Charge: AED 0. Manpower Service Charge is separately AED 1 per person per hour.
                     </p>
                   </div>
                   <div>

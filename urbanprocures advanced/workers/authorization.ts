@@ -1,7 +1,7 @@
 // Urban Procures Advanced
 // RBAC & Resource Ownership Authorization Policies
 
-import { UserRole } from '../shared/types.ts';
+import type { UserRole } from '../shared/types.ts';
 
 export interface AuthContext {
   userId?: string;
@@ -44,7 +44,6 @@ export class AuthorizationPolicy {
    * Can this actor confirm an award on this RFQ?
    */
   public static canAwardRfq(auth: AuthContext, rfqContractorId: string, rfqStatus: string): boolean {
-    if (auth.role === 'admin') return true;
     if (auth.role === 'contractor' && auth.contractorId === rfqContractorId) {
       return rfqStatus === 'under_evaluation' || rfqStatus === 'receiving_quotations';
     }

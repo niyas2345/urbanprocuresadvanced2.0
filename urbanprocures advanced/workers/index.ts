@@ -1,12 +1,24 @@
 // Urban Procures Advanced
-// Cloudflare Worker Production Entry Point
+// PARTIAL Cloudflare Worker entry point; see WORK_MODE_EXECUTION.md.
 // Bindings: env.DB (Cloudflare D1), env.DOCUMENTS_BUCKET (Cloudflare R2), env.SESSIONS_KV (Cloudflare KV)
 
-import { IdentityMaskingService } from './identityMasking.ts';
+import { isIsolatedAdvancedRequest } from './isolation.ts';
+import { authRoute, actorFor } from './auth.ts';
+import { termsRoute, termsGate } from './terms.ts';
+import { awardRoute } from './award.ts';
+import { publicQuoteRoute } from './publicQuote.ts';
+import { procurementRoute } from './procurement.ts';
+import { operationsRoute } from './operations.ts';
 import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
+  ZOHO_MAIL_ACCESS_TOKEN?: string;
+  ZOHO_MAIL_ACCOUNT_ID?: string;
+  ZOHO_MAIL_FROM_ADDRESS?: string;
+  ZOHO_MAIL_API_ORIGIN?: string;
+  PUBLIC_APP_ORIGIN?: string;
+  ASSETS?: Fetcher;
   DB: D1Database;
   DOCUMENTS_BUCKET: R2Bucket;
   SESSIONS_KV?: KVNamespace;
@@ -16,6 +28,9 @@ export interface Env {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    if (!isIsolatedAdvancedRequest(request, env.ENVIRONMENT, env.PLATFORM_DOMAIN)) {
+      return new Response(JSON.stringify({ success: false, error: 'Advanced environment isolation check failed' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
     const url = new URL(request.url);
     const { pathname, searchParams } = url;
     const method = request.method;
@@ -30,66 +45,40 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
+    if(['POST','PUT','PATCH','DELETE'].includes(method)&&request.headers.has('Cookie')) {
+      const origin=request.headers.get('Origin');let permitted=false;
+      try{const parsed=new URL(origin||'');permitted=parsed.origin===url.origin||(env.ENVIRONMENT==='advanced-development'&&['localhost','127.0.0.1'].includes(parsed.hostname)&&['localhost','127.0.0.1'].includes(url.hostname));}catch{}
+      if(!permitted)return Response.json({success:false,error:'REQUEST_ORIGIN_REJECTED'},{status:403});
+    }
     try {
+      const termsResponse=await termsRoute(request,env,await actorFor(request,env));
+      if(termsResponse)return termsResponse;
+      const authentication = await authRoute(request, env);
+      if (authentication) return authentication;
+      for(const role of ['vendor','contractor']) {
+        if(pathname.startsWith(`/api/${role}/`)) {
+          const rejected=await termsGate(request,env,await actorFor(request,env),role);
+          if(rejected)return rejected;
+        }
+      }
+      const operations=await operationsRoute(request.clone(),env,await actorFor(request,env));
+      if(operations)return operations;
       // 1. PUBLIC GET A QUOTE (No account required)
-      if (pathname === '/api/quotes/public' && method === 'POST') {
-        const body = (await request.json()) as any;
-        const id = `gaq-${Date.now()}`;
-        const referenceCode = `GAQ-2026-${Math.floor(1000 + Math.random() * 9000)}`;
-        const now = new Date().toISOString();
-        const status = body.siteVisitRequested ? 'site_visit_scheduled' : 'received';
+      const awardResponse=await awardRoute(request,env,await actorFor(request,env));
+      if(awardResponse)return awardResponse;
+      const procurementResponse=await procurementRoute(request,env,await actorFor(request,env));
+      if(procurementResponse)return procurementResponse;
+      const publicResponse=await publicQuoteRoute(request,env);
+      if(publicResponse)return publicResponse;
 
-        await env.DB.prepare(
-          `INSERT INTO get_a_quote_requests (
-            id, reference_code, customer_name, customer_phone, customer_email,
-            property_type, location_emirate, location_community, work_category,
-            description, budget_bracket, site_visit_requested, status, created_at
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-        )
-          .bind(
-            id,
-            referenceCode,
-            body.customerName,
-            body.customerPhone,
-            body.customerEmail,
-            body.propertyType || 'villa',
-            body.locationEmirate || 'Dubai',
-            body.locationCommunity || 'Dubai Area',
-            body.workCategory || 'Interior Fit-Out',
-            body.description,
-            body.budgetBracket || 'AED 20,000 - 50,000',
-            body.siteVisitRequested ? 1 : 0,
-            status,
-            now
-          )
-          .run();
-
-        return new Response(JSON.stringify({ success: true, referenceCode, id, status }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      // 2. DOCUMENT DOWNLOAD / VIEW (From Cloudflare R2)
-      if (pathname.startsWith('/api/documents/') && pathname.endsWith('/view') && method === 'GET') {
-        const docId = pathname.split('/')[3];
-        const doc = await env.DB.prepare('SELECT * FROM rfq_documents WHERE id = ?').bind(docId).first<any>();
-        if (!doc) return new Response('Document not found in D1 index', { status: 404 });
-
-        const r2Object = await env.DOCUMENTS_BUCKET.get(doc.r2_object_key);
-        if (!r2Object) return new Response('Document payload not found in Cloudflare R2 bucket', { status: 404 });
-
-        const headers = new Headers(corsHeaders);
-        headers.set('Content-Type', doc.file_type || 'application/octet-stream');
-        headers.set('Content-Disposition', `inline; filename="${doc.file_name}"`);
-        return new Response(r2Object.body, { headers });
-      }
-
-      // Fallback
-      return new Response(JSON.stringify({ status: 'Urban Procures Cloudflare Worker Active' }), {
+      if(!pathname.startsWith('/api/')&&env.ASSETS)return env.ASSETS.fetch(request);
+      // Unimplemented routes must never look successful.
+      return new Response(JSON.stringify({ success: false, error: 'API route not implemented in Advanced Worker' }), {
+        status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     } catch (err: any) {
-      return new Response(JSON.stringify({ success: false, error: err.message }), {
+      return new Response(JSON.stringify({ success: false, error: 'REQUEST_FAILED' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { mockStore } from '../data/mockStore.ts';
+import React, { useState, useEffect } from 'react';
+import { api } from '../services/api.ts';
+import { AdminTermsPanel } from '../components/AdminTermsPanel.tsx';
 import { RFQ, PublicQuoteRequest, DocumentMetadata, AuditEvent, InvitationRecord, User } from '../types/index.ts';
 import { useToast } from '../components/ToastContext.tsx';
 import { ShieldCheck, FileText, CheckCircle2, Eye, Download, UserCheck, Calculator, Send, AlertTriangle, Layers, Clock, HardDrive, RefreshCw, Users, Check, X, Calendar, ArrowUpRight } from 'lucide-react';
@@ -12,7 +13,7 @@ interface AdminPageProps {
 
 export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
   const { showToast } = useToast();
-  const [activeSection, setActiveSection] = useState<'documents' | 'rfqs' | 'public_quotes' | 'users' | 'vendors' | 'charges' | 'invitations' | 'audit'>('documents');
+  const [activeSection, setActiveSection] = useState<'documents' | 'rfqs' | 'public_quotes' | 'users' | 'vendors' | 'charges' | 'invitations' | 'audit' | 'terms'>('documents');
   const [inspectDoc, setInspectDoc] = useState<DocumentMetadata | null>(null);
 
   // Service Charge Simulator State
@@ -24,43 +25,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
   const [inviteOrg, setInviteOrg] = useState('');
   const [inviteType, setInviteType] = useState<'contractor' | 'vendor'>('vendor');
 
-  const rfqs = mockStore.getAllRfqs();
-  const publicQuotes = mockStore.getPublicQuotes();
-  const contractors = mockStore.getAllContractors();
-  const vendors = mockStore.getAllVendors();
-  const users = mockStore.getAllUsers();
-  const documents = mockStore.getAllDocuments();
-  const auditEvents = mockStore.getAuditEvents();
-  const invitations = mockStore.getInvitations();
-
-  const handleApproveRfq = (rfqId: string) => {
-    const res = mockStore.updateRfqStatus(rfqId, 'reviewed_published');
-    if (res.success) {
-      showToast(`RFQ approved and published to the verified vendor network!`, 'success', 'RFQ Published');
-    } else {
-      showToast(res.error || 'Failed to approve RFQ', 'error');
-    }
-  };
-
-  const handleSendInvite = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inviteEmail || !inviteOrg) return;
-    mockStore.createInvitation(inviteEmail, inviteOrg, inviteType);
-    setInviteEmail('');
-    setInviteOrg('');
-    showToast(`Candidate invitation dispatched to ${inviteEmail} via Zoho Mail!`, 'success', 'Invitation Dispatched');
-  };
-
-  const handleToggleUserStatus = (userId: string, currentStatus: User['status']) => {
-    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-    mockStore.updateUserStatus(userId, newStatus);
-    showToast(`User account status updated to: ${newStatus}`, 'info');
-  };
-
-  const handleUpdateQuoteStatus = (quoteId: string, newStatus: PublicQuoteRequest['status']) => {
-    mockStore.updatePublicQuoteStatus(quoteId, newStatus);
-    showToast(`Request status updated to: ${newStatus.replace('_', ' ')}`, 'success');
-  };
+  const [rfqs,setRfqs]=useState<RFQ[]>([]),[publicQuotes,setPublicQuotes]=useState<PublicQuoteRequest[]>([]),[contractors,setContractors]=useState<any[]>([]),[vendors,setVendors]=useState<any[]>([]),[users,setUsers]=useState<User[]>([]),[documents,setDocuments]=useState<DocumentMetadata[]>([]),[auditEvents,setAuditEvents]=useState<AuditEvent[]>([]),[invitations,setInvitations]=useState<InvitationRecord[]>([]);
+  const [authorized,setAuthorized]=useState(false),[error,setError]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[charges,setCharges]=useState<any[]>([]),[awards,setAwards]=useState<any[]>([]),[quotations,setQuotations]=useState<any[]>([]);
+  const load=async()=>{try{const session=await api.auth.me();if(!session.authenticated||session.user.role!=='admin'){setAuthorized(false);return;}
+    const data=await Promise.all([api.admin.getRfqs(),api.admin.getPublicQuotes(),api.admin.getContractors(),api.admin.getVendors(),api.admin.getUsers(),api.admin.getDocuments(),api.admin.getAuditLogs(),api.admin.getInvitations(),api.admin.getServiceCharges(),api.admin.getAwards(),api.admin.getQuotations()]);
+    setRfqs(data[0]);setPublicQuotes(data[1]);setContractors(data[2]);setVendors(data[3]);setUsers(data[4]);setDocuments(data[5]);setAuditEvents(data[6]);setInvitations(data[7]);setCharges(data[8]);setAwards(data[9]);setQuotations(data[10]);setAuthorized(true);setError('');
+  }catch(err:any){setError(err.message);}};
+  useEffect(()=>{load();},[activeSection]);
+  const action=async(task:()=>Promise<any>,message:string)=>{try{await task();await load();showToast(message,'success');}catch(err:any){showToast(err.message,'error');}};
+  const handleApproveRfq=(id:string)=>{if(window.confirm('Confirm that all RFQ text and BoQ have been reviewed and contain no protected identity or contact information.'))action(()=>api.admin.publishRfq(id),'RFQ approved and published.');};
+  const handleSendInvite=(e:React.FormEvent)=>{e.preventDefault();showToast('Zoho Mail delivery is not configured. No invitation was sent.','error');};
+  const handleToggleUserStatus=(id:string,status:User['status'])=>action(()=>api.admin.updateUserStatus(id,status==='active'?'suspended':'active'),'Account status updated.');
+  const handleUpdateQuoteStatus=(id:string,status:PublicQuoteRequest['status'])=>action(()=>api.admin.updatePublicQuoteStatus(id,status),'Request status updated.');
+  if(!authorized)return <div className="min-h-screen bg-[#f7f6f2] p-8 text-[#123540]"><form className="bg-white border rounded p-6 max-w-md mx-auto space-y-4" onSubmit={async e=>{e.preventDefault();try{const session=await api.auth.login(email,password);if(session.user.role!=='admin'){await api.auth.logout();throw Error('Active Admin account required.');}await load();}catch(err:any){setError(err.message);}}}><h1 className="font-bold text-xl">Urban Procures Operations Console</h1>{error&&<p role="alert">{error}</p>}<label className="block">Admin email<input className="border p-2 w-full" type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label className="block">Password<input className="border p-2 w-full" type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button className="bg-[#123f47] text-white p-2 rounded">Sign In</button></form></div>;
 
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#123540] pb-16 font-['DM_Sans']">
@@ -191,7 +168,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
           </button>
         </div>
 
+<div className="flex gap-4 mb-4 text-xs"><button className="underline" onClick={load}>Refresh Records</button><button className="underline" onClick={async()=>{await api.auth.logout();setAuthorized(false);setPassword('');}}>Sign Out</button>{error&&<p role="alert">{error}</p>}</div>
         {/* SECTION 1: DOCUMENT INSPECTOR (Solves the legacy bug where admin could only see counters) */}
+        <button onClick={()=>setActiveSection('terms')} className="mb-5 px-4 py-2 bg-[#123f47] text-white text-xs font-bold rounded-[5px]">Terms Acceptance Evidence</button>
+        {activeSection === 'terms' && <AdminTermsPanel/>}
         {activeSection === 'documents' && (
           <div className="space-y-4">
             <div className="bg-[#eef6f5] border border-[#123f47]/30 p-4 rounded-[6px] text-xs text-[#123f47] flex items-start gap-3">
@@ -257,6 +237,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                             <Eye className="w-3.5 h-3.5 text-[#eb6a32]" />
                             <span>Open & Review</span>
                           </button>
+                          {doc.rfqId&&doc.documentPurpose!=='trade_license'&&<button className="block underline text-xs mt-2" onClick={()=>{if(window.confirm('Confirm this document contains no protected identity or contact information.'))action(()=>api.admin.releaseDocument(doc.id),'Document released to eligible Vendors.');}}>Approve identity-safe release</button>}
                         </td>
                       </tr>
                     ))}
@@ -380,16 +361,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
                       {quote.status === 'received' && (
                         <button
-                          onClick={() => handleUpdateQuoteStatus(quote.id, 'dispatched_to_vendors')}
+                          onClick={() => handleUpdateQuoteStatus(quote.id, 'under_review')}
                           className="bg-[#123540] hover:bg-[#082631] text-white font-bold px-3 py-1.5 rounded-[4px] text-xs"
                         >
-                          Dispatch to Matching Vendors
+                          Mark Under Review
                         </button>
                       )}
 
                       {quote.siteVisitRequested && quote.status !== 'site_visit_scheduled' && (
                         <button
-                          onClick={() => handleUpdateQuoteStatus(quote.id, 'site_visit_scheduled')}
+                          onClick={() => {const scheduledDate=window.prompt('Site visit date and time (ISO format)');const inspectorName=window.prompt('Inspector name');if(scheduledDate&&inspectorName)action(()=>api.admin.scheduleSiteVisit(quote.id,scheduledDate,inspectorName),'Site visit scheduled.');}}
                           className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-3 py-1.5 rounded-[4px] text-xs"
                         >
                           Schedule AED 100 Site Visit
@@ -408,7 +389,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
           <div className="space-y-4">
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#123540] font-['Manrope']">
               User Accounts & Status Controls
-            </h2>
+            </h2><div className="space-y-3">{contractors.map(c=><div key={c.id} className="bg-white border rounded p-3 text-xs"><strong>{c.companyName}</strong> · License {c.tradeLicenseNumber} · {c.verifiedAt?'Verified':'Pending review'}<button className="underline ml-3" onClick={()=>action(()=>api.admin.verifyContractor(c.id),'Contractor verified after document review.')}>Verify after document review</button></div>)}</div>
 
             <div className="bg-white border border-[#e1e7e4] rounded-[6px] overflow-hidden shadow-sm">
               <table className="w-full text-xs text-left">
@@ -484,21 +465,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                       <td className="py-3 px-4 text-[#63797b]">{v.tradeCategories.join(', ')}</td>
                       <td className="py-3 px-4">
                         <span className="text-white bg-[#123f47] px-2 py-0.5 rounded font-mono font-bold uppercase text-[10px]">
-                          {v.verificationStatus}
+                          {v.verificationStatus}<button className="block underline mt-2" onClick={()=>action(()=>api.admin.verifyVendor(v.id,'verified'),'Vendor verified after trade-license review.')}>Verify after document review</button>
                         </span>
                       </td>
                       <td className="py-3 px-4">
-                        {v.termsAcceptedAt ? (
-                          <div className="space-y-0.5 font-mono text-[10px]">
-                            <div className="text-[#123f47] font-bold flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3 text-[#eb6a32]" />
-                              Accepted Terms v2026.1
-                            </div>
-                            <div className="text-[#63797b]">{v.termsAcceptedAt}</div>
-                          </div>
-                        ) : (
-                          <span className="text-rose-600 font-bold">Pending Acceptance</span>
-                        )}
+                        <button className="underline" onClick={()=>setActiveSection('terms')}>Inspect authenticated Terms evidence</button>
                       </td>
                     </tr>
                   ))}
@@ -513,10 +484,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
           <div className="max-w-3xl space-y-6">
             <div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-[#123540] font-['Manrope']">
-                Centralized Service Charge Engine & Simulator
+                Service Charge Records & Calculator
               </h2>
               <p className="text-xs text-[#63797b] mt-1">
-                Urban Procures platform remuneration is governed centrally as a <strong>Service Charge</strong> (never &quot;commission&quot;).
+                The standard <strong>Vendor Service Charge</strong> is a Vendor obligation. Contractor / Client Service Charge: AED 0.
               </p>
             </div>
 
@@ -539,11 +510,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                 </div>
                 <div>
                   <span className="text-[#63797b] block">Manpower Rule</span>
-                  <strong className="text-[#123540] font-mono text-sm">AED 1 Rule Hook</strong>
+                  <strong className="text-[#123540] font-mono text-sm">AED 1 per person per hour</strong>
                 </div>
               </div>
 
-              {/* Live Calculator */}
+              <div className="space-y-2">{awards.map(a=><p key={a.id} className="text-xs border rounded p-2">Award {a.id} · {a.awardType} · Vendor Terms {a.vendorTermsVersion} · Acceptance {a.vendorTermsAcceptanceId} · Contractor AED {a.contractorServiceChargeAed} · Manpower {a.manpowerQuantity??0} person-hours × AED {a.manpowerRateAed??0} = AED {a.manpowerChargeAed}</p>)}{quotations.map(q=><p key={q.id} className="text-xs border rounded p-2">Quotation {q.referenceCode} · RFQ {q.rfqId} · AED {q.totalAmountAed} · {q.status}</p>)}{charges.map(charge=><p key={charge.id} className="text-xs border rounded p-2">Award {charge.awardId} · Vendor charge AED {charge.totalChargeAed} · {charge.status}</p>)}</div>{/* Live Calculator */}
               <div className="pt-4 border-t border-[#e1e7e4]">
                 <h4 className="text-xs font-bold uppercase text-[#123540] mb-3 font-['Manrope']">
                   Live Calculator & Audit Simulator
@@ -566,8 +537,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                       onChange={(e) => setSimSiteVisit(e.target.value === 'yes')}
                       className="w-full px-3 py-2 border border-[#bccbca] rounded-[5px] text-sm bg-white"
                     >
-                      <option value="no">Standard RFQ (AED 0)</option>
-                      <option value="yes">Include AED 100 Site Visit</option>
+                      <option value="no">Public quote without site visit (AED 0)</option>
+                      <option value="yes">Separate public site visit fee: AED 100</option>
                     </select>
                   </div>
                 </div>
@@ -576,7 +547,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                 {(() => {
                   const calc = ServiceChargeEngine.calculate({
                     contractAmountAed: parseFloat(simContractAmount) || 0,
-                    siteVisitRequested: simSiteVisit,
                   });
 
                   return (
@@ -586,11 +556,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                         <span className="font-mono text-[#f6a47f] font-bold">ENGINE V2.0</span>
                       </div>
                       <div className="text-xl font-extrabold font-mono text-[#f6a47f]">
-                        Total Charge: AED {calc.totalServiceChargeAed.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        Vendor Service Charge: AED {calc.totalServiceChargeAed.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </div>
                       <p className="text-[#e3edeb] text-[11px] leading-relaxed">
                         {calc.explanation}
                       </p>
+                      <p>Contractor / Client Service Charge: AED 0. Separate public site visit fee: AED {simSiteVisit?100:0}.</p>
                     </div>
                   );
                 })()}
@@ -607,7 +578,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                 Candidate Invitation & Onboarding Queue
               </h2>
               <p className="text-xs text-[#63797b] mt-1">
-                Queue-backed invitation dispatch for approved UAE contractors and vendors via Zoho Mail transport.
+                Zoho Mail delivery must be configured before invitations can be sent.
               </p>
             </div>
 

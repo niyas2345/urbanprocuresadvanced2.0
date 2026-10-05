@@ -1,0 +1,28 @@
+# Isolated owner-authorized staging. No production custom routes.
+name = "urbanprocures-advanced-staging-20261005"
+account_id = "dcb411ece67dfdfb730635133ed31825"
+main = "index.ts"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[vars]
+ENVIRONMENT = "advanced-staging"
+PLATFORM_DOMAIN = "urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev"
+PUBLIC_APP_ORIGIN = "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "urbanprocures-advanced-staging-20261005-db"
+database_id = "eb82db72-864e-4835-b230-3903f77706f2"
+migrations_dir = "../database/migrations"
+
+[[r2_buckets]]
+binding = "DOCUMENTS_BUCKET"
+bucket_name = "urbanprocures-advanced-staging-20261005-documents"
+
+[assets]
+directory = "../../dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = true

@@ -1,6 +1,6 @@
 // Urban Procures Advanced
-// Master Greenfield Cloudflare Edge Backend Server
-// Runs Cloudflare D1 (SQLite) + Cloudflare R2 storage + Cloudflare Worker API routes
+// Legacy LOCAL preview server: Express, node:sqlite and filesystem storage.
+// This is not the Cloudflare Worker runtime. See WORK_MODE_EXECUTION.md.
 
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'node:path';
@@ -831,7 +831,7 @@ app.post('/api/contractor/rfqs/:id/award', (req: AuthenticatedRequest, res: Resp
         quote.vendor_id,
         quote.total_amount_aed,
         calc.appliedPercentage,
-        calc.calculatedServiceChargeAed,
+        calc.baseServiceChargeAed,
         calc.minimumChargeEnforced ? 1 : 0,
         0,
         0.0,

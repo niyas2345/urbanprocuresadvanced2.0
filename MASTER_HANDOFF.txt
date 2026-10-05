@@ -1,0 +1,1733 @@
+URBAN PROCURES ADVANCED
+FINAL MASTER HANDOFF
+END-TO-END COMPLETION + TERMS + COMMERCIAL RULES + PRODUCTION DEPLOYMENT
+
+PROJECT
+
+Work ONLY in the designated Urban Procures Advanced repository:
+
+urbanprocuresadvanced2.0
+
+Continue from the CURRENT repository state.
+
+DO NOT restart completed work.
+DO NOT rebuild already completed components merely because they were
+created by Gemini AI Studio or previous Codex runs.
+DO NOT modify any unrelated repository.
+
+Read and use the existing:
+
+PRODUCTION_READINESS.md
+TERMS_IMPLEMENTATION_REPORT.md
+
+and all current source/database/Worker/test files as the authoritative
+starting point.
+
+================================================================
+FINAL OBJECTIVE
+================================================================
+
+Take Urban Procures Advanced from its CURRENT state through:
+
+1. remaining implementation
+2. removal of all production-critical mocks
+3. complete backend integration
+4. complete Terms/clickwrap enforcement
+5. complete commercial charging logic
+6. full security/authorization validation
+7. complete browser/API/database testing
+8. Cloudflare staging deployment
+9. staging end-to-end validation
+10. production readiness verification
+11. production Cloudflare deployment
+12. production domain cutover
+13. post-deployment live testing
+14. rollback verification
+15. final production acceptance report
+
+Do NOT return to the project owner merely because another partial phase
+is complete.
+
+Continue through every stage that can be completed autonomously.
+
+Only stop for a genuine external blocker that requires information,
+credentials, legal wording, or explicit authorization that cannot be
+safely derived from the project.
+
+================================================================
+1. APPROVED FRONTEND IS LOCKED
+================================================================
+
+The current Urban Procures Advanced visual revision is APPROVED.
+
+Preserve:
+
+- Urban Procures official logo
+- approved navy/orange/off-white palette
+- typography
+- homepage
+- navigation
+- cards
+- buttons
+- responsive design
+- Get a Quote
+- Contractor
+- Vendor
+- overall visual language
+
+Do not redesign the application.
+
+Backend work must not materially alter the approved frontend.
+
+================================================================
+2. PRESERVE CURRENT COMPLETED WORK
+================================================================
+
+The current project already contains completed or substantially completed
+work including:
+
+- Cloudflare-oriented architecture
+- authentication work
+- D1/R2/Worker integration
+- Terms/clickwrap infrastructure
+- Vendor Terms 2026.1
+- Contractor Terms 2026.1
+- Terms versioning
+- Terms SHA-256/content hash evidence
+- re-acceptance support
+- Vendor Service Charge calculation
+- Contractor AED 0 Service Charge rule
+- manpower charge structure
+- Terms audit events
+- Admin Terms inspection
+- identity-masking implementation
+- authentication/API/database/browser tests
+
+Do not repeat completed work unless a regression or defect is discovered.
+
+================================================================
+3. FINAL COMMERCIAL RULES — LOCKED
+================================================================
+
+These rules are authoritative.
+
+---------------------------------------------------------------
+A. CONTRACTOR / CLIENT
+---------------------------------------------------------------
+
+Urban Procures Service Charge payable by Contractor / Client:
+
+AED 0
+
+Contractor / Client must NOT be charged:
+
+- 2.5%
+- AED 500 minimum
+- Vendor Service Charge
+- manpower charge
+- procurement commission
+
+The Vendor Service Charge and manpower charge are Vendor-side obligations.
+
+---------------------------------------------------------------
+B. STANDARD VENDOR SERVICE CHARGE
+---------------------------------------------------------------
+
+For normal procurement / supply / subcontract awards:
+
+Vendor Service Charge =
+
+2.5% of applicable awarded value
+
+OR
+
+AED 500 minimum
+
+WHICHEVER IS HIGHER.
+
+Formula:
+
+vendor_service_charge =
+MAX(award_value × 0.025, AED 500)
+
+Examples:
+
+Award AED 10,000
+2.5% = AED 250
+Vendor Service Charge = AED 500
+
+Award AED 100,000
+2.5% = AED 2,500
+Vendor Service Charge = AED 2,500
+
+Always use:
+
+SERVICE CHARGE
+
+Never use:
+
+COMMISSION
+
+This calculation must be performed or independently validated SERVER-SIDE.
+
+Do not trust client/browser-submitted charge calculations.
+
+---------------------------------------------------------------
+C. MANPOWER / LABOUR CHARGE — FINAL CONFIRMED RULE
+---------------------------------------------------------------
+
+For manpower / labour procurement:
+
+URBAN PROCURES MANPOWER SERVICE CHARGE =
+AED 1 PER PERSON PER HOUR
+
+This is a VENDOR-SIDE charge.
+
+The Contractor / Client must NOT be charged this amount.
+
+Formula:
+
+manpower_service_charge =
+number_of_persons × hours_per_person × AED 1
+
+If multiple days or shifts apply:
+
+total_person_hours =
+number_of_persons × hours_per_person_per_day × number_of_days
+
+manpower_service_charge =
+total_person_hours × AED 1
+
+Examples:
+
+1 person × 1 hour
+= 1 person-hour
+= AED 1
+
+10 persons × 8 hours
+= 80 person-hours
+= AED 80
+
+20 persons × 10 hours × 3 days
+= 600 person-hours
+= AED 600
+
+The backend must treat manpower procurement as its own charge category.
+
+Do NOT automatically apply the standard:
+
+2.5% OR AED 500 minimum
+
+on top of the SAME manpower chargeable component unless a separately
+approved Urban Procures business rule explicitly requires both.
+
+Default rule:
+
+STANDARD PROCUREMENT
+→ 2.5% or AED 500 minimum, whichever is higher.
+
+MANPOWER PROCUREMENT
+→ AED 1 per person per hour.
+
+Do not double-charge the same component.
+
+================================================================
+4. VENDOR TERMS & CONDITIONS — VERSION 2026.1
+================================================================
+
+The current Vendor Terms implementation must include or preserve
+substantially the following provisions.
+
+---------------------------------------------------------------
+1. ACCEPTANCE
+---------------------------------------------------------------
+
+By selecting the acceptance checkbox and clicking the acceptance button,
+the Vendor confirms that it has read, understood and agreed to the Urban
+Procures Vendor Terms & Conditions.
+
+The person accepting confirms that they are authorized to bind the Vendor
+organization.
+
+---------------------------------------------------------------
+2. PLATFORM PURPOSE
+---------------------------------------------------------------
+
+Urban Procures provides a procurement platform through which Contractors
+and Clients may publish procurement requirements and approved Vendors may
+submit quotations.
+
+Urban Procures facilitates procurement interactions and does not become
+the Vendor, supplier, subcontractor, Contractor or purchaser merely by
+operating the platform.
+
+---------------------------------------------------------------
+3. VENDOR INFORMATION
+---------------------------------------------------------------
+
+The Vendor must provide accurate, complete and current information,
+including where applicable:
+
+- company information
+- trade license
+- contact details
+- authorized representative
+- trade categories
+- supporting documents
+
+False, misleading or unverifiable information may result in restriction
+or suspension.
+
+---------------------------------------------------------------
+4. RFQ ACCESS
+---------------------------------------------------------------
+
+RFQs may be made available according to:
+
+- registered trade categories
+- eligibility
+- verification/approval status
+- platform rules
+
+Access to an RFQ does not guarantee an award.
+
+---------------------------------------------------------------
+5. QUOTATIONS
+---------------------------------------------------------------
+
+The Vendor is responsible for the accuracy and completeness of its
+quotation.
+
+Where applicable, quotations must accurately state:
+
+- quantities
+- unit rates
+- total values
+- specifications
+- exclusions
+- lead times
+- validity
+- payment terms
+- delivery requirements
+
+The Vendor must not knowingly submit misleading or deceptive information.
+
+---------------------------------------------------------------
+6. PRE-AWARD IDENTITY MASKING
+---------------------------------------------------------------
+
+Before award, Urban Procures may keep Contractor/Client and Vendor
+identity/contact details masked.
+
+The Vendor must not attempt to:
+
+- bypass identity masking
+- technically identify the Client
+- contact the Client outside the permitted Urban Procures process
+- obtain competitor confidential information
+- circumvent Urban Procures
+
+---------------------------------------------------------------
+7. STANDARD VENDOR SERVICE CHARGE
+---------------------------------------------------------------
+
+The Vendor expressly acknowledges and agrees that where STANDARD
+PROCUREMENT business is awarded through Urban Procures, the applicable
+Urban Procures SERVICE CHARGE is:
+
+2.5% of the applicable awarded value
+
+OR
+
+AED 500 minimum
+
+WHICHEVER IS HIGHER.
+
+The Vendor expressly agrees that this is a Vendor-side obligation.
+
+The Contractor / Client does NOT pay this Vendor Service Charge.
+
+The Vendor's acceptance of these Terms includes acceptance of this
+Service Charge obligation.
+
+---------------------------------------------------------------
+8. MANPOWER SERVICE CHARGE
+---------------------------------------------------------------
+
+Where the award concerns manpower/labour procurement, the Vendor
+acknowledges and agrees to the Urban Procures manpower Service Charge of:
+
+AED 1 PER PERSON PER HOUR
+
+calculated on the total approved person-hours of the awarded manpower
+requirement.
+
+Formula:
+
+number_of_persons × total_hours_per_person × AED 1
+
+or where days apply:
+
+number_of_persons × hours_per_person_per_day × number_of_days × AED 1
+
+This is a Vendor-side obligation.
+
+The Contractor / Client does NOT pay this manpower charge.
+
+Do NOT combine this with the standard 2.5% / AED 500 rule for the same
+manpower component unless explicitly instructed by an approved future
+Urban Procures business rule.
+
+---------------------------------------------------------------
+9. NO CIRCUMVENTION
+---------------------------------------------------------------
+
+A Vendor must not intentionally use an opportunity, introduction,
+procurement requirement or contact obtained through Urban Procures to
+avoid an applicable:
+
+- Vendor Service Charge
+- manpower Service Charge
+
+The Vendor must not move the same procurement transaction outside the
+Urban Procures process solely to avoid applicable platform obligations.
+
+Do NOT invent:
+
+- penalties
+- punitive damages
+- additional percentages
+- fixed circumvention fines
+
+unless separately approved by Urban Procures.
+
+---------------------------------------------------------------
+10. AWARD
+---------------------------------------------------------------
+
+Submission of a quotation does not constitute an award.
+
+Shortlisting, discussion or clarification does not constitute an award.
+
+An award exists only when an authorized Contractor / Client completes the
+official Urban Procures award process.
+
+---------------------------------------------------------------
+11. IDENTITY RELEASE AFTER AWARD
+---------------------------------------------------------------
+
+Following a valid award, permitted contact information may be released
+between the awarded Vendor and relevant Contractor / Client.
+
+Non-awarded Vendors remain masked.
+
+---------------------------------------------------------------
+12. PERFORMANCE AFTER AWARD
+---------------------------------------------------------------
+
+The Vendor remains responsible for its supply/service obligations,
+including where applicable:
+
+- quality
+- workmanship
+- delivery
+- warranty
+- specifications
+- commercial terms
+- obligations agreed with Contractor / Client
+
+Urban Procures does not automatically become a party to the underlying
+supply/service agreement.
+
+---------------------------------------------------------------
+13. PROCUREMENT DOCUMENTS
+---------------------------------------------------------------
+
+RFQ documents, drawings, specifications, BoQs and related materials may
+contain confidential information.
+
+They may be used only for the authorized procurement purpose.
+
+Unauthorized copying, publication or distribution is prohibited.
+
+---------------------------------------------------------------
+14. ACCOUNT SECURITY
+---------------------------------------------------------------
+
+The Vendor is responsible for safeguarding account credentials and
+authorized account activity.
+
+---------------------------------------------------------------
+15. SUSPENSION
+---------------------------------------------------------------
+
+Urban Procures may restrict or suspend Vendor access for serious matters
+including:
+
+- fraudulent information
+- unauthorized access
+- abuse
+- attempted security bypass
+- identity-masking bypass
+- serious procurement-rule violations
+- unresolved verification issues
+- material breach of Terms
+
+---------------------------------------------------------------
+16. TERMS UPDATES
+---------------------------------------------------------------
+
+Urban Procures may publish updated Vendor Terms.
+
+Where a new Terms version requires re-acceptance, the Vendor must
+affirmatively accept the new version before continuing protected
+procurement activity.
+
+Historical acceptance records must remain preserved.
+
+---------------------------------------------------------------
+17. ELECTRONIC ACCEPTANCE
+---------------------------------------------------------------
+
+Affirmative acceptance through the Urban Procures clickwrap process
+constitutes recorded acceptance of the specific Terms version displayed.
+
+---------------------------------------------------------------
+18. DATA / PRIVACY
+---------------------------------------------------------------
+
+Vendor and user information must be handled according to applicable Urban
+Procures privacy documentation and applicable law.
+
+Do not invent unsupported privacy promises.
+
+---------------------------------------------------------------
+19. GOVERNING LAW / DISPUTES
+---------------------------------------------------------------
+
+Keep governing-law/dispute-resolution wording configurable.
+
+Do not invent jurisdiction-specific legal wording in code.
+
+Final UAE legal wording may be inserted through a later Terms version.
+
+================================================================
+5. CONTRACTOR / CLIENT TERMS — VERSION 2026.1
+================================================================
+
+Preserve or implement substantially the following.
+
+---------------------------------------------------------------
+1. ACCEPTANCE
+---------------------------------------------------------------
+
+By selecting the acceptance checkbox and completing registration, the
+Contractor / Client confirms that it has read, understood and agreed to
+these Terms.
+
+The accepting user confirms authorization to bind the organization.
+
+---------------------------------------------------------------
+2. REGISTRATION INFORMATION
+---------------------------------------------------------------
+
+The Contractor / Client must provide accurate and current organization
+information.
+
+---------------------------------------------------------------
+3. RFQ RESPONSIBILITY
+---------------------------------------------------------------
+
+The Contractor / Client is responsible for reasonably accurate:
+
+- scope
+- quantities
+- BoQ
+- specifications
+- drawings
+- delivery requirements
+- procurement requirements
+
+---------------------------------------------------------------
+4. DOCUMENT RIGHTS
+---------------------------------------------------------------
+
+The Contractor / Client confirms it has the necessary rights/authority to
+upload and distribute procurement documents through Urban Procures.
+
+---------------------------------------------------------------
+5. PRE-AWARD MASKING
+---------------------------------------------------------------
+
+Vendor identity and protected contact information may remain masked before
+award.
+
+The Contractor / Client must not attempt to bypass masking.
+
+---------------------------------------------------------------
+6. QUOTATION REVIEW
+---------------------------------------------------------------
+
+Vendor quotations are provided by independent Vendors.
+
+The Contractor / Client remains responsible for evaluating:
+
+- price
+- technical suitability
+- specification
+- delivery
+- exclusions
+- validity
+- payment terms
+- commercial suitability
+
+before award.
+
+---------------------------------------------------------------
+7. CONTRACTOR / CLIENT SERVICE CHARGE
+---------------------------------------------------------------
+
+Urban Procures does NOT charge the Contractor / Client the Vendor Service
+Charge.
+
+Contractor / Client Urban Procures Service Charge:
+
+AED 0
+
+Do NOT charge the Contractor / Client:
+
+- 2.5%
+- AED 500 minimum
+- manpower charge
+- Vendor Service Charge
+
+Those applicable charges are Vendor-side obligations.
+
+---------------------------------------------------------------
+8. AWARD AUTHORITY
+---------------------------------------------------------------
+
+Only an authorized Contractor / Client user may confirm an award.
+
+Award confirmation may trigger:
+
+- award records
+- notifications
+- permitted identity release
+- applicable Vendor Service Charge
+- applicable Vendor manpower Service Charge
+
+Award confirmation must be explicit.
+
+---------------------------------------------------------------
+9. IDENTITY RELEASE
+---------------------------------------------------------------
+
+After a valid award, permitted information may be released between the
+awarded Vendor and Contractor / Client.
+
+Protected non-awarded Vendor information remains restricted.
+
+---------------------------------------------------------------
+10. FAIR USE
+---------------------------------------------------------------
+
+Contractor / Client must not:
+
+- create fraudulent RFQs
+- misuse Vendor information
+- access another organization's information
+- manipulate the platform
+- bypass access controls
+- attempt unauthorized identity disclosure
+
+---------------------------------------------------------------
+11. CONFIDENTIALITY
+---------------------------------------------------------------
+
+Confidential Vendor/procurement information must be used only for the
+relevant procurement process.
+
+---------------------------------------------------------------
+12. PLATFORM ROLE
+---------------------------------------------------------------
+
+Urban Procures facilitates procurement interactions.
+
+Unless separately agreed in writing, Urban Procures does not become a
+party to the underlying supply/service contract merely because an RFQ,
+quotation or award is processed through the platform.
+
+---------------------------------------------------------------
+13. ACCOUNT SECURITY
+---------------------------------------------------------------
+
+Contractor / Client is responsible for account credentials and authorized
+account activity.
+
+---------------------------------------------------------------
+14. TERMS UPDATES
+---------------------------------------------------------------
+
+Where a new mandatory Terms version requires re-acceptance, the
+Contractor / Client may be required to accept it before continuing
+protected procurement activity.
+
+Historical acceptance records must remain preserved.
+
+---------------------------------------------------------------
+15. ELECTRONIC ACCEPTANCE
+---------------------------------------------------------------
+
+Affirmative clickwrap acceptance constitutes recorded acceptance of the
+displayed Terms version.
+
+---------------------------------------------------------------
+16. DATA / PRIVACY
+---------------------------------------------------------------
+
+Organization/user information must be handled according to applicable
+Urban Procures privacy documentation and applicable law.
+
+---------------------------------------------------------------
+17. GOVERNING LAW / DISPUTES
+---------------------------------------------------------------
+
+Keep configurable pending final approved UAE legal wording.
+
+================================================================
+6. CLICKWRAP UX — NON-NEGOTIABLE
+================================================================
+
+VENDOR:
+
+Display:
+
+VIEW VENDOR TERMS & CONDITIONS
+
+Then an UNCHECKED checkbox:
+
+[ ] I have read and agree to the Urban Procures Vendor Terms &
+Conditions, including applicable Urban Procures Service Charges and the
+AED 1 per person per hour manpower Service Charge where applicable.
+
+Button:
+
+ACCEPT TERMS & COMPLETE REGISTRATION
+
+The checkbox must NEVER be preselected.
+
+---------------------------------------------------------------
+
+CONTRACTOR / CLIENT:
+
+Display:
+
+VIEW CONTRACTOR / CLIENT TERMS & CONDITIONS
+
+Then an UNCHECKED checkbox:
+
+[ ] I have read and agree to the Urban Procures Contractor / Client
+Terms & Conditions.
+
+Button:
+
+ACCEPT TERMS & COMPLETE REGISTRATION
+
+================================================================
+7. SERVER-SIDE TERMS ENFORCEMENT
+================================================================
+
+Do NOT rely only on frontend checks.
+
+For every protected Vendor request verify:
+
+- authenticated user
+- role
+- organization
+- account status
+- required Terms type
+- required current Terms version
+- valid acceptance record
+
+Without valid current Terms:
+
+return:
+
+TERMS_ACCEPTANCE_REQUIRED
+
+Vendor must not access protected procurement workflows.
+
+Contractors must likewise have valid Contractor Terms acceptance for
+protected procurement functionality.
+
+================================================================
+8. TERMS DATABASE
+================================================================
+
+Use versioned persistent Terms records.
+
+At minimum:
+
+terms_documents
+terms_acceptances
+
+terms_documents should support:
+
+id
+terms_type
+version
+title
+content
+content_hash
+effective_at
+requires_reacceptance
+status
+created_at
+published_at
+
+terms_acceptances should support:
+
+id
+terms_document_id
+terms_type
+terms_version
+user_id
+organization_id where applicable
+role
+accepted_at
+content_hash_at_acceptance
+acceptance_method
+request_id / audit_reference
+created_at
+
+Do not store only:
+
+termsAccepted = true
+
+Published Terms must be immutable.
+
+A new Terms version creates a new record.
+
+================================================================
+9. TERMS RE-ACCEPTANCE
+================================================================
+
+Support:
+
+ACTIVE
+
+REACCEPTANCE_REQUIRED
+
+If a new required Terms version is published, protected access must require
+acceptance of the current version.
+
+Historical acceptance remains intact.
+
+================================================================
+10. AWARD / CHARGE RECORDS
+================================================================
+
+Award records must persist or make traceable:
+
+award_id
+award_type
+vendor_id
+contractor_client_id
+award_value
+vendor_terms_version
+vendor_terms_acceptance_id
+applicable_charge_rule
+calculated_vendor_service_charge
+number_of_persons where applicable
+hours_per_person where applicable
+number_of_days/shifts where applicable
+total_person_hours where applicable
+manpower_rate = AED 1
+calculated_manpower_service_charge
+calculated_at
+
+Contractor / Client Service Charge:
+
+AED 0
+
+================================================================
+11. SERVER-SIDE CHARGE VALIDATION
+================================================================
+
+STANDARD:
+
+MAX(award_value × 0.025, AED 500)
+
+MANPOWER:
+
+total_person_hours × AED 1
+
+Contractor / Client:
+
+AED 0
+
+Do not trust browser calculations.
+
+Do not allow client-side override of:
+
+charge type
+charge rate
+award value
+manpower rate
+final charge
+
+without server-side verification.
+
+================================================================
+12. GET A QUOTE
+================================================================
+
+No account required.
+
+Verify genuine persistence for:
+
+- name
+- phone
+- email
+- Emirate
+- location/community
+- property type
+- work category
+- description
+- attachments
+- site visit selection
+- tracking reference
+- status
+- timestamps
+
+Standard request:
+
+AED 0
+
+Optional site visit:
+
+AED 100
+
+Submission must appear in the real Admin queue.
+
+================================================================
+13. CONTRACTOR WORKFLOW
+================================================================
+
+Complete/test:
+
+registration
+Terms
+login/logout
+organization/profile
+trade license
+RFQ creation
+draft/save
+BoQ
+documents
+submission
+Admin review/publication where applicable
+Vendor quotation receipt
+comparison
+Vendor selection
+award
+history
+post-award contact access
+
+================================================================
+14. VENDOR WORKFLOW
+================================================================
+
+Complete/test:
+
+registration
+Terms
+login/logout
+company profile
+trade categories
+verification
+documents
+RFQ discovery
+RFQ access
+document access
+quotation creation
+itemized quotation
+lead time
+validity
+payment terms
+submission
+permitted modifications
+award status
+Service Charge linkage
+manpower charge linkage where applicable
+post-award flow
+
+================================================================
+15. IDENTITY MASKING
+================================================================
+
+BEFORE AWARD:
+
+Vendor must not receive protected Contractor identity.
+
+Contractor must not receive protected Vendor identity.
+
+Vendor A must never see Vendor B's quotation/private commercial data.
+
+Masking must be enforced by the API, not only the UI.
+
+AFTER AWARD:
+
+Only awarded Vendor and appropriate Contractor / Client may receive
+permitted contact information.
+
+Non-awarded Vendors remain masked.
+
+================================================================
+16. ADMIN
+================================================================
+
+Admin must genuinely manage/review:
+
+- Get a Quote
+- site visits
+- Contractors
+- Vendors
+- accounts
+- Terms acceptance
+- RFQs
+- documents
+- publication
+- quotations
+- awards
+- standard Service Charges
+- manpower Service Charges
+- audit logs
+
+No fake counters.
+No simulated approval actions.
+
+================================================================
+17. R2 DOCUMENT STORAGE
+================================================================
+
+Verify real R2 persistence for:
+
+- customer photos
+- RFQ documents
+- drawings
+- specifications
+- BoQ files
+- Contractor documents
+- Vendor documents
+- trade licenses
+- other attachments
+
+Validate:
+
+- MIME/type
+- extension
+- size
+- ownership
+- authorization
+
+R2 must not be publicly enumerable.
+
+Admin document viewer must open REAL uploaded files.
+
+================================================================
+18. D1 DATA INTEGRITY
+================================================================
+
+Verify:
+
+primary keys
+foreign keys
+indexes
+timestamps
+uniqueness
+ownership
+state integrity
+transaction safety
+
+Awards must be concurrency-safe.
+
+Where only one winner is allowed, prevent duplicate/concurrent winners.
+
+================================================================
+19. RFQ LIFECYCLE
+================================================================
+
+Enforce valid server-side RFQ state transitions.
+
+Use existing approved lifecycle states.
+
+Reject invalid transitions.
+
+Closed/expired RFQs must not silently accept new quotations.
+
+================================================================
+20. AUTHENTICATION & AUTHORIZATION
+================================================================
+
+Verify server-side protection for:
+
+ADMIN
+CONTRACTOR
+VENDOR
+
+Get a Quote remains public.
+
+Test:
+
+anonymous access
+wrong role
+wrong organization
+suspended account
+inactive account
+forged IDs
+organization substitution
+Vendor → Admin
+Vendor → another Vendor's quotation
+Contractor → another organization's RFQ
+unauthorized document access
+
+================================================================
+21. SESSION / PASSWORD SECURITY
+================================================================
+
+Verify:
+
+secure password hashing
+no plaintext passwords
+secure sessions
+logout invalidation
+session expiry
+account suspension enforcement
+secure password reset
+no secrets in frontend bundle
+
+================================================================
+22. MOCK REMOVAL
+================================================================
+
+Search the full repository for production use of:
+
+mockStore
+mock
+fake
+demo
+sample
+placeholder
+localStorage
+hard-coded users
+hard-coded RFQs
+hard-coded quotations
+hard-coded awards
+simulated API responses
+
+Do not remove legitimate test fixtures.
+
+Required production-critical mock count:
+
+ZERO
+
+================================================================
+23. ERROR HANDLING
+================================================================
+
+Do not expose:
+
+raw stack traces
+secrets
+internal implementation details
+
+Use approved Urban Procures notifications.
+
+Test:
+
+validation error
+network error
+D1 error
+R2 error
+auth failure
+authorization failure
+upload failure
+duplicate request
+expired RFQ
+invalid award
+
+================================================================
+24. AUDIT TRAIL
+================================================================
+
+Persist audit events for important operations including:
+
+registration
+Terms acceptance
+account status
+RFQ create/update/publish
+document operations
+quotation submit/update
+award
+identity release
+site visit
+standard Service Charge
+manpower Service Charge
+Admin actions
+
+Audit records must not be client-editable.
+
+================================================================
+25. EMAIL / ZOHO READINESS
+================================================================
+
+Target email platform:
+
+Zoho Mail
+
+Verify architecture/readiness for:
+
+account verification where required
+password reset
+procurement notifications
+award notifications
+Admin notifications
+
+Do not reintroduce Supabase email.
+
+Never commit secrets to Git.
+
+If credentials exist, configure/test them securely.
+
+If credentials do not exist, report only the exact missing secret/config.
+
+================================================================
+26. CLOUDFLARE-ONLY BACKEND
+================================================================
+
+Final production backend:
+
+Cloudflare Workers
+Cloudflare D1
+Cloudflare R2
+
+Use KV / Queues only if genuinely required.
+
+No Supabase runtime dependency.
+
+Required production runtime Supabase dependency:
+
+ZERO
+
+================================================================
+27. BUILD / QUALITY GATE
+================================================================
+
+Run:
+
+dependency integrity
+type checking
+lint where configured
+production build
+Worker build
+migration validation
+
+Resolve all launch-critical errors.
+
+================================================================
+28. API / DATABASE TEST GATES
+================================================================
+
+Run complete integration/API/database tests including:
+
+authentication
+authorization
+Terms
+Get a Quote
+Contractor
+Vendor
+RFQ
+BoQ
+documents
+quotations
+award
+standard Service Charge
+manpower Service Charge
+Admin
+identity masking
+audit logs
+
+Run database migrations against a clean environment.
+
+================================================================
+29. BROWSER END-TO-END GATE
+================================================================
+
+Run real browser E2E tests against the deployed Advanced environment.
+
+PUBLIC:
+
+Homepage
+→ Get a Quote
+→ upload
+→ site visit optional
+→ submit
+→ tracking reference
+→ Admin sees request
+
+CONTRACTOR:
+
+Register
+→ Contractor Terms
+→ login
+→ create RFQ
+→ BoQ
+→ upload
+→ submit
+→ publish/approve
+
+VENDOR:
+
+Register
+→ Vendor Terms
+→ login
+→ discover RFQ
+→ permitted documents
+→ quotation
+
+CONTRACTOR:
+
+View masked quotations
+→ compare
+→ select Vendor
+→ award
+
+STANDARD AWARD:
+
+server calculates:
+MAX(award value × 2.5%, AED 500)
+
+Contractor charge:
+AED 0
+
+MANPOWER AWARD:
+
+server calculates:
+persons × hours × AED 1
+
+Contractor charge:
+AED 0
+
+POST-AWARD:
+
+identity release only to awarded parties
+audit events
+Admin inspection
+
+================================================================
+30. SPECIFIC MANPOWER TESTS
+================================================================
+
+Run at minimum:
+
+1 person × 1 hour
+Expected = AED 1
+
+10 persons × 8 hours
+Expected = AED 80
+
+20 persons × 10 hours × 3 days
+Expected = AED 600
+
+Contractor/Client for all manpower awards:
+Expected = AED 0
+
+Attempt browser override of manpower rate:
+Expected = ignored/rejected; server uses AED 1
+
+Vendor without valid Terms:
+Expected = protected manpower participation blocked
+
+Award record:
+Expected = linked to Vendor Terms acceptance/version
+
+================================================================
+31. SECURITY TEST GATE
+================================================================
+
+Explicitly test:
+
+Vendor → Admin endpoint
+Vendor → another Vendor quotation
+Vendor → Contractor identity before award
+Contractor → Vendor identity before award
+Contractor → another organization's RFQ
+anonymous → protected API
+suspended account → protected API
+forged organization ID
+forged Terms acceptance
+unpublished Terms acceptance
+unauthorized R2 access
+quotation after RFQ closure
+duplicate/concurrent award
+browser Service Charge override
+browser manpower-rate override
+
+All must be safely rejected.
+
+================================================================
+32. STAGING DEPLOYMENT
+================================================================
+
+Before production:
+
+deploy the full Advanced application to an isolated Cloudflare staging /
+development environment.
+
+Run the full:
+
+API
+database
+browser E2E
+security
+Terms
+standard Service Charge
+manpower
+
+test suites against the ACTUAL deployed Cloudflare environment.
+
+If any launch-critical test fails:
+
+FIX
+REDEPLOY
+RETEST
+
+Do not proceed to production.
+
+================================================================
+33. PRODUCTION CUTOVER PREPARATION
+================================================================
+
+Only after staging passes:
+
+- identify current production resources
+- preserve current known-good deployment
+- record rollback path
+- verify repository/branch/commit
+- verify production Worker
+- verify D1
+- verify R2
+- verify bindings
+- verify secrets
+- verify custom domains
+- verify migration path
+- verify DNS/custom-route requirements
+
+Do not destroy the current site before the new deployment is verified.
+
+================================================================
+34. PRODUCTION DEPLOYMENT AUTHORIZATION
+================================================================
+
+This handoff authorizes production deployment ONLY AFTER all mandatory
+staging gates pass.
+
+Then deploy the verified Urban Procures Advanced build through the proper
+Cloudflare production channel.
+
+Cut over:
+
+urbanprocures.com
+www.urbanprocures.com
+
+to the verified Advanced production deployment.
+
+Do not deploy an untested preview directly to the live domain.
+
+================================================================
+35. PRODUCTION DATA SAFETY
+================================================================
+
+Do not:
+
+blindly drop live databases
+destroy existing data
+delete current deployment prematurely
+overwrite storage without migration validation
+
+If existing live data must be migrated into Advanced:
+
+STOP before destructive action.
+
+Prepare/execute a safe documented migration.
+
+================================================================
+36. LIVE PRODUCTION TEST
+================================================================
+
+Deployment is not complete when Cloudflare says "deployed".
+
+After cutover test the ACTUAL:
+
+https://urbanprocures.com
+https://www.urbanprocures.com
+
+Verify:
+
+HTTPS
+redirects
+clean routes
+route refresh
+assets
+Worker APIs
+D1
+R2
+authentication
+sessions
+Terms
+Get a Quote
+Contractor
+Vendor
+Admin
+documents
+RFQ
+quotation
+award
+standard Vendor Service Charge
+Contractor AED 0
+manpower AED 1 per person/hour
+identity masking
+identity release
+audit logs
+errors
+
+================================================================
+37. TEMPORARY TEST ACCOUNTS
+================================================================
+
+Temporary QA accounts may be used for testing.
+
+After successful verification:
+
+delete/remove temporary QA users and test records unless a clearly
+documented QA fixture must remain.
+
+Verify cleanup.
+
+================================================================
+38. ROLLBACK
+================================================================
+
+If a critical production regression is found:
+
+ROLL BACK to the preserved known-good deployment.
+
+Do not leave a critically broken live site running merely to continue
+debugging.
+
+Fix safely, retest staging, and redeploy.
+
+================================================================
+39. FINAL ACCEPTANCE STANDARD
+================================================================
+
+Do NOT return only:
+
+"deployed"
+"production ready"
+"tests passed"
+
+Return one of ONLY TWO final conclusions:
+
+===============================================================
+RESULT A
+BLANKET PRODUCTION ACCEPTANCE — PASS
+===============================================================
+
+This may ONLY be issued when:
+
+- production deployment completed
+- both live domains work
+- launch-critical workflows passed
+- production Workers verified
+- production D1 verified
+- production R2 verified
+- authentication verified
+- authorization verified
+- Terms/clickwrap verified
+- Get a Quote verified
+- Contractor verified
+- Vendor verified
+- Admin verified
+- document handling verified
+- RFQ verified
+- quotations verified
+- award verified
+- identity masking verified
+- post-award release verified
+- standard Vendor Service Charge verified
+- Contractor AED 0 verified
+- manpower AED 1/person/hour verified
+- audit logging verified
+- critical security tests passed
+- production mocks = ZERO
+- no known launch blocker remains
+- rollback capability verified
+
+Then state exactly:
+
+BLANKET PRODUCTION ACCEPTANCE — PASS
+
+Meaning:
+
+"Urban Procures Advanced has passed the defined production acceptance
+gates and the live deployment has been verified with no known
+launch-blocking defect at the time of certification."
+
+Do NOT claim software can never fail in the future.
+
+===============================================================
+RESULT B
+NOT READY FOR BLANKET PRODUCTION ACCEPTANCE
+===============================================================
+
+If ANY launch-critical blocker remains, state:
+
+NOT READY FOR BLANKET PRODUCTION ACCEPTANCE
+
+Then list ONLY the genuine blockers with evidence.
+
+================================================================
+40. FINAL EVIDENCE REPORT
+================================================================
+
+Provide:
+
+1. Exact repository
+2. Production commit SHA
+3. Production branch
+4. Cloudflare production project/Worker
+5. Production deployment ID/version
+6. Production D1 database/binding
+7. Production R2 bucket/binding
+8. Domain configuration
+9. Build result
+10. Type-check result
+11. API test totals
+12. Auth test totals
+13. Database test totals
+14. Browser E2E totals
+15. Security test totals
+16. Terms/clickwrap result
+17. Get a Quote result
+18. Contractor result
+19. Vendor result
+20. Admin result
+21. Documents result
+22. RFQ result
+23. Quotation result
+24. Award result
+25. Identity masking result
+26. Identity release result
+27. Standard Vendor Service Charge result
+28. Contractor AED 0 result
+29. Manpower AED 1/person/hour result
+30. Zoho/email result
+31. Audit log result
+32. Remaining mocks
+33. Remaining known defects
+34. Rollback mechanism
+35. Live-domain smoke-test result
+36. Temporary QA account/data cleanup
+37. Final acceptance verdict
+
+================================================================
+41. NO MIDWAY RETURN
+================================================================
+
+Do not stop merely because:
+
+- Terms are complete
+- backend compiles
+- API tests pass
+- staging deploys
+- one report was generated
+- one workflow passes
+
+Continue to the next required stage.
+
+Return to the project owner only when:
+
+A. a genuine external blocker requires owner action,
+
+OR
+
+B. full production deployment and live validation has completed and you
+can issue:
+
+BLANKET PRODUCTION ACCEPTANCE — PASS
+
+================================================================
+FINAL COMMAND
+================================================================
+
+Continue from the CURRENT Urban Procures Advanced repository state.
+
+Finish all remaining implementation.
+
+Preserve all completed work.
+
+Preserve the approved frontend.
+
+Apply the final commercial rules:
+
+CONTRACTOR / CLIENT:
+AED 0 Urban Procures Service Charge.
+
+STANDARD VENDOR PROCUREMENT:
+2.5% of applicable award value OR AED 500 minimum,
+whichever is higher.
+
+MANPOWER / LABOUR:
+AED 1 PER PERSON PER HOUR.
+
+Do not double-charge the same manpower component with the standard
+percentage/minimum rule unless explicitly instructed by a future approved
+business rule.
+
+Complete real Cloudflare integration.
+
+Remove all production-critical mocks.
+
+Complete API/database/browser/security testing.
+
+Deploy to isolated staging.
+
+Pass all staging gates.
+
+Prepare rollback.
+
+Deploy to production only after all mandatory gates pass.
+
+Cut over urbanprocures.com and www.urbanprocures.com through the proper
+Cloudflare production channel.
+
+Perform genuine live post-deployment testing.
+
+Clean up temporary QA accounts/data.
+
+Return only after:
+
+BLANKET PRODUCTION ACCEPTANCE — PASS
+
+or a genuine blocker exists that truly requires project-owner
+intervention.
+
+Do not restart completed work.
+Do not redesign the approved frontend.
+Do not touch unrelated repositories.
+Do not hide failing tests.
+Do not treat mock functionality as production functionality.
+Do not treat deployment success as application success.

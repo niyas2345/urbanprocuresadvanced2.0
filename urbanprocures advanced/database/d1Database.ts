@@ -79,7 +79,7 @@ export class D1Database {
   /**
    * Cloudflare D1 query compatible helper: execute statement and return changes
    */
-  public static execute(sql: string, params: any[] = []): { changes: number; lastInsertRowid: number | bigint } {
+  public static execute(sql: string, params: any[] = []): { changes: number | bigint; lastInsertRowid: number | bigint } {
     const db = this.getDb();
     const stmt = db.prepare(sql);
     return stmt.run(...params);

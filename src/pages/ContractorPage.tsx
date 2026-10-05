@@ -1,4 +1,7 @@
+import {AccountDocuments} from '../components/AccountDocuments.tsx';
+import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
 import React, { useState, useEffect, useCallback } from 'react';
+import { TermsClickwrap, TermsReacceptance, type TermsDocument } from '../components/TermsClickwrap.tsx';
 import { api } from '../services/api.ts';
 import { RFQ, Quotation, ContractorProfile, User } from '../types/index.ts';
 import { useToast } from '../components/ToastContext.tsx';
@@ -14,7 +17,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'create_rfq' | 'rfq_detail'>('dashboard');
   const [statusFilter, setStatusFilter] = useState<'all' | 'under_evaluation' | 'draft' | 'awarded'>('all');
-  const [selectedRfqId, setSelectedRfqId] = useState<string>('rfq-01');
+  const [selectedRfqId, setSelectedRfqId] = useState<string>('');
   const [inspectDoc, setInspectDoc] = useState<any | null>(null);
 
   // Award Modal State
@@ -23,8 +26,8 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
 
   // Auth & Session State
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [loginEmail, setLoginEmail] = useState('procurement@apexfitout.ae');
-  const [loginPassword, setLoginPassword] = useState('password');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [regError, setRegError] = useState<string | null>(null);
   const [rfqError, setRfqError] = useState<string | null>(null);
@@ -37,6 +40,11 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
   const [awardRecord, setAwardRecord] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [regAccepted,setRegAccepted]=useState(false);
+  const [regTerms,setRegTerms]=useState<TermsDocument|null>(null);
+  const [sessionTerms,setSessionTerms]=useState(false);
+  useEffect(()=>{const blocked=()=>setSessionTerms(false);window.addEventListener('urbanprocures:terms-required',blocked);return()=>window.removeEventListener('urbanprocures:terms-required',blocked);},[]);
+
   // Registration Form State
   const [regCompany, setRegCompany] = useState('');
   const [regLicense, setRegLicense] = useState('');
@@ -47,19 +55,18 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
 
+  const [editingRfqId,setEditingRfqId]=useState<string|null>(null);
   // Create RFQ Wizard State
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('Joinery & Carpentry');
   const [newProject, setNewProject] = useState('');
   const [newEmirate, setNewEmirate] = useState('Dubai');
-  const [newDeadline, setNewDeadline] = useState('2026-11-20');
-  const [newTargetCompletion, setNewTargetCompletion] = useState('2026-12-30');
-  const [newBudget, setNewBudget] = useState('160000');
+  const [newDeadline, setNewDeadline] = useState('');
+  const [newTargetCompletion, setNewTargetCompletion] = useState('');
+  const [newBudget, setNewBudget] = useState('');
   const [newScope, setNewScope] = useState('');
-  const [boqItems, setBoqItems] = useState([
-    { description: 'Supply & install European White Oak fluted acoustic paneling', quantity: 240, unit: 'sqm', specifications: 'STC 45 acoustic rating, concealed clip system' },
-    { description: 'Supply & fix concealed frame acoustic pivot doors with drop seals', quantity: 8, unit: 'nos', specifications: 'Dorma architectural pivot hardware, matching veneer' },
-  ]);
+  const [boqItems, setBoqItems] = useState([{description:'',quantity:1,unit:'nos',specifications:''}]);
+  const [manpowerPersons,setManpowerPersons]=useState(''),[manpowerHours,setManpowerHours]=useState(''),[manpowerDays,setManpowerDays]=useState('1');
   const [attachedFiles, setAttachedFiles] = useState<{ name: string; type: string; size: number; dataUrl?: string }[]>([]);
 
   // Load RFQs from Real D1 Backend
@@ -81,6 +88,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     try {
       const res = await api.contractor.getQuotations(rfqId);
       setQuotesForRfq(res || []);
+      const winner=(res||[]).find((q:any)=>q.status==='awarded');setAwardRecord(winner?{quotationId:winner.id}:null);
     } catch {
       setQuotesForRfq([]);
     }
@@ -94,6 +102,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
         if (session && session.authenticated && session.user && session.user.role === 'contractor') {
           setCurrentUser(session.user);
           setContractor(session.contractor);
+          setSessionTerms(session.termsAccepted===true);
           await loadRfqs();
         }
       } catch {
@@ -135,7 +144,9 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
         return;
       }
       setCurrentUser(res.user);
-      setContractor(res.contractor);
+      const session=await api.auth.me();
+      setContractor(session.contractor);
+      setSessionTerms(session.termsAccepted===true);
       setActiveTab('dashboard');
       showToast(`Welcome back, ${res.user.email}`, 'success');
       await loadRfqs();
@@ -151,6 +162,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError(null);
+    if(!regAccepted || !regTerms){setRegError('Explicit acceptance of current Contractor Terms is required.');return;}
     if (!regCompany.trim() || !regLicense.trim() || !regEmail.trim() || !regPhone.trim() || !regContact.trim()) {
       setRegError('Please fill in all required company registration details.');
       return;
@@ -166,11 +178,14 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
         contactPerson: regContact.trim(),
         contactPhone: regPhone.trim(),
         email: regEmail.trim(),
-        password: regPassword || 'password',
+        password: regPassword,
+        acceptTerms:regAccepted,termsVersionId:regTerms.id,
       });
 
       setCurrentUser(res.user);
-      setContractor(res.contractor);
+      const session=await api.auth.me();
+      setContractor(session.contractor);
+      setSessionTerms(session.termsAccepted===true);
       setActiveTab('dashboard');
       showToast(`Contractor organization "${regCompany}" successfully registered in D1!`, 'success', 'Account Created');
       await loadRfqs();
@@ -223,19 +238,21 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     }
 
     try {
-      const created = await api.contractor.createRfq({
+      const data = {
         title: newTitle.trim(),
         category: newCategory,
         projectName: newProject.trim(),
         locationEmirate: newEmirate,
         submissionDeadline: newDeadline,
         targetCompletionDate: newTargetCompletion,
-        estimatedBudgetAed: parseFloat(newBudget) || 100000,
+        estimatedBudgetAed: newBudget ? Number(newBudget) : undefined,
+        procurementType: /manpower|labou?r/i.test(newCategory)?'manpower':'standard',
+        manpowerPersons:Number(manpowerPersons),manpowerHoursPerPersonPerDay:Number(manpowerHours),manpowerDays:Number(manpowerDays),
         scopeDescription: newScope.trim(),
         status: isDraft ? 'draft' : 'submitted',
         items: boqItems.map((item, idx) => ({
           itemNumber: idx + 1,
-          description: item.description || `BoQ Line Item ${idx + 1}`,
+          description: item.description,
           quantity: item.quantity,
           unit: item.unit,
           specifications: item.specifications,
@@ -247,15 +264,16 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
           documentPurpose: 'drawing' as const,
           dataUrl: f.dataUrl,
         })),
-      });
+      };
+      const created=editingRfqId?await api.contractor.updateRfq(editingRfqId,{...data,documents:[]}):await api.contractor.createRfq(data);setEditingRfqId(null);
 
       await loadRfqs();
       setSelectedRfqId(created.id);
       setActiveTab('rfq_detail');
       showToast(
-        isDraft ? 'RFQ draft saved.' : `RFQ "${created.title}" successfully published to D1!`,
+        isDraft ? 'RFQ draft saved.' : `RFQ "${created.title}" submitted for review.`,
         'success',
-        isDraft ? 'Draft Saved' : 'RFQ Published'
+        isDraft ? 'Draft Saved' : 'RFQ Submitted'
       );
     } catch (err: any) {
       setRfqError(err.message || 'Failed to create RFQ');
@@ -272,7 +290,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
       const res = await api.contractor.confirmAward(currentRfq.id, awardModalQuote.id);
       setIsSubmittingAward(false);
       setAwardModalQuote(null);
-      setAwardRecord(res.award);
+      setAwardRecord({...res.data,quotationId:awardModalQuote.id});
       showToast('Contract Award Confirmed! Identity and contact details have been mutually released.', 'success', 'Award Finalized');
       await loadRfqs();
       await loadQuotations(currentRfq.id);
@@ -291,8 +309,11 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     showToast('You have been signed out successfully.', 'info');
   };
 
+  if(isContractorLoggedIn && !sessionTerms)return <TermsReacceptance role="contractor" onAccepted={()=>{api.auth.me().then(session=>{setSessionTerms(session.termsAccepted===true);loadRfqs();});}}/>;
+
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#123540] pb-16 font-['DM_Sans']">
+      {currentUser?<AccountDocuments/>:<PasswordRecovery/>}
       {/* Top Banner (Approved Design) */}
       <div className="bg-[#123f47] text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-[#0e3037]">
         <div className="max-w-[1240px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -321,7 +342,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
             {isContractorLoggedIn ? (
               <>
                 <button
-                  onClick={() => setActiveTab('create_rfq')}
+                  onClick={() => {setEditingRfqId(null);setActiveTab('create_rfq');}}
                   className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2.5 rounded-[5px] text-xs flex items-center gap-1.5 transition-all shadow-sm active:translate-y-0.5"
                 >
                   <Plus className="w-4 h-4" />
@@ -376,7 +397,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                 Contractor Login
               </button>
               <button
-                onClick={() => setAuthMode('register')}
+                onClick={() => {setRegAccepted(false);setRegTerms(null);setAuthMode('register');}}
                 className={`flex-1 py-3 text-sm font-bold font-['Manrope'] border-b-2 transition-colors flex items-center justify-center gap-2 ${
                   authMode === 'register'
                     ? 'border-[#eb6a32] text-[#123540]'
@@ -416,10 +437,6 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                     onChange={(e) => setLoginPassword(e.target.value)}
                     className="w-full px-3 py-2.5 rounded-[5px] border border-[#bccbca] text-sm focus:outline-none focus:border-[#eb6a32]"
                   />
-                </div>
-
-                <div className="p-3 bg-[#f7f6f2] rounded border border-[#e1e7e4] text-[11px] text-[#63797b]">
-                  <strong>Pre-seeded Demo Account:</strong> <code>procurement@apexfitout.ae</code> / <code>password</code>
                 </div>
 
                 <button
@@ -524,11 +541,13 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                   />
                 </div>
 
+                <TermsClickwrap role="contractor" checked={regAccepted} onChange={setRegAccepted} onDocument={setRegTerms}/>
                 <button
                   type="submit"
-                  className="w-full bg-[#123540] hover:bg-[#082631] text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-all shadow-sm active:translate-y-0.5"
+                  disabled={!regAccepted || !regTerms || isLoading}
+                  className="w-full disabled:opacity-50 bg-[#123540] hover:bg-[#082631] text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-all shadow-sm active:translate-y-0.5"
                 >
-                  Register Contractor Account
+                  ACCEPT TERMS & COMPLETE REGISTRATION
                 </button>
               </form>
             )}
@@ -621,6 +640,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                                 {rfq.status.replace('_', ' ')}
                               </span>
 
+                              {rfq.status==='draft'&&<button className="text-xs underline" onClick={()=>{setEditingRfqId(rfq.id);setNewTitle(rfq.title);setNewCategory(rfq.category);setNewProject(rfq.projectName);setNewEmirate(rfq.locationEmirate);setNewDeadline(rfq.submissionDeadline.slice(0,10));setNewScope(rfq.scopeDescription);setNewBudget(String(rfq.estimatedBudgetAed??''));setBoqItems(rfq.items.map(i=>({description:i.description,quantity:i.quantity,unit:i.unit,specifications:i.specifications??''})));setAttachedFiles([]);setActiveTab('create_rfq');}}>Edit Draft</button>}
                               <button
                                 onClick={() => {
                                   setSelectedRfqId(rfq.id);
@@ -652,7 +672,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                             <div>
                               <span className="text-[#a8b8b8] block mb-0.5 text-[11px]">Quotations Received</span>
                               <span className="font-bold text-[#eb6a32] font-mono">
-                                {quotes.length} Verified Quotations
+                                {quotesCount} Verified Quotations
                               </span>
                             </div>
                           </div>
@@ -888,7 +908,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                               <div className="grid grid-cols-2 gap-2 text-[#123540] pt-1">
                                 <div>
                                   <span className="text-[#63797b] block text-[10px]">Company Name</span>
-                                  <strong className="text-[#123540]">{quote.vendorCompany}</strong>
+                                  <strong className="text-[#123540]">{(quote.vendorContact as any)?.companyName}</strong>
                                 </div>
                                 <div>
                                   <span className="text-[#63797b] block text-[10px]">Trade License</span>
@@ -948,7 +968,8 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                     <h3 className="text-sm font-bold text-[#123540] uppercase tracking-wider pb-2 border-b border-[#e1e7e4] mb-4 font-['Manrope']">
                       1. Project & Scope Details
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/manpower|labou?r/i.test(newCategory)&&<div className="grid grid-cols-3 gap-4 mb-4">{[['Persons',manpowerPersons,setManpowerPersons],['Hours per person per day',manpowerHours,setManpowerHours],['Days / shifts',manpowerDays,setManpowerDays]].map(([label,value,setter])=><label key={label as string} className="text-xs">{label as string}<input type="number" min="0.01" step="any" required value={value as string} onChange={e=>(setter as (value:string)=>void)(e.target.value)} className="border rounded p-2 w-full"/></label>)}</div>}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2">
                         <label className="block text-xs font-semibold text-[#123540] mb-1">
                           RFQ Package Title <span className="text-[#eb6a32]">*</span>
@@ -972,6 +993,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                           onChange={(e) => setNewCategory(e.target.value)}
                           className="w-full px-3.5 py-2.5 rounded-[5px] border border-[#bccbca] text-sm bg-white"
                         >
+                          <option value="Manpower & Labour">Manpower & Labour</option>
                           <option value="Joinery & Carpentry">Joinery & Carpentry</option>
                           <option value="Gypsum & Drywall">Gypsum & Drywall / Acoustic Ceilings</option>
                           <option value="MEP & HVAC">MEP, Electrical & HVAC</option>
@@ -1167,6 +1189,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                       <input
                         type="file"
                         id="rfq-files"
+                        accept="application/pdf,image/png,image/jpeg"
                         className="hidden"
                         onChange={handleFileUpload}
                       />
@@ -1176,7 +1199,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                           Click to attach architectural drawings, BoQ sheets, or specifications
                         </span>
                         <span className="text-[11px] text-[#63797b] block mt-0.5">
-                          Supported formats: PDF, DWG, DXF, XLSX, Images (Max 25MB)
+                          Supported formats: PDF, PNG, JPEG (Max 3MB each, 3 files)
                         </span>
                       </label>
                     </div>
@@ -1252,8 +1275,10 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                 You are designating <strong className="text-[#123540] font-mono">{awardModalQuote.vendorDisplayName}</strong> as the winner of this procurement package.
               </p>
 
+              <p className="font-bold text-[#123540]">Your Contractor / Client Service Charge: AED 0. Vendor charges are payable by the awarded Vendor.</p>
               {/* Financial Calculation Breakdown */}
               {(() => {
+                if((currentRfq as any)?.procurementType==='manpower' || /manpower|labou?r/i.test(currentRfq?.category||''))return <p>Vendor manpower Service Charge is AED 1 per person per hour. Your Contractor / Client Service Charge remains AED 0.</p>;
                 const calc = ServiceChargeEngine.calculate({ contractAmountAed: awardModalQuote.totalAmountAed });
                 return (
                   <div className="p-4 bg-[#f7f6f2] rounded-[6px] border border-[#e1e7e4] space-y-2.5 text-[#123540]">
@@ -1265,7 +1290,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                     </div>
 
                     <div className="flex justify-between items-center text-[#63797b]">
-                      <span>Platform Service Charge ({calc.appliedPercentage * 100}%)</span>
+                      <span>Vendor Service Charge ({calc.appliedPercentage * 100}%)</span>
                       <span className="font-mono font-semibold text-[#123540]">
                         AED {calc.totalServiceChargeAed.toLocaleString()}
                       </span>

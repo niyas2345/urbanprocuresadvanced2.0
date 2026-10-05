@@ -5,7 +5,7 @@ import { RFQStateMachine } from '../workers/rfqStateMachine.ts';
 import { IdentityMaskingService } from '../workers/identityMasking.ts';
 import { ServiceChargeEngine } from '../workers/serviceChargeEngine.ts';
 import { AuthorizationPolicy } from '../workers/authorization.ts';
-import { RFQ, Quotation, ContractorProfile, VendorProfile } from '../shared/types.ts';
+import type { RFQ, Quotation, ContractorProfile, VendorProfile } from '../shared/types.ts';
 
 export interface TestResult {
   suite: string;

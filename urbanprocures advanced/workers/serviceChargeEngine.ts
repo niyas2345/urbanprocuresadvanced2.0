@@ -1,6 +1,6 @@
 // Urban Procures Advanced
 // Centralized Service Charge Engine
-// NOTE: Always refer to this as a "SERVICE CHARGE", never as a "commission".
+// Vendor obligations are SERVICE CHARGES. Contractor / Client Service Charge is AED 0.
 
 export interface ServiceChargeCalculationInput {
   contractAmountAed: number;
@@ -25,6 +25,24 @@ export interface ServiceChargeBreakdown {
 }
 
 export class ServiceChargeEngine {
+  public static calculateAward(input: { awardValueAed: number; awardType: 'standard' | 'manpower'; manpowerPersons?: number; manpowerHoursPerPersonPerDay?: number; manpowerDays?: number }) {
+    if (!Number.isFinite(input.awardValueAed) || input.awardValueAed <= 0 || input.awardValueAed > 1e12) throw new Error('INVALID_AWARD_VALUE');
+    if (input.awardType === 'manpower') {
+      const persons=input.manpowerPersons, hours=input.manpowerHoursPerPersonPerDay, days=input.manpowerDays;
+      if (!Number.isSafeInteger(persons) || persons! <= 0 || !Number.isFinite(hours) || hours! <= 0 || hours! > 24 || !Number.isSafeInteger(days) || days! <= 0) throw new Error('INVALID_MANPOWER_PERSON_HOURS');
+      const totalPersonHours=persons! * hours! * days!;
+      if (!Number.isFinite(totalPersonHours) || totalPersonHours > 1e12) throw new Error('INVALID_MANPOWER_PERSON_HOURS');
+      const manpowerChargeAed=Math.round(totalPersonHours * 100) / 100;
+      return { contractorServiceChargeAed: 0, vendorServiceChargeAed: 0, manpowerChargeAed,
+        totalVendorChargeAed: manpowerChargeAed, applicableChargeRule: 'MANPOWER_AED_1_PER_PERSON_HOUR', manpowerUnit: 'person-hour', manpowerQuantity: totalPersonHours,
+        manpowerPersons: persons, manpowerHoursPerPersonPerDay: hours, manpowerDays: days, manpowerRateAed: 1 };
+    }
+    if (input.awardType !== 'standard') throw new Error('INVALID_AWARD_TYPE');
+    const vendorServiceChargeAed=Math.max(Math.round(input.awardValueAed * 0.025 * 100) / 100,500);
+    return { contractorServiceChargeAed: 0, vendorServiceChargeAed, manpowerChargeAed: 0,
+      totalVendorChargeAed: vendorServiceChargeAed, applicableChargeRule: 'STANDARD_MAX_2_5_PERCENT_AED_500', manpowerUnit: null, manpowerQuantity: null,
+      manpowerPersons: null, manpowerHoursPerPersonPerDay: null, manpowerDays: null, manpowerRateAed: null };
+  }
   // Authoritative default business parameters
   public static readonly DEFAULT_PERCENTAGE = 0.025; // 2.5%
   public static readonly DEFAULT_MINIMUM_AED = 500.0; // AED 500 Minimum

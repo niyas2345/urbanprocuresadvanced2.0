@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Local Cloudflare state and SQLite journal/cache files
+.wrangler/
+*.sqlite-shm
+*.sqlite-wal

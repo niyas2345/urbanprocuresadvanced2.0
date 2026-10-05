@@ -1,0 +1,1250 @@
+URBAN PROCURES ADVANCED
+FINAL CODEX HANDOFF
+MANDATORY CLICKWRAP TERMS + COMMERCIAL CHARGE RULES
+
+PURPOSE
+
+Implement the final Urban Procures clickwrap Terms & Conditions system
+for:
+
+1. VENDORS / SUPPLIERS / SUBCONTRACTORS / SERVICE PROVIDERS
+2. CONTRACTORS / CLIENT ORGANIZATIONS
+3. PUBLIC "GET A QUOTE" USERS WHERE APPLICABLE
+
+This handoff specifically covers:
+
+- Terms content
+- clickwrap UX
+- backend acceptance evidence
+- versioning
+- server-side enforcement
+- Vendor Service Charge
+- Contractor/Client zero Service Charge
+- manpower charge rule
+- award linkage
+- admin visibility
+- testing
+
+IMPORTANT:
+
+Do NOT restart completed infrastructure work.
+
+Do NOT redesign the approved frontend.
+
+Do NOT modify the existing live Urban Procures production system.
+
+Integrate this into the CURRENT Urban Procures Advanced codebase and the
+existing isolated Cloudflare backend.
+
+============================================================
+1. CORE CLICKWRAP RULE
+============================================================
+
+Terms acceptance must be:
+
+VISIBLE
+AFFIRMATIVE
+UNCHECKED BY DEFAULT
+VERSIONED
+PERSISTENT
+TRACEABLE
+AUDITABLE
+SERVER-SIDE ENFORCED
+
+Do NOT implement acceptance as:
+
+- passive footer link
+- browsewrap
+- pre-checked checkbox
+- implied acceptance
+- frontend-only boolean
+- automatic acceptance
+- "By using this website..." only
+
+The user must take an affirmative action.
+
+============================================================
+2. TERMINOLOGY
+============================================================
+
+Use:
+
+URBAN PROCURES
+
+Use:
+
+SERVICE CHARGE
+
+Never use:
+
+COMMISSION
+
+Vendor includes:
+
+- supplier
+- subcontractor
+- service provider
+- manpower provider
+- other approved procurement participant
+
+Contractor/Client includes:
+
+- main contractor
+- fit-out company
+- interior company
+- procurement client
+- other approved buying organization
+
+============================================================
+3. FINAL COMMERCIAL CHARGE RULES
+============================================================
+
+These rules are NON-NEGOTIABLE.
+
+------------------------------------------------------------
+A. CONTRACTOR / CLIENT
+------------------------------------------------------------
+
+Urban Procures Service Charge payable by Contractor / Client:
+
+AED 0
+
+The Contractor / Client must NOT be charged:
+
+- 2.5%
+- AED 500 minimum
+- Vendor Service Charge
+- procurement commission
+
+The Vendor Service Charge is a VENDOR obligation.
+
+The Contractor / Client Terms must explicitly state that Urban Procures
+does not charge the Contractor / Client the Vendor Service Charge.
+
+------------------------------------------------------------
+B. STANDARD VENDOR SERVICE CHARGE
+------------------------------------------------------------
+
+For normal procurement / supply / subcontract awards:
+
+Vendor Service Charge =
+
+2.5% of applicable awarded value
+
+OR
+
+AED 500 minimum
+
+WHICHEVER IS HIGHER.
+
+Formula:
+
+vendor_service_charge =
+MAX(award_value * 0.025, 500 AED)
+
+Examples:
+
+Award AED 10,000
+2.5% = AED 250
+Vendor Service Charge = AED 500
+
+Award AED 100,000
+2.5% = AED 2,500
+Vendor Service Charge = AED 2,500
+
+The calculation must be performed or independently validated SERVER-SIDE.
+
+Never trust the browser to submit the final charge amount.
+
+------------------------------------------------------------
+C. MANPOWER CHARGE
+------------------------------------------------------------
+
+For manpower/labour procurement, preserve the established Urban Procures
+manpower rule:
+
+AED 1 PER MANPOWER / LABOUR UNIT
+
+This is a Vendor-side charge.
+
+Do NOT assign it to the Contractor / Client.
+
+Do NOT call it commission.
+
+The backend must distinguish:
+
+STANDARD PROCUREMENT
+
+from
+
+MANPOWER PROCUREMENT
+
+The manpower charge must be represented separately from the normal
+2.5% / AED 500 rule.
+
+Do NOT automatically apply both formulas to the same chargeable component
+unless the existing approved Urban Procures business logic explicitly
+requires both.
+
+IMPORTANT:
+
+If the current code/database already defines the exact manpower charging
+unit, preserve it.
+
+If the charging unit is NOT clearly defined in existing project logic
+(for example per worker, per worker/day, per supplied labour unit, etc.),
+do NOT invent one.
+
+Mark that one detail as:
+
+BUSINESS RULE CONFIRMATION REQUIRED
+
+while implementing the rest of the manpower-capable backend structure.
+
+============================================================
+4. VENDOR TERMS & CONDITIONS
+VERSION 2026.1
+============================================================
+
+Create/publish:
+
+URBAN PROCURES — VENDOR TERMS & CONDITIONS
+Version: 2026.1
+
+The Terms must contain substantially the following provisions.
+
+------------------------------------------------------------
+1. ACCEPTANCE
+------------------------------------------------------------
+
+By selecting the acceptance checkbox and clicking the acceptance button,
+the Vendor confirms that it has read, understood and agreed to the Urban
+Procures Vendor Terms & Conditions.
+
+The person accepting confirms that they are authorized to bind the Vendor
+organization.
+
+------------------------------------------------------------
+2. PLATFORM PURPOSE
+------------------------------------------------------------
+
+Urban Procures provides a procurement platform through which Contractors
+and Clients may publish procurement requirements and approved Vendors may
+submit quotations.
+
+Urban Procures facilitates procurement interactions and does not become
+the Vendor, supplier, subcontractor, Contractor or purchaser merely by
+operating the platform.
+
+------------------------------------------------------------
+3. VENDOR INFORMATION
+------------------------------------------------------------
+
+The Vendor must provide accurate, complete and current information,
+including where applicable:
+
+- company information
+- trade license
+- contact details
+- authorized representative
+- trade categories
+- supporting documents
+
+False, misleading or unverifiable information may result in restriction
+or suspension.
+
+------------------------------------------------------------
+4. RFQ ACCESS
+------------------------------------------------------------
+
+RFQs may be made available according to:
+
+- registered trade categories
+- eligibility
+- verification/approval status
+- platform rules
+
+Access to an RFQ does not guarantee an award.
+
+------------------------------------------------------------
+5. QUOTATIONS
+------------------------------------------------------------
+
+The Vendor is responsible for the accuracy and completeness of its
+quotation.
+
+Where applicable, the quotation must accurately state:
+
+- quantities
+- unit rates
+- total values
+- specifications
+- exclusions
+- lead times
+- validity
+- payment terms
+- delivery requirements
+
+The Vendor must not knowingly submit misleading or deceptive quotation
+information.
+
+------------------------------------------------------------
+6. PRE-AWARD IDENTITY MASKING
+------------------------------------------------------------
+
+Before award, Urban Procures may keep Contractor/Client and Vendor
+identity/contact details masked.
+
+The Vendor must not attempt to:
+
+- bypass identity masking
+- technically identify the Client
+- contact the Client outside the permitted platform process
+- obtain confidential competitor information
+- circumvent Urban Procures
+
+------------------------------------------------------------
+7. VENDOR SERVICE CHARGE
+------------------------------------------------------------
+
+The Vendor expressly acknowledges and agrees that where business is
+awarded through Urban Procures, the applicable Urban Procures
+SERVICE CHARGE is:
+
+2.5% of the applicable awarded value
+
+OR
+
+AED 500 minimum
+
+WHICHEVER IS HIGHER.
+
+The Vendor expressly agrees that this is a Vendor-side obligation.
+
+The Contractor / Client does NOT pay this Vendor Service Charge.
+
+The platform must always use the words:
+
+SERVICE CHARGE
+
+and must never describe this as:
+
+COMMISSION
+
+The Vendor's acceptance of these Terms includes acceptance of this Service
+Charge obligation.
+
+------------------------------------------------------------
+8. MANPOWER CHARGE
+------------------------------------------------------------
+
+Where the award concerns manpower/labour procurement, the Vendor also
+acknowledges the applicable Urban Procures manpower charge rule:
+
+AED 1 PER MANPOWER / LABOUR UNIT
+
+The manpower rule must be applied according to the approved Urban Procures
+business logic stored in the application.
+
+It remains a Vendor-side obligation.
+
+Do not assign this charge to the Contractor / Client.
+
+Do not invent an additional charge.
+
+------------------------------------------------------------
+9. NO CIRCUMVENTION
+------------------------------------------------------------
+
+A Vendor must not intentionally use an opportunity, introduction,
+procurement requirement or contact obtained through Urban Procures to
+avoid an applicable Urban Procures Service Charge or manpower charge.
+
+The Vendor must not intentionally move the same procurement transaction
+outside the Urban Procures process solely to avoid applicable platform
+obligations.
+
+Do NOT invent:
+
+- penalties
+- punitive damages
+- additional percentages
+- fixed circumvention fines
+
+unless separately approved in writing by Urban Procures.
+
+------------------------------------------------------------
+10. AWARD
+------------------------------------------------------------
+
+Submission of a quotation does not constitute an award.
+
+Shortlisting, communication, clarification or discussion does not
+constitute an award.
+
+An award exists only when an authorized Contractor / Client completes the
+official Urban Procures award process.
+
+------------------------------------------------------------
+11. IDENTITY RELEASE AFTER AWARD
+------------------------------------------------------------
+
+Following a valid award, permitted contact information may be released
+between the awarded Vendor and relevant Contractor / Client.
+
+Non-awarded Vendors remain subject to applicable masking rules.
+
+------------------------------------------------------------
+12. PERFORMANCE AFTER AWARD
+------------------------------------------------------------
+
+The Vendor remains responsible for its supply/service obligations,
+including as applicable:
+
+- quality
+- workmanship
+- delivery
+- warranty
+- specifications
+- payment/commercial terms
+- other obligations agreed with the Contractor / Client
+
+Urban Procures does not automatically become a party to the underlying
+supply/service agreement.
+
+------------------------------------------------------------
+13. PROCUREMENT DOCUMENTS
+------------------------------------------------------------
+
+RFQ documents, drawings, specifications, BoQs and related materials may
+contain confidential information.
+
+They may be used only for the authorized procurement purpose.
+
+Unauthorized copying, publication or distribution is prohibited.
+
+------------------------------------------------------------
+14. ACCOUNT SECURITY
+------------------------------------------------------------
+
+The Vendor is responsible for safeguarding account credentials and
+authorized activity conducted through the account.
+
+------------------------------------------------------------
+15. SUSPENSION
+------------------------------------------------------------
+
+Urban Procures may restrict or suspend Vendor access for serious matters
+including:
+
+- fraudulent information
+- unauthorized access
+- abuse
+- attempted security bypass
+- identity-masking bypass
+- serious procurement-rule violations
+- unresolved verification problems
+- material breach of these Terms
+
+------------------------------------------------------------
+16. TERMS UPDATES
+------------------------------------------------------------
+
+Urban Procures may publish updated Vendor Terms.
+
+Where a new Terms version requires re-acceptance, the Vendor must
+affirmatively accept the new version before continuing protected
+procurement activity.
+
+Historical acceptance records must remain preserved.
+
+------------------------------------------------------------
+17. ELECTRONIC ACCEPTANCE
+------------------------------------------------------------
+
+The Vendor agrees that affirmative acceptance through the Urban Procures
+clickwrap process constitutes recorded acceptance of the specific Terms
+version presented at the time of acceptance.
+
+------------------------------------------------------------
+18. DATA / PRIVACY
+------------------------------------------------------------
+
+Vendor and user information must be handled according to the applicable
+Urban Procures privacy documentation and applicable law.
+
+Do not insert unsupported privacy promises.
+
+------------------------------------------------------------
+19. GOVERNING LAW / DISPUTES
+------------------------------------------------------------
+
+Keep the governing-law and dispute-resolution wording configurable.
+
+Do not invent jurisdiction-specific legal wording in code.
+
+The final UAE legal clause may be inserted later through a new/published
+Terms version without requiring a backend redesign.
+
+============================================================
+5. CONTRACTOR / CLIENT TERMS & CONDITIONS
+VERSION 2026.1
+============================================================
+
+Create/publish:
+
+URBAN PROCURES — CONTRACTOR / CLIENT TERMS & CONDITIONS
+Version: 2026.1
+
+------------------------------------------------------------
+1. ACCEPTANCE
+------------------------------------------------------------
+
+By selecting the acceptance checkbox and completing registration, the
+Contractor / Client confirms that it has read, understood and agreed to
+these Terms.
+
+The person accepting confirms that they are authorized to bind the
+relevant organization.
+
+------------------------------------------------------------
+2. REGISTRATION INFORMATION
+------------------------------------------------------------
+
+The Contractor / Client must provide accurate and current organization
+and authorized representative information.
+
+------------------------------------------------------------
+3. RFQ RESPONSIBILITY
+------------------------------------------------------------
+
+The Contractor / Client is responsible for providing reasonably accurate:
+
+- scope
+- quantities
+- BoQ
+- specifications
+- drawings
+- delivery requirements
+- procurement requirements
+
+Urban Procures may request clarification or correction before publication.
+
+------------------------------------------------------------
+4. DOCUMENT RIGHTS
+------------------------------------------------------------
+
+The Contractor / Client confirms that it has the right or authority to
+upload and distribute procurement documents through Urban Procures.
+
+------------------------------------------------------------
+5. PRE-AWARD IDENTITY MASKING
+------------------------------------------------------------
+
+Vendor identity and protected contact details may remain masked before
+award.
+
+The Contractor / Client must not attempt to bypass the masking process or
+obtain protected Vendor information through unauthorized methods.
+
+------------------------------------------------------------
+6. QUOTATION REVIEW
+------------------------------------------------------------
+
+Vendor quotations are submitted by independent Vendors.
+
+The Contractor / Client remains responsible for evaluating:
+
+- price
+- technical suitability
+- specification
+- delivery
+- exclusions
+- validity
+- payment terms
+- overall commercial suitability
+
+before award.
+
+------------------------------------------------------------
+7. CONTRACTOR / CLIENT SERVICE CHARGE
+------------------------------------------------------------
+
+Urban Procures does NOT charge the Contractor / Client the Vendor Service
+Charge.
+
+Contractor / Client Urban Procures Service Charge:
+
+AED 0
+
+The Vendor Service Charge applicable to an award is an obligation of the
+awarded Vendor.
+
+Do not calculate the Vendor's 2.5% / AED 500 rule against the Contractor /
+Client.
+
+Do not assign manpower charges to the Contractor / Client.
+
+------------------------------------------------------------
+8. AWARD AUTHORITY
+------------------------------------------------------------
+
+Only an authorized Contractor / Client user may confirm an award.
+
+Award confirmation may trigger:
+
+- award records
+- notifications
+- permitted identity release
+- applicable Vendor Service Charge obligations
+- applicable Vendor manpower obligations where relevant
+
+Award confirmation must therefore be an explicit action.
+
+------------------------------------------------------------
+9. IDENTITY RELEASE
+------------------------------------------------------------
+
+After a valid award, permitted information may be released between the
+awarded Vendor and Contractor / Client.
+
+Protected information relating to non-awarded Vendors must remain
+restricted.
+
+------------------------------------------------------------
+10. FAIR USE
+------------------------------------------------------------
+
+The Contractor / Client must not:
+
+- create fraudulent RFQs
+- misuse Vendor information
+- access another organization's information
+- manipulate the platform
+- bypass authorization controls
+- attempt technical identity disclosure
+- create RFQs solely for abusive/deceptive purposes
+
+------------------------------------------------------------
+11. CONFIDENTIALITY
+------------------------------------------------------------
+
+Confidential Vendor and procurement information must be used only for the
+relevant procurement process.
+
+------------------------------------------------------------
+12. PLATFORM ROLE
+------------------------------------------------------------
+
+Urban Procures facilitates procurement interactions.
+
+Unless separately agreed in writing, Urban Procures does not become a
+party to the underlying supply/service contract merely because an RFQ,
+quotation or award is processed through the platform.
+
+------------------------------------------------------------
+13. ACCOUNT SECURITY
+------------------------------------------------------------
+
+The Contractor / Client is responsible for safeguarding organization
+credentials and authorized account use.
+
+------------------------------------------------------------
+14. TERMS UPDATES
+------------------------------------------------------------
+
+Where a new mandatory Terms version requires acceptance, the Contractor /
+Client may be required to accept the new version before continuing
+protected procurement activities.
+
+Historical acceptance records must remain preserved.
+
+------------------------------------------------------------
+15. ELECTRONIC ACCEPTANCE
+------------------------------------------------------------
+
+Affirmative acceptance through the Urban Procures clickwrap process
+constitutes recorded acceptance of the displayed Terms version.
+
+------------------------------------------------------------
+16. DATA / PRIVACY
+------------------------------------------------------------
+
+Organization/user information must be handled according to applicable
+Urban Procures privacy documentation and applicable law.
+
+------------------------------------------------------------
+17. GOVERNING LAW / DISPUTES
+------------------------------------------------------------
+
+Keep this section configurable pending final approved UAE legal wording.
+
+Do not invent jurisdiction-specific text.
+
+============================================================
+6. GET A QUOTE / PUBLIC USER CONSENT
+============================================================
+
+Get a Quote remains:
+
+NO ACCOUNT REQUIRED.
+
+Do NOT force full Vendor or Contractor Terms onto public users.
+
+Before final Get a Quote submission, provide an unchecked confirmation
+such as:
+
+[ ] I confirm that the information provided is accurate and agree to the
+Urban Procures Get a Quote Terms and Privacy Notice.
+
+If optional site visit is selected, clearly disclose:
+
+SITE VISIT FEE: AED 100
+
+before submission.
+
+This AED 100 is separate from Vendor Service Charge rules.
+
+============================================================
+7. VENDOR CLICKWRAP UX
+============================================================
+
+Vendor registration/onboarding must contain:
+
+VIEW VENDOR TERMS & CONDITIONS
+
+The Vendor must be able to review the full Terms.
+
+Immediately before completion:
+
+[ ] I have read and agree to the Urban Procures Vendor Terms &
+Conditions, including the applicable Urban Procures Service Charge and
+manpower-related charges where applicable.
+
+Checkbox:
+
+UNCHECKED BY DEFAULT.
+
+Final action:
+
+ACCEPT TERMS & COMPLETE REGISTRATION
+
+The action must remain unavailable until the Vendor checks the box.
+
+============================================================
+8. CONTRACTOR / CLIENT CLICKWRAP UX
+============================================================
+
+Display:
+
+VIEW CONTRACTOR / CLIENT TERMS & CONDITIONS
+
+Then:
+
+[ ] I have read and agree to the Urban Procures Contractor / Client
+Terms & Conditions.
+
+Checkbox:
+
+UNCHECKED BY DEFAULT.
+
+Final action:
+
+ACCEPT TERMS & COMPLETE REGISTRATION
+
+============================================================
+9. SERVER-SIDE TERMS GATE
+============================================================
+
+The clickwrap must be enforced SERVER-SIDE.
+
+Do NOT rely only on React/HTML.
+
+For every protected Vendor action, verify:
+
+- authenticated user
+- role
+- organization
+- account status
+- required Terms type
+- required current Terms version
+- valid Terms acceptance
+
+If acceptance is missing:
+
+TERMS_ACCEPTANCE_REQUIRED
+
+Vendor without valid current Terms must NOT be able to:
+
+- access protected RFQs
+- submit quotations
+- modify quotations
+- participate in protected procurement actions
+- progress into award-related workflows where acceptance is required
+
+For protected Contractor actions, require valid Contractor / Client Terms
+acceptance.
+
+============================================================
+10. VERSIONED TERMS DOCUMENTS
+============================================================
+
+Use a persistent terms document model.
+
+Suggested table:
+
+terms_documents
+
+Fields should include appropriate equivalents of:
+
+id
+terms_type
+version
+title
+content
+content_hash
+effective_at
+requires_reacceptance
+status
+created_at
+published_at
+
+Terms types:
+
+VENDOR
+CONTRACTOR
+GET_A_QUOTE
+
+Published Terms must be treated as immutable.
+
+Never silently overwrite a published Terms version.
+
+A future change creates a NEW version.
+
+============================================================
+11. TERMS ACCEPTANCE RECORD
+============================================================
+
+Create persistent acceptance evidence.
+
+Suggested fields:
+
+id
+terms_document_id
+terms_type
+terms_version
+user_id
+organization_id where applicable
+role
+accepted_at
+content_hash_at_acceptance
+acceptance_method
+request_id / audit_reference
+created_at
+
+Optionally retain technical acceptance metadata such as user agent/IP only
+where appropriate under the application's privacy/security design.
+
+Do NOT store only:
+
+termsAccepted = true
+
+The system must be able to establish:
+
+WHO accepted
+WHICH ORGANIZATION
+WHAT TERMS
+WHICH VERSION
+WHAT CONTENT HASH
+WHEN
+HOW
+
+============================================================
+12. TERMS CONTENT HASH
+============================================================
+
+Generate/store a deterministic content hash for each published Terms
+version.
+
+At acceptance, associate the acceptance with the exact published Terms
+content hash.
+
+This must allow the application to prove which version/content was
+accepted.
+
+============================================================
+13. RE-ACCEPTANCE
+============================================================
+
+Support:
+
+ACTIVE
+
+and
+
+REACCEPTANCE_REQUIRED
+
+If a newly published Terms version has:
+
+requires_reacceptance = true
+
+then protected actions must require acceptance of that current version.
+
+Previous acceptance history must remain intact.
+
+============================================================
+14. SERVICE CHARGE / AWARD LINKAGE
+============================================================
+
+Award records must be traceable to the Vendor Terms acceptance that
+created the applicable contractual obligation.
+
+Persist or make traceable:
+
+award_id
+award_type
+vendor_id
+contractor_client_id
+award_value
+vendor_terms_version
+vendor_terms_acceptance_id
+applicable_charge_rule
+calculated_vendor_service_charge
+manpower_quantity where applicable
+manpower_charge where applicable
+calculated_at
+
+Contractor/Client Service Charge:
+
+AED 0
+
+============================================================
+15. SERVER-SIDE FINANCIAL VALIDATION
+============================================================
+
+For standard Vendor awards:
+
+MAX(award_value * 0.025, AED 500)
+
+Validate server-side.
+
+For manpower awards:
+
+apply the approved AED 1 manpower rule according to the defined manpower
+unit in the existing business logic.
+
+Do not trust client-submitted financial calculations.
+
+Do not let the frontend arbitrarily select or override charge values.
+
+============================================================
+16. ADMIN TERMS VISIBILITY
+============================================================
+
+Admin must be able to inspect:
+
+Company
+User
+Role
+Terms Type
+Terms Version
+Accepted At
+Acceptance Status
+Content/version reference
+
+Admin must be able to identify the exact Terms version accepted.
+
+Do NOT provide an ordinary Admin action that falsely creates acceptance
+on behalf of a Vendor or Contractor.
+
+============================================================
+17. AUDIT EVENTS
+============================================================
+
+Create persistent audit events including appropriate equivalents of:
+
+VENDOR_TERMS_VIEWED
+VENDOR_TERMS_ACCEPTED
+CONTRACTOR_TERMS_VIEWED
+CONTRACTOR_TERMS_ACCEPTED
+TERMS_REACCEPTANCE_REQUIRED
+
+Include appropriate:
+
+user
+organization
+terms version
+timestamp
+request/audit reference
+
+============================================================
+18. SECURITY REQUIREMENTS
+============================================================
+
+Terms endpoints must prevent:
+
+- acceptance for another user
+- organization substitution
+- forged terms_document_id
+- acceptance of unpublished Terms
+- arbitrary version submission
+- replaying another user's acceptance
+- bypassing account status checks
+- bypassing role checks
+
+Identity must come from the authenticated server-side session/context,
+not trusted client input.
+
+============================================================
+19. IDENTITY MASKING RELATIONSHIP
+============================================================
+
+Terms acceptance does NOT bypass identity masking.
+
+Before award:
+
+Contractor / Client identity remains masked from Vendor where required.
+
+Vendor identity remains masked from Contractor / Client where required.
+
+After valid award:
+
+release only the permitted information to the awarded parties.
+
+Non-awarded Vendors remain masked.
+
+============================================================
+20. IMPLEMENTATION FILES
+============================================================
+
+Use the current project architecture.
+
+Do NOT create duplicate abstractions if equivalent components/services
+already exist.
+
+If needed, suitable modules may include equivalents of:
+
+workers/terms/termsService.ts
+workers/terms/termsRepository.ts
+workers/terms/termsAuthorization.ts
+workers/terms/termsRoutes.ts
+workers/middleware/requireTermsAcceptance.ts
+
+shared/termsTypes.ts
+
+src/components/TermsViewerModal.tsx
+src/components/TermsAcceptanceCheckbox.tsx
+
+src/pages/VendorTermsPage.tsx
+src/pages/ContractorTermsPage.tsx
+
+database migrations for:
+
+terms_documents
+terms_acceptances
+
+Inspect the existing code first and integrate cleanly.
+
+============================================================
+21. REQUIRED TESTS
+============================================================
+
+Run at minimum:
+
+1. Vendor registration without Terms checkbox
+EXPECTED: BLOCKED
+
+2. Vendor accepts current Terms
+EXPECTED: acceptance persisted
+
+3. Vendor Terms checkbox preselected
+EXPECTED: MUST NEVER OCCUR
+
+4. Vendor logs out/in
+EXPECTED: acceptance remains valid
+
+5. Vendor without acceptance calls protected RFQ API
+EXPECTED: BLOCKED
+
+6. Vendor without acceptance submits quotation directly by API
+EXPECTED: BLOCKED
+
+7. Vendor accepted obsolete mandatory Terms version
+EXPECTED: REACCEPTANCE_REQUIRED
+
+8. Vendor accepts new version
+EXPECTED: protected access restored
+
+9. Vendor attempts forged/unpublished Terms ID
+EXPECTED: REJECTED
+
+10. Contractor registration without Terms acceptance
+EXPECTED: BLOCKED
+
+11. Contractor accepts Terms
+EXPECTED: acceptance persisted
+
+12. Contractor Service Charge
+EXPECTED: AED 0
+
+13. Standard Vendor award AED 10,000
+EXPECTED: Vendor Service Charge AED 500
+
+14. Standard Vendor award AED 100,000
+EXPECTED: Vendor Service Charge AED 2,500
+
+15. Manpower procurement
+EXPECTED:
+AED 1 manpower rule applied according to approved defined unit
+
+16. Vendor Terms acceptance tied to award Service Charge
+EXPECTED: traceable
+
+17. Admin views Terms acceptance evidence
+EXPECTED: PASS
+
+18. Historical acceptance cannot be silently overwritten
+EXPECTED: PASS
+
+19. Direct attempt to accept Terms for another organization
+EXPECTED: REJECTED
+
+20. Non-awarded Vendor remains masked after another Vendor wins
+EXPECTED: PASS
+
+============================================================
+22. EXISTING PRODUCTION MUST REMAIN UNTOUCHED
+============================================================
+
+Do NOT modify:
+
+urbanprocures.com
+www.urbanprocures.com
+production Pages
+production Workers
+production D1
+production R2
+production KV
+production Queues
+production DNS
+production secrets
+production data
+
+Work only inside:
+
+Urban Procures Advanced
+
+and its isolated development/testing resources.
+
+============================================================
+23. DO NOT REDESIGN
+============================================================
+
+Preserve the approved:
+
+logo
+color palette
+typography
+homepage
+navigation
+cards/buttons
+overall layout
+responsive design
+
+Terms UI must use the same current visual system.
+
+============================================================
+24. IMPLEMENTATION ORDER
+============================================================
+
+1. Inspect current Terms/auth/database code.
+2. Reuse completed infrastructure.
+3. Add/verify terms_documents.
+4. Add/verify terms_acceptances.
+5. Publish Vendor Terms 2026.1.
+6. Publish Contractor Terms 2026.1.
+7. Implement content hashing.
+8. Implement Vendor clickwrap.
+9. Implement Contractor clickwrap.
+10. Add server-side Terms middleware.
+11. Protect Vendor procurement APIs.
+12. Protect Contractor procurement APIs.
+13. Link Vendor Terms acceptance to Service Charge/award records.
+14. Implement Contractor AED 0 rule explicitly.
+15. Implement manpower-charge support.
+16. Add Admin Terms inspection.
+17. Add audit events.
+18. Run tests.
+19. Report evidence.
+
+Do not redo already completed work unnecessarily.
+
+============================================================
+25. COMPLETION REPORT
+============================================================
+
+Return:
+
+A. Terms files created
+B. Terms files modified
+C. Database migrations
+D. Vendor Terms 2026.1 status
+E. Contractor Terms 2026.1 status
+F. Vendor clickwrap status
+G. Contractor clickwrap status
+H. Server-side acceptance gate
+I. Re-acceptance/versioning
+J. Content hashing
+K. Vendor standard Service Charge rule
+L. Contractor AED 0 Service Charge rule
+M. Manpower charge implementation/status
+N. Award/Terms traceability
+O. Admin Terms visibility
+P. Audit logging
+Q. Test results
+R. Remaining gaps
+S. Legal wording still configurable
+T. Production resources touched: YES/NO
+
+Expected:
+
+Production resources touched: NO
+
+============================================================
+FINAL NON-NEGOTIABLE RESULT
+============================================================
+
+VENDOR:
+
+Must affirmatively accept the current Vendor Terms before protected
+procurement participation.
+
+Vendor financial obligations:
+
+STANDARD PROCUREMENT:
+2.5% of award value OR AED 500 minimum, whichever is higher.
+
+MANPOWER PROCUREMENT:
+AED 1 per approved manpower/labour unit according to the established
+Urban Procures manpower rule.
+
+CONTRACTOR / CLIENT:
+
+Urban Procures Service Charge = AED 0.
+
+Do not assign Vendor Service Charge or manpower charge to Contractor /
+Client.
+
+ALL TERMS ACCEPTANCES MUST BE:
+
+EXPLICIT
+UNCHECKED BY DEFAULT
+VERSIONED
+PERSISTENT
+TRACEABLE
+AUDITABLE
+SERVER-SIDE ENFORCED.
+
+Integrate this into the current Urban Procures Advanced system without
+restarting completed work, redesigning the approved frontend, or touching
+the live production system.
