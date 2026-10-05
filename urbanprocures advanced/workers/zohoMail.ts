@@ -43,7 +43,7 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
     // Refresh before provider expiry; cap excessively long lifetimes conservatively.
     const lifetime=Math.min(seconds,3600),margin=Math.min(60,lifetime/10);
     cached={token:data.access_token,expiresAt:now()+(lifetime-margin)*1000};return cached.token;
-   }catch(error){cached=null;throw error instanceof ZohoOAuthError?error:new ZohoOAuthError();}
+   }catch(error){cached=null;throw error instanceof ZohoOAuthError?error:new ZohoOAuthError(undefined,'transport_failure');}
   })();
   try{return await inFlight;}finally{inFlight=null;}
  };
