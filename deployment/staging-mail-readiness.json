@@ -8,5 +8,6 @@
   "workerOAuthAuthenticated": false,
   "emailSent": false,
   "productionModified": false,
-  "deploymentVersion": "4cb9185f-ccda-4a60-86c2-55d657958c0e"
+  "deploymentVersion": "ecc5f873-601f-4684-b81f-d937b6995c7c",
+  "sourceCommit": "d5a2a545f6f7ca651b56691714ebd6de08ac79e5"
 }
