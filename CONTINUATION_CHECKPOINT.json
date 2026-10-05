@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "Authenticated intended Cloudflare account; provisioned new independent staging D1/R2; all eight canonical remote migrations applied. Fixed Wrangler CASE/END trigger splitting defect without weakening Terms evidence guards.",
+  "LAST_COMPLETED_TASK": "Passed 137 actual deployed staging API/browser/security checks and 14 separate click-driven deployed procurement checks; implemented server-only Zoho OAuth refresh transport with 85 explicit HTTP-double contract checks.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -32,12 +32,18 @@
     "scripts/test-database.py",
     "package-lock.json",
     "tsconfig.worker.json",
-    "scripts/test-worker-auth.mjs"
+    "scripts/test-worker-auth.mjs",
+    "urbanprocures advanced/workers/zohoMail.ts",
+    "scripts/test-zoho-oauth.ts",
+    "scripts/test-deployed-staging.mjs",
+    "scripts/test-deployed-browser.mjs",
+    "scripts/configure-staging-zoho.mjs"
   ],
   "FILES_STILL_REQUIRING_WORK": [
-    "Deployed staging acceptance runner and resource identity verification",
-    "Zoho notification delivery integration",
-    "Production rollback/data migration/cutover gates"
+    "Live Zoho OAuth authentication and notification delivery validation",
+    "Procurement/award notification integration",
+    "Owner Admin bootstrap with securely supplied password",
+    "Remaining mandatory staging security, rollback/data-safety and production/live-domain gates"
   ],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
@@ -55,20 +61,27 @@
     "Chromium Terms/browser checks": 45,
     "offlineDatabaseChecks": 88,
     "actual operations Worker/D1/R2 checks": 85,
-    "Worker dry-run build": true
+    "Worker dry-run build": true,
+    "actual deployed staging API and browser checks": 137,
+    "actual deployed click-driven browser procurement checks": 14,
+    "Zoho OAuth contract checks (explicit HTTP test double)": 85
   },
   "TESTS_FAILED": [],
-  "TESTS_BLOCKED": {},
+  "TESTS_BLOCKED": {
+    "live Zoho authentication and delivery": "ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET and ZOHO_REFRESH_TOKEN missing; no outbound messages authorized or sent.",
+    "owner Admin bootstrap": "Approved email urbanprocures@urbanprocures.com; ADMIN_INITIAL_PASSWORD missing."
+  },
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
   ],
   "KNOWN_FAILED_REQUIREMENTS": [
-    "Actual deployed staging/production/live-domain and rollback verification pending",
-    "Zoho delivery and procurement/award notification delivery unfinished and unverified"
+    "All mandatory staging gates, production/live-domain and rollback verification pending",
+    "Live Zoho OAuth authentication/delivery unverified; procurement/award notification integration pending",
+    "Owner Admin password not yet supplied"
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
-  "MOCKS_REMAINING": "No mockStore imports in frontend runtime. Legacy Express/mockStore source retained outside Cloudflare runtime; static test certificates removed. Deployed runtime has not been certified.",
-  "NEXT_EXACT_ACTION": "Commit the verified staging implementation; deploy only new staging Worker; run real deployed browser/API/security tests.",
+  "MOCKS_REMAINING": "No mockStore in deployed frontend/runtime. Legacy Express/mock files retained outside Cloudflare runtime. OAuth contract tests explicitly mock provider HTTP only; actual Zoho delivery unverified.",
+  "NEXT_EXACT_ACTION": "Deploy the OAuth refresh implementation only to the existing independent Advanced staging Worker. After secure environment publication, bind OAuth credentials with scripts/configure-staging-zoho.mjs; verify provider authentication without exposing credentials. Owner Admin bootstrap and all production gates remain pending.",
   "PRODUCTION_RESOURCES_TOUCHED": "NO",
   "Production Pages modified": "NO",
   "Production Workers modified": "NO",
@@ -91,7 +104,7 @@
     "vendor_version": "2026.2",
     "contractor_version": "2026.1",
     "public_version": "2026.1",
-    "publication": "isolated local D1 only",
+    "publication": "independent Advanced staging D1",
     "manpower_unit": "AED 1 per person-hour",
     "production_resources_touched": false
   },
@@ -101,7 +114,13 @@
     "database_id": "eb82db72-864e-4835-b230-3903f77706f2",
     "bucket": "urbanprocures-advanced-staging-20261005-documents",
     "migrations_applied": 8,
-    "deployed": false,
-    "existing_resources_modified": false
+    "deployed": true,
+    "existing_resources_modified": false,
+    "deployment_version": "2a56c213-dea9-48de-974a-d3a267604875",
+    "source_commit": "c569212c0082f700fc554d0147c15b6af1cb537f",
+    "http_smoke_status": 200,
+    "qa_api_browser_checks_passed": 137,
+    "qa_procurement_browser_checks_passed": 14,
+    "all_acceptance_gates_passed": false
   }
 }

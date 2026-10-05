@@ -10,6 +10,8 @@ workers_dev = true
 ENVIRONMENT = "advanced-staging"
 PLATFORM_DOMAIN = "urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev"
 PUBLIC_APP_ORIGIN = "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev"
+ZOHO_MAIL_ACCOUNT_ID = "6991914000000008002"
+ZOHO_MAIL_API_ORIGIN = "https://mail.zoho.ae"
 
 [[d1_databases]]
 binding = "DB"

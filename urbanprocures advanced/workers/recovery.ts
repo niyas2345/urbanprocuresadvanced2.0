@@ -1,5 +1,6 @@
 import type {Env} from './index.ts';
 import {tokenDigest,passwordHash} from './auth.ts';
+import {sendZohoMail,zohoConfiguration,validZohoConfiguration} from './zohoMail.ts';
 export async function rateAllowed(env:Env,key:string,limit:number,windowMs=60000) {
  const window=Math.floor(Date.now()/windowMs)*windowMs;
  const result=await env.DB.prepare(`INSERT INTO auth_rate_limits (key,window_start,attempts) VALUES (?,?,1)
@@ -14,12 +15,13 @@ export async function recoveryRoute(request:Request,env:Env):Promise<Response|nu
  if(path.endsWith('forgot-password')){
   if(typeof body.email!=='string'||body.email.length>250)return fail('INVALID_REQUEST');
   // Only owner-configured Zoho transport may deliver reset links; no simulated success.
-  if(!env.ZOHO_MAIL_ACCESS_TOKEN||!env.ZOHO_MAIL_ACCOUNT_ID||!env.ZOHO_MAIL_FROM_ADDRESS||!env.ZOHO_MAIL_API_ORIGIN||!env.PUBLIC_APP_ORIGIN)return fail('ZOHO_PASSWORD_RESET_NOT_CONFIGURED',503);
-  if(!['https://mail.zoho.com','https://mail.zoho.eu','https://mail.zoho.in','https://mail.zoho.com.au','https://mail.zoho.jp','https://mail.zoho.ca'].includes(env.ZOHO_MAIL_API_ORIGIN)||!/^https:\/\//.test(env.PUBLIC_APP_ORIGIN))return fail('EMAIL_CONFIGURATION_INVALID',503);
+  const config=zohoConfiguration(env);
+  if(!config||!env.PUBLIC_APP_ORIGIN)return fail('ZOHO_PASSWORD_RESET_NOT_CONFIGURED',503);
+  if(!validZohoConfiguration(config)||!/^https:\/\//.test(env.PUBLIC_APP_ORIGIN))return fail('EMAIL_CONFIGURATION_INVALID',503);
   const user=await env.DB.prepare("SELECT id,email FROM users WHERE email=? AND status='active'").bind(body.email.trim().toLowerCase()).first<{id:string;email:string}>();
   if(user){const token=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join(''),digest=await tokenDigest(token),now=new Date().toISOString();
    await env.DB.batch([env.DB.prepare('DELETE FROM password_reset_tokens WHERE user_id=?').bind(user.id),env.DB.prepare('INSERT INTO password_reset_tokens (digest,user_id,expires_at,created_at) VALUES (?,?,?,?)').bind(digest,user.id,new Date(Date.now()+1800000).toISOString(),now)]);
-   try{const response=await fetch(`${env.ZOHO_MAIL_API_ORIGIN}/api/accounts/${encodeURIComponent(env.ZOHO_MAIL_ACCOUNT_ID)}/messages`,{method:'POST',headers:{Authorization:'Zoho-oauthtoken '+env.ZOHO_MAIL_ACCESS_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({fromAddress:env.ZOHO_MAIL_FROM_ADDRESS,toAddress:user.email,subject:'Urban Procures password reset',content:`Use this link within 30 minutes to reset your password: ${env.PUBLIC_APP_ORIGIN}/reset-password#${token}`,mailFormat:'plaintext'})});if(!response.ok)throw Error('Delivery failed');}catch{await env.DB.prepare('DELETE FROM password_reset_tokens WHERE digest=?').bind(digest).run();return fail('EMAIL_DELIVERY_UNAVAILABLE',503);}
+   try{await sendZohoMail(env,{toAddress:user.email,subject:'Urban Procures password reset',content:`Use this link within 30 minutes to reset your password: ${env.PUBLIC_APP_ORIGIN}/reset-password#${token}`});}catch{await env.DB.prepare('DELETE FROM password_reset_tokens WHERE digest=?').bind(digest).run();return fail('EMAIL_DELIVERY_UNAVAILABLE',503);}
   }
   return Response.json({success:true,data:{message:'If an eligible account exists, reset instructions have been sent.'}});
  }

@@ -21,7 +21,9 @@
     "test:terms": "node scripts/test-terms.mjs",
     "test:terms-ui": "node scripts/test-terms-ui.mjs",
     "test:operations": "node scripts/test-operations.mjs",
-    "test:wrangler-migrations": "node scripts/test-wrangler-migrations.mjs"
+    "test:wrangler-migrations": "node scripts/test-wrangler-migrations.mjs",
+    "test:zoho-oauth": "tsx scripts/test-zoho-oauth.ts",
+    "test:staging": "node scripts/test-deployed-staging.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

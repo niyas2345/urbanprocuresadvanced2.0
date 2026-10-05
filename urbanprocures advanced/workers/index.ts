@@ -13,7 +13,9 @@ import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
-  ZOHO_MAIL_ACCESS_TOKEN?: string;
+  ZOHO_CLIENT_ID?: string;
+  ZOHO_CLIENT_SECRET?: string;
+  ZOHO_REFRESH_TOKEN?: string;
   ZOHO_MAIL_ACCOUNT_ID?: string;
   ZOHO_MAIL_FROM_ADDRESS?: string;
   ZOHO_MAIL_API_ORIGIN?: string;

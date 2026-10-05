@@ -1,0 +1,31 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "startedAt": "2026-10-05T01:49:12.295Z",
+  "checks": [
+    "contractor browser actual credential login",
+    "browser RFQ BoQ and upload persist on deployed bindings",
+    "admin browser actual credential login",
+    "Admin browser renders actual private R2 image",
+    "Admin browser download retains uploaded filename",
+    "Admin browser downloads exact uploaded bytes",
+    "Admin browser publishes reviewed RFQ",
+    "vendor browser actual credential login",
+    "Vendor browser submits actual itemized quotation",
+    "owning Contractor browser confirms award",
+    "browser award uses server commercial calculation",
+    "winning contact visible after actual browser award",
+    "awarded RFQ persists after browser reload",
+    "Admin browser reads persisted award charge"
+  ],
+  "failures": [],
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "rfqId": "60d97d24-6d5f-4907-8364-842496df6807",
+  "status": "passed",
+  "completedAt": "2026-10-05T01:51:08.290Z",
+  "resolvedHarnessFailures": [
+    "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByText('qa-7e91af8b1163-vendor@example.invalid', { exact: true }) to be visible\u001b[22m\n"
+  ],
+  "sourceCommit": "c569212c0082f700fc554d0147c15b6af1cb537f",
+  "workerDeploymentVersion": "2a56c213-dea9-48de-974a-d3a267604875"
+}
