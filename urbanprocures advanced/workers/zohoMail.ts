@@ -9,14 +9,14 @@ const providers:Record<string,string>={
  'https://mail.zoho.jp':'https://accounts.zoho.jp',
  'https://mail.zoho.ca':'https://accounts.zohocloud.ca'
 };
-export type ZohoConfiguration={clientId:string;clientSecret:string;refreshToken:string;accountId:string;fromAddress:string;mailOrigin:string};
+export type ZohoConfiguration={clientId:string;clientSecret:string;refreshToken:string;accountId:string;fromAddress:string;mailOrigin:string;accountsOrigin?:string};
 export type MailMessage={toAddress:string;subject:string;content:string};
 export function zohoConfiguration(env:Env):ZohoConfiguration|null {
  if(!env.ZOHO_CLIENT_ID||!env.ZOHO_CLIENT_SECRET||!env.ZOHO_REFRESH_TOKEN||!env.ZOHO_MAIL_ACCOUNT_ID||!env.ZOHO_MAIL_FROM_ADDRESS||!env.ZOHO_MAIL_API_ORIGIN)return null;
- return {clientId:env.ZOHO_CLIENT_ID,clientSecret:env.ZOHO_CLIENT_SECRET,refreshToken:env.ZOHO_REFRESH_TOKEN,accountId:env.ZOHO_MAIL_ACCOUNT_ID,fromAddress:env.ZOHO_MAIL_FROM_ADDRESS,mailOrigin:env.ZOHO_MAIL_API_ORIGIN};
+ return {clientId:env.ZOHO_CLIENT_ID,clientSecret:env.ZOHO_CLIENT_SECRET,refreshToken:env.ZOHO_REFRESH_TOKEN,accountId:env.ZOHO_MAIL_ACCOUNT_ID,fromAddress:env.ZOHO_MAIL_FROM_ADDRESS,mailOrigin:env.ZOHO_MAIL_API_ORIGIN,accountsOrigin:env.ZOHO_ACCOUNTS_API_ORIGIN};
 }
 export function validZohoConfiguration(config:ZohoConfiguration) {
- return Object.hasOwn(providers,config.mailOrigin)&&/^\d+$/.test(config.accountId)&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.fromAddress);
+ return Object.hasOwn(providers,config.mailOrigin)&&(!config.accountsOrigin||Object.values(providers).includes(config.accountsOrigin))&&/^\d+$/.test(config.accountId)&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.fromAddress);
 }
 // This factory is server-only. Access tokens and OAuth credentials never enter API responses.
 export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{fetch?:typeof fetch;now?:()=>number}={}) {
@@ -28,7 +28,7 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
   if(inFlight)return inFlight;
   inFlight=(async()=>{
    try {
-    const response=await fetcher(providers[config.mailOrigin]+'/oauth/v2/token',{
+    const response=await fetcher((config.accountsOrigin??providers[config.mailOrigin])+'/oauth/v2/token',{
      method:'POST',redirect:'error',signal:AbortSignal.timeout(15000),
      headers:{'Content-Type':'application/x-www-form-urlencoded'},
      body:new URLSearchParams({grant_type:'refresh_token',client_id:config.clientId,client_secret:config.clientSecret,refresh_token:config.refreshToken})

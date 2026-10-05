@@ -19,6 +19,7 @@ export interface Env {
   ZOHO_MAIL_ACCOUNT_ID?: string;
   ZOHO_MAIL_FROM_ADDRESS?: string;
   ZOHO_MAIL_API_ORIGIN?: string;
+  ZOHO_ACCOUNTS_API_ORIGIN?: string;
   PUBLIC_APP_ORIGIN?: string;
   ASSETS?: Fetcher;
   DB: D1Database;

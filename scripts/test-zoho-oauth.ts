@@ -47,6 +47,13 @@ await retryAfterFailure.send(message);verify(failures===2,'failed refresh releas
 const providerFailure=createZohoMailTransport(config,{fetch:async(input)=>String(input).endsWith('/oauth/v2/token')?json({access_token:'fixture',expires_in:3600}):json({status:{code:500}})});
 await assert.rejects(providerFailure.send(message),/^Error: EMAIL_DELIVERY_UNAVAILABLE$/);checks++;
 verify(!validZohoConfiguration({...config,mailOrigin:'https://attacker.example.invalid'}),'unapproved endpoint rejected');
+verify(!validZohoConfiguration({...config,accountsOrigin:'https://attacker.example.invalid'}),'unapproved OAuth endpoint rejected');
+let usRefreshCalls=0;
+const usTransport=createZohoMailTransport({...config,accountsOrigin:'https://accounts.zoho.com'},{fetch:async(input)=>{
+ verify(String(input)==='https://accounts.zoho.com/oauth/v2/token','explicit OAuth issuer overrides derived Mail region');
+ usRefreshCalls++;return json({access_token:'fixture-us-access',expires_in:3600});
+}});
+await usTransport.authenticate();verify(usRefreshCalls===1,'US-issued grant authenticates without changing UAE Mail origin');
 verify(!validZohoConfiguration({...config,accountId:'../other-account'}),'account path injection rejected');
 verify(!validZohoConfiguration({...config,fromAddress:'invalid\r\naddress'}),'invalid sender rejected');
 verify(zohoConfiguration({ZOHO_MAIL_ACCESS_TOKEN:'legacy-fixture',ZOHO_MAIL_ACCOUNT_ID:config.accountId,ZOHO_MAIL_FROM_ADDRESS:config.fromAddress,ZOHO_MAIL_API_ORIGIN:config.mailOrigin} as unknown as Env)===null,'manually stored access token cannot configure transport');
