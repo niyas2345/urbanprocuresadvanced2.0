@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "Confirmed OAuth issuer accounts.zoho.com independently of UAE Mail endpoint. Fixed unsupported Cloudflare redirect:error with manual redirects and refusal of redirect responses. Deployed corrected transport; real Zoho refresh now responds invalid_client_secret. Existing owner Admin login and staging secret bindings verified; production untouched.",
+  "LAST_COMPLETED_TASK": "Republished runtime credential presence verified; rebound current OAuth values only to existing staging Worker using both bulk and direct Cloudflare API secret updates. Both real Worker no-mail health checks still return invalid_client_secret. Current secure proxy destinations omit confirmed accounts.zoho.com issuer, preventing independent runtime OAuth validation through the supported credential route.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -71,7 +71,7 @@
   },
   "TESTS_FAILED": [],
   "TESTS_BLOCKED": {
-    "live Zoho authentication and delivery": "Confirmed accounts.zoho.com issuer. Real provider returns HTTP 200 with error invalid_client_secret; staging Admin-only health responds 503. Correct ZOHO_CLIENT_SECRET must match ZOHO_CLIENT_ID. No emails sent."
+    "live Zoho authentication and delivery": "After current-runtime bulk and direct API rebinding, real staging health remains 503 with Zoho HTTP 200 invalid_client_secret. Secure proxy secret destinations currently allow accounts.zoho.ae/api.cloudflare.com but omit accounts.zoho.com. Existing destination changes require environment settings; draft API cannot modify them."
   },
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
@@ -83,7 +83,7 @@
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed frontend/runtime. Legacy Express/mock files retained outside Cloudflare runtime. OAuth contract tests explicitly mock provider HTTP only; actual Zoho delivery unverified.",
-  "NEXT_EXACT_ACTION": "After owner securely corrects ZOHO_CLIENT_SECRET for the existing accounts.zoho.com OAuth client, confirm updated runtime availability, rebind changed credentials only to existing independent staging Worker using scripts/configure-staging-zoho.mjs, then POST /api/admin/email/health with actual Admin login. Preserve all existing resources and approved UI; do not bootstrap owner Admin again. Continue Mail account verification and notification/remaining staging gates only after successful token refresh.",
+  "NEXT_EXACT_ACTION": "Add accounts.zoho.com to the allowed destinations of the existing ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET and ZOHO_REFRESH_TOKEN bindings in environment settings, then publish. Verify updated credentials directly through the supported runtime HTTPS proxy route to confirmed issuer. Compare with staging health to distinguish binding-path failure from provider credential refusal, and fix only the isolated staging binding path as required. Do not ask for secret values in chat or recreate staging resources. Production remains unchanged.",
   "PRODUCTION_RESOURCES_TOUCHED": "NO",
   "Production Pages modified": "NO",
   "Production Workers modified": "NO",

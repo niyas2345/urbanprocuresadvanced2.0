@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-05T03:08:05.410658+00:00",
+  "verifiedAt": "2026-10-05T03:23:09.650439+00:00",
   "runtimeSecretsAvailable": true,
   "oauthSecretsBound": true,
   "ownerAdminLoginVerified": true,
@@ -13,5 +13,7 @@
   "accountsOrigin": "https://accounts.zoho.com",
   "mailOrigin": "https://mail.zoho.ae",
   "providerStatus": 200,
-  "providerCode": "invalid_client_secret"
+  "providerCode": "invalid_client_secret",
+  "credentialsReboundFromCurrentRuntime": true,
+  "directAPIRebindingTested": true
 }
