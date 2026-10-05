@@ -1,0 +1,9 @@
+{
+  "verifiedAt": "2026-10-05T03:50:00.099882+00:00",
+  "workerOAuthStatus": 503,
+  "workerOAuthSucceeded": false,
+  "providerStatus": 200,
+  "providerCode": "invalid_client_secret",
+  "emailSent": false,
+  "productionModified": false
+}
