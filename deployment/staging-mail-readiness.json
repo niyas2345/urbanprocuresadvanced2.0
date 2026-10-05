@@ -1,0 +1,12 @@
+{
+  "verifiedAt": "2026-10-05T02:54:33.226523+00:00",
+  "runtimeSecretsAvailable": true,
+  "oauthSecretsBound": true,
+  "ownerAdminLoginVerified": true,
+  "anonymousHealthStatus": 401,
+  "workerOAuthHealthStatus": 503,
+  "workerOAuthAuthenticated": false,
+  "emailSent": false,
+  "productionModified": false,
+  "deploymentVersion": "4cb9185f-ccda-4a60-86c2-55d657958c0e"
+}

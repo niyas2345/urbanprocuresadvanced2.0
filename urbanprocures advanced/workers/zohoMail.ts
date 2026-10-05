@@ -42,7 +42,7 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
   })();
   try{return await inFlight;}finally{inFlight=null;}
  };
- return {async send(message:MailMessage):Promise<void> {
+ return {async authenticate():Promise<void>{await accessToken();},async send(message:MailMessage):Promise<void> {
   for(let attempt=0;attempt<2;attempt++){
    const token=await accessToken();
    let response:Response,data:any;
@@ -64,12 +64,18 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
  }};
 }
 const transports=new Map<string,ReturnType<typeof createZohoMailTransport>>();
-export async function sendZohoMail(env:Env,message:MailMessage) {
+async function transportFor(env:Env) {
  const config=zohoConfiguration(env);if(!config)throw Error('EMAIL_NOT_CONFIGURED');
  // Separate cache entries after credential rotation, without retaining raw credentials as keys.
  const bytes=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(config)));
  const key=Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,'0')).join('');
  let transport=transports.get(key);
  if(!transport){transport=createZohoMailTransport(config);if(transports.size>=8)transports.delete(transports.keys().next().value!);transports.set(key,transport);}
- await transport.send(message);
+ return transport;
+}
+export async function sendZohoMail(env:Env,message:MailMessage) {
+ await (await transportFor(env)).send(message);
+}
+export async function verifyZohoAuthentication(env:Env):Promise<void> {
+ await (await transportFor(env)).authenticate();
 }

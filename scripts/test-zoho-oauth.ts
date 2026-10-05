@@ -26,6 +26,8 @@ const fetcher:typeof fetch=async(input,init)=>{
  return json({status:{code:200}});
 };
 const transport=createZohoMailTransport(config,{fetch:fetcher,now:()=>clock});
+verify(await transport.authenticate()===undefined,'authentication probe returns no access token');
+verify(messages===0,'authentication probe sends no email');
 await Promise.all([transport.send(message),transport.send(message)]);
 verify(refreshes===1&&messages===2,'concurrent sends share one OAuth refresh');
 clock=3539000;await transport.send(message);verify(refreshes===1,'unexpired token reused');

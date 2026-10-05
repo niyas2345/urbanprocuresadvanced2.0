@@ -12,6 +12,9 @@ try {
  const details={companyName:'Operations Fixture',tradeLicenseNumber:'FIXTURE',emirate:'Dubai',address:'Fixture',contactPerson:'Fixture',contactPhone:'Fixture',password:'Fixture-password-2026!',tradeCategories:['Joinery'],emiratesServiced:['Dubai'],acceptTerms:true};
  const register=async(role,name)=>{const r=await call('/api/auth/register-'+role,{...details,email:name+'@example.invalid',termsVersionId:role+(role==='vendor'?'-2026.2':'-2026.1')});verify(r.status===201,'registration');return r.json();};
  const c=await register('contractor','contractor'),v=await register('vendor','vendor'),other=await register('contractor','other');
+ verify((await call('/api/admin/email/health',{})).status===401,'anonymous cannot probe OAuth');
+ verify((await call('/api/admin/email/health',{},v.token)).status===403,'Vendor cannot probe OAuth');
+ verify((await call('/api/admin/email/health',{},adminToken)).status===503,'unconfigured Admin OAuth probe fails without mail');
  for(const resource of ['users','contractors','vendors','documents','rfqs','public-quotes','site-visits','awards','quotations','service-charges','audit-logs','invitations']) {
   verify((await call('/api/admin/'+resource,null,v.token)).status===403,resource+' Vendor denied');verify((await call('/api/admin/'+resource,null,adminToken)).status===200,resource+' real Admin query');verify((await call('/api/admin/'+resource)).status===401,resource+' anonymous denied');
  }
