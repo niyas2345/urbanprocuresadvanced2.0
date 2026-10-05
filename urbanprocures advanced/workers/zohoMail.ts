@@ -11,6 +11,10 @@ const providers:Record<string,string>={
 };
 export type ZohoConfiguration={clientId:string;clientSecret:string;refreshToken:string;accountId:string;fromAddress:string;mailOrigin:string;accountsOrigin?:string};
 export type MailMessage={toAddress:string;subject:string;content:string};
+const safeOAuthCodes=new Set(['invalid_client','invalid_client_secret','invalid_clientid','invalid_code','invalid_grant','invalid_refresh_token','invalid_scope','invalid_request','unauthorized_client','access_denied','temporarily_unavailable']);
+export class ZohoOAuthError extends Error {
+ constructor(public readonly providerStatus?:number,public readonly providerCode?:string){super('EMAIL_AUTHENTICATION_UNAVAILABLE');}
+}
 export function zohoConfiguration(env:Env):ZohoConfiguration|null {
  if(!env.ZOHO_CLIENT_ID||!env.ZOHO_CLIENT_SECRET||!env.ZOHO_REFRESH_TOKEN||!env.ZOHO_MAIL_ACCOUNT_ID||!env.ZOHO_MAIL_FROM_ADDRESS||!env.ZOHO_MAIL_API_ORIGIN)return null;
  return {clientId:env.ZOHO_CLIENT_ID,clientSecret:env.ZOHO_CLIENT_SECRET,refreshToken:env.ZOHO_REFRESH_TOKEN,accountId:env.ZOHO_MAIL_ACCOUNT_ID,fromAddress:env.ZOHO_MAIL_FROM_ADDRESS,mailOrigin:env.ZOHO_MAIL_API_ORIGIN,accountsOrigin:env.ZOHO_ACCOUNTS_API_ORIGIN};
@@ -33,12 +37,13 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
      headers:{'Content-Type':'application/x-www-form-urlencoded'},
      body:new URLSearchParams({grant_type:'refresh_token',client_id:config.clientId,client_secret:config.clientSecret,refresh_token:config.refreshToken})
     });
-    const data:any=await response.json(),seconds=Number(data.expires_in??data.expires_in_sec);
-    if(!response.ok||data.error||typeof data.access_token!=='string'||!data.access_token||data.access_token.length>4096||!Number.isFinite(seconds)||seconds<=0)throw Error('Invalid OAuth response');
+    let data:any;try{data=await response.json();}catch{throw new ZohoOAuthError(response.status,'unexpected_response');}
+    const seconds=Number(data.expires_in??data.expires_in_sec);
+    if(!response.ok||data.error||typeof data.access_token!=='string'||!data.access_token||data.access_token.length>4096||!Number.isFinite(seconds)||seconds<=0)throw new ZohoOAuthError(response.status,safeOAuthCodes.has(data.error)?data.error:'invalid_token_response');
     // Refresh before provider expiry; cap excessively long lifetimes conservatively.
     const lifetime=Math.min(seconds,3600),margin=Math.min(60,lifetime/10);
     cached={token:data.access_token,expiresAt:now()+(lifetime-margin)*1000};return cached.token;
-   }catch{cached=null;throw Error('EMAIL_AUTHENTICATION_UNAVAILABLE');}
+   }catch(error){cached=null;throw error instanceof ZohoOAuthError?error:new ZohoOAuthError();}
   })();
   try{return await inFlight;}finally{inFlight=null;}
  };

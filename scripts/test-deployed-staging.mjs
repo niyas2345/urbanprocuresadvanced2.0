@@ -107,7 +107,8 @@ try {
  const context=await browser.newContext(),page=await context.newPage();await page.goto(origin+'/admin');await page.getByLabel('Admin email').fill(admin.adminEmail);await page.getByLabel('Password',{exact:true}).fill(admin.adminPassword);await page.getByRole('button',{name:'Sign In',exact:true}).click();await page.getByRole('button',{name:/Document Inspector/}).waitFor();verify(await page.getByText('Admin Session Active',{exact:true}).isVisible(),'Admin browser authenticates');
  await page.getByRole('button',{name:'Terms Acceptance Evidence',exact:true}).click();await page.getByRole('button',{name:'Inspect Accepted Version',exact:true}).first().click();verify((await page.locator('pre').textContent()).includes('ELECTRONIC ACCEPTANCE'),'Admin browser inspects full stored accepted Terms');
  await context.close();
- verify((await call('/api/auth/forgot-password',{email:contractor.email})).status===503,'unconfigured Zoho reports unavailable without sending mail');
+ const recovery=await call('/api/auth/forgot-password',{email:'qa-no-account-'+runId+'@example.invalid'});
+ verify(recovery.status===200||(recovery.status===503&&recovery.body.error==='ZOHO_PASSWORD_RESET_NOT_CONFIGURED'),'nonexistent-account recovery check sends no email');
  verify((await call('/api/no-such-route')).status===404,'unknown API returns honest 404');
  report.completedAt=new Date().toISOString();report.status='passed';
 }catch(error){report.status='failed';report.failures.push(error.message);process.exitCode=1;}

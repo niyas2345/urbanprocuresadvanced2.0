@@ -1,5 +1,5 @@
 import type { Env } from './index.ts';
-import {verifyZohoAuthentication} from './zohoMail.ts';
+import {verifyZohoAuthentication,ZohoOAuthError} from './zohoMail.ts';
 import type { Actor } from './terms.ts';
 import { organizationFor, termsGate } from './terms.ts';
 import { rfqDto } from './procurement.ts';
@@ -104,7 +104,7 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
  if(actor.role!=='admin')return null;
  if(path==='/api/admin/email/health'&&method==='POST'){
   try{await verifyZohoAuthentication(env);return ok({authenticated:true,emailSent:false});}
-  catch{return fail('EMAIL_AUTHENTICATION_UNAVAILABLE',503);}
+  catch(error){return Response.json({success:false,error:'EMAIL_AUTHENTICATION_UNAVAILABLE',providerStatus:error instanceof ZohoOAuthError?error.providerStatus??null:null,providerCode:error instanceof ZohoOAuthError?error.providerCode??null:null},{status:503,headers:{'Cache-Control':'no-store'}});}
  }
  const listing:Record<string,string>={users:'SELECT id,email,role,status,created_at FROM users WHERE role IN (\'admin\',\'contractor\',\'vendor\')',contractors:'SELECT * FROM contractors',vendors:'SELECT * FROM vendors',documents:'SELECT * FROM rfq_documents','site-visits':'SELECT * FROM site_visits',awards:'SELECT * FROM awards',quotations:'SELECT * FROM vendor_quotes','service-charges':'SELECT * FROM service_charges','audit-logs':'SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 500',invitations:'SELECT * FROM invitations'};
  const resource=path.slice('/api/admin/'.length);
