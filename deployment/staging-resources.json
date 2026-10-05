@@ -31,7 +31,7 @@
   "productionModified": false,
   "stagingDatabaseId": "eb82db72-864e-4835-b230-3903f77706f2",
   "stagingBucketCreated": true,
-  "stagingDeploymentVersion": "ecc5f873-601f-4684-b81f-d937b6995c7c",
-  "stagingSourceCommit": "d5a2a545f6f7ca651b56691714ebd6de08ac79e5",
+  "stagingDeploymentVersion": "084f552a-63ba-4f7b-9ac7-bc19cd7fcd80",
+  "stagingSourceCommit": "bd21844041c9f35564257d00a221553a4dc2f5ad",
   "stagingOAuthRefreshDeployed": true
 }

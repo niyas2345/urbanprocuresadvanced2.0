@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-05T02:54:33.226523+00:00",
+  "verifiedAt": "2026-10-05T03:08:05.410658+00:00",
   "runtimeSecretsAvailable": true,
   "oauthSecretsBound": true,
   "ownerAdminLoginVerified": true,
@@ -8,6 +8,10 @@
   "workerOAuthAuthenticated": false,
   "emailSent": false,
   "productionModified": false,
-  "deploymentVersion": "ecc5f873-601f-4684-b81f-d937b6995c7c",
-  "sourceCommit": "d5a2a545f6f7ca651b56691714ebd6de08ac79e5"
+  "deploymentVersion": "084f552a-63ba-4f7b-9ac7-bc19cd7fcd80",
+  "sourceCommit": "bd21844041c9f35564257d00a221553a4dc2f5ad",
+  "accountsOrigin": "https://accounts.zoho.com",
+  "mailOrigin": "https://mail.zoho.ae",
+  "providerStatus": 200,
+  "providerCode": "invalid_client_secret"
 }

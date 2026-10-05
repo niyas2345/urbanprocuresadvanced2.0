@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "New runtime secrets confirmed; OAuth credentials and approved sender bound to independent staging Worker. Owner Admin bootstrapped in staging with audit record and genuine password login verified. Deployed Admin-only no-mail OAuth health probe rejects anonymous access; provider authentication remains unsuccessful.",
+  "LAST_COMPLETED_TASK": "Confirmed OAuth issuer accounts.zoho.com independently of UAE Mail endpoint. Fixed unsupported Cloudflare redirect:error with manual redirects and refusal of redirect responses. Deployed corrected transport; real Zoho refresh now responds invalid_client_secret. Existing owner Admin login and staging secret bindings verified; production untouched.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -64,13 +64,14 @@
     "Worker dry-run build": true,
     "actual deployed staging API and browser checks": 137,
     "actual deployed click-driven browser procurement checks": 14,
-    "Zoho OAuth contract checks (explicit HTTP test double)": 87,
+    "Zoho OAuth contract checks (explicit HTTP test double)": 90,
     "post-OAuth-deploy HTTPS smoke checks": 4,
-    "owner Admin staging password login": true
+    "owner Admin staging password login": true,
+    "native workerd OAuth Request compatibility checks (provider HTTP double)": 13
   },
   "TESTS_FAILED": [],
   "TESTS_BLOCKED": {
-    "live Zoho authentication and delivery": "Runtime and Worker credentials are now present. UAE Accounts refresh endpoint returned HTTP 400 text/html; deployed no-mail Admin authentication probe returns 503. Need confirm issuing Zoho Accounts region and valid OAuth grant; no emails sent."
+    "live Zoho authentication and delivery": "Confirmed accounts.zoho.com issuer. Real provider returns HTTP 200 with error invalid_client_secret; staging Admin-only health responds 503. Correct ZOHO_CLIENT_SECRET must match ZOHO_CLIENT_ID. No emails sent."
   },
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
@@ -82,7 +83,7 @@
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed frontend/runtime. Legacy Express/mock files retained outside Cloudflare runtime. OAuth contract tests explicitly mock provider HTTP only; actual Zoho delivery unverified.",
-  "NEXT_EXACT_ACTION": "Confirm which Zoho Accounts domain issued the client and refresh token; resolve OAuth provider refusal without exposing credentials, then retest Admin-only POST /api/admin/email/health. Never send test mail without recipient authorization. Continue remaining notification and mandatory staging/rollback gates. Do not repeat staging provisioning or owner Admin bootstrap; existing production remains read-only.",
+  "NEXT_EXACT_ACTION": "After owner securely corrects ZOHO_CLIENT_SECRET for the existing accounts.zoho.com OAuth client, confirm updated runtime availability, rebind changed credentials only to existing independent staging Worker using scripts/configure-staging-zoho.mjs, then POST /api/admin/email/health with actual Admin login. Preserve all existing resources and approved UI; do not bootstrap owner Admin again. Continue Mail account verification and notification/remaining staging gates only after successful token refresh.",
   "PRODUCTION_RESOURCES_TOUCHED": "NO",
   "Production Pages modified": "NO",
   "Production Workers modified": "NO",
@@ -117,8 +118,8 @@
     "migrations_applied": 8,
     "deployed": true,
     "existing_resources_modified": false,
-    "deployment_version": "ecc5f873-601f-4684-b81f-d937b6995c7c",
-    "source_commit": "d5a2a545f6f7ca651b56691714ebd6de08ac79e5",
+    "deployment_version": "084f552a-63ba-4f7b-9ac7-bc19cd7fcd80",
+    "source_commit": "bd21844041c9f35564257d00a221553a4dc2f5ad",
     "http_smoke_status": 200,
     "qa_api_browser_checks_passed": 137,
     "qa_procurement_browser_checks_passed": 14,
@@ -127,6 +128,7 @@
     "oauth_secrets_bound": true,
     "post_deploy_smoke_checks_passed": 4,
     "owner_admin_login_verified": true,
-    "oauth_authentication_verified": false
+    "oauth_authentication_verified": false,
+    "oauth_accounts_origin": "https://accounts.zoho.com"
   }
 }
