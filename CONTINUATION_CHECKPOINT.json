@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "Passed 137 actual deployed staging API/browser/security checks and 14 separate click-driven deployed procurement checks; implemented server-only Zoho OAuth refresh transport with 85 explicit HTTP-double contract checks.",
+  "LAST_COMPLETED_TASK": "Deployed server-side Zoho OAuth refresh implementation to independent Advanced staging Worker; remotely verified exact source commit and D1/R2 bindings; post-deploy HTTPS smoke passed. Prior deployed workflow/security checks: 137 plus 14 click-driven browser checks.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -64,7 +64,8 @@
     "Worker dry-run build": true,
     "actual deployed staging API and browser checks": 137,
     "actual deployed click-driven browser procurement checks": 14,
-    "Zoho OAuth contract checks (explicit HTTP test double)": 85
+    "Zoho OAuth contract checks (explicit HTTP test double)": 85,
+    "post-OAuth-deploy HTTPS smoke checks": 4
   },
   "TESTS_FAILED": [],
   "TESTS_BLOCKED": {
@@ -81,7 +82,7 @@
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed frontend/runtime. Legacy Express/mock files retained outside Cloudflare runtime. OAuth contract tests explicitly mock provider HTTP only; actual Zoho delivery unverified.",
-  "NEXT_EXACT_ACTION": "Deploy the OAuth refresh implementation only to the existing independent Advanced staging Worker. After secure environment publication, bind OAuth credentials with scripts/configure-staging-zoho.mjs; verify provider authentication without exposing credentials. Owner Admin bootstrap and all production gates remain pending.",
+  "NEXT_EXACT_ACTION": "After securely publishing ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN and ADMIN_INITIAL_PASSWORD into the cloud environment, check presence without printing values. Run node scripts/configure-staging-zoho.mjs only for this independent staging Worker. Verify real Zoho OAuth authentication; obtain explicit test-mail authorization before sending. Bootstrap approved owner Admin without automatic profile verification/Terms acceptance. Continue remaining notification, staging acceptance, rollback/data-safety and production gates. Do not provision staging again or modify existing production resources.",
   "PRODUCTION_RESOURCES_TOUCHED": "NO",
   "Production Pages modified": "NO",
   "Production Workers modified": "NO",
@@ -116,11 +117,14 @@
     "migrations_applied": 8,
     "deployed": true,
     "existing_resources_modified": false,
-    "deployment_version": "2a56c213-dea9-48de-974a-d3a267604875",
-    "source_commit": "c569212c0082f700fc554d0147c15b6af1cb537f",
+    "deployment_version": "ece60614-25fa-4e67-841e-868ba0af7f2c",
+    "source_commit": "cb6fa96168fb95023a7319decba377738c5bb3a3",
     "http_smoke_status": 200,
     "qa_api_browser_checks_passed": 137,
     "qa_procurement_browser_checks_passed": 14,
-    "all_acceptance_gates_passed": false
+    "all_acceptance_gates_passed": false,
+    "oauth_refresh_implementation_deployed": true,
+    "oauth_secrets_bound": false,
+    "post_deploy_smoke_checks_passed": 4
   }
 }

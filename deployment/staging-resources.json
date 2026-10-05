@@ -30,5 +30,8 @@
   "stagingUrl": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
   "productionModified": false,
   "stagingDatabaseId": "eb82db72-864e-4835-b230-3903f77706f2",
-  "stagingBucketCreated": true
+  "stagingBucketCreated": true,
+  "stagingDeploymentVersion": "ece60614-25fa-4e67-841e-868ba0af7f2c",
+  "stagingSourceCommit": "cb6fa96168fb95023a7319decba377738c5bb3a3",
+  "stagingOAuthRefreshDeployed": true
 }

@@ -1,0 +1,16 @@
+{
+  "versionId": "ece60614-25fa-4e67-841e-868ba0af7f2c",
+  "sourceCommit": "cb6fa96168fb95023a7319decba377738c5bb3a3",
+  "worker": "urbanprocures-advanced-staging-20261005",
+  "url": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "databaseId": "eb82db72-864e-4835-b230-3903f77706f2",
+  "bucketName": "urbanprocures-advanced-staging-20261005-documents",
+  "bindingsVerified": true,
+  "oauthSecretsBound": false,
+  "actualZohoAuthenticationTested": false,
+  "actualZohoDeliveryTested": false,
+  "productionModified": false,
+  "postDeploySmokeChecksPassed": 4,
+  "tlsVerificationEnabled": true,
+  "verifiedAt": "2026-10-05T01:55:34.221Z"
+}
