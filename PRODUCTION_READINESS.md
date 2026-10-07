@@ -1,6 +1,32 @@
-# Production readiness — 2026-10-05 (Asia/Dubai)
+# Production readiness — 7 October 2026 (Asia/Dubai)
 
-**NOT READY FOR BLANKET PRODUCTION ACCEPTANCE**
+**Production launch acceptance passed for the verified workflows.**
+
+Advanced is live at https://urbanprocures.com and https://www.urbanprocures.com.
+The production preview passed 137 genuine API/security checks and 14 browser
+procurement checks. Post-retirement checks on both actual domains verify owner
+login, anonymous denial, actual D1 access, all approved Terms/content hashes and
+real OAuth authentication. Production owner-only mail arrived in the inbox.
+Temporary QA records and objects were removed before launch.
+
+Only the Advanced production Worker, D1 and private R2 bucket serve the website.
+Automatic mail and five-minute outbox processing are enabled; persistent logs,
+invocation logs and traces remain enabled. The old Pages project, two legacy
+Workers, two legacy D1 databases, old KV and six legacy buckets were deleted
+under explicit owner authorization. No legacy fallback exists. Fixes must use
+Advanced releases. Existing Advanced staging/recovery resources are preserved.
+
+See deployment/production-domain-cutover-20261007.json, live domain verification
+reports, live-runtime-bindings-20261007.json and legacy-retirement-20261007.json.
+Initial immediate routing checks failed; subsequent post-propagation and
+post-retirement checks passed. These tests demonstrate the recorded behaviours;
+they do not promise fault-free future operation under every possible scenario.
+
+## Historical checkpoints (superseded)
+
+The following entries are retained as implementation history, not current status.
+
+**Historical pre-cutover status: NOT READY**
 
 Production OAuth binding gate is resolved: all three secrets verified active,
 health HTTP 200/authenticated true, 24 preview checks pass. Persistent logs and

@@ -1,0 +1,38 @@
+{
+  "bindingNames": [
+    "ASSETS",
+    "DB",
+    "DOCUMENTS_BUCKET",
+    "EMAIL_DELIVERY_ENABLED",
+    "ENVIRONMENT",
+    "PLATFORM_DOMAIN",
+    "PUBLIC_APP_ORIGIN",
+    "SOURCE_COMMIT",
+    "ZOHO_ACCOUNTS_API_ORIGIN",
+    "ZOHO_CLIENT_ID",
+    "ZOHO_CLIENT_SECRET",
+    "ZOHO_MAIL_ACCOUNT_ID",
+    "ZOHO_MAIL_API_ORIGIN",
+    "ZOHO_MAIL_FROM_ADDRESS",
+    "ZOHO_REFRESH_TOKEN"
+  ],
+  "publicOrigin": "https://urbanprocures.com",
+  "automaticMailEnabled": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "redact_query_string": false,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  },
+  "verifiedAdvancedResourcesOnly": true
+}

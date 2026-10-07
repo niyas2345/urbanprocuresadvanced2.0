@@ -1,0 +1,26 @@
+{
+  "startedAt": "2026-10-07T11:28:35.744978+00:00",
+  "worker": "urbanprocures-advanced-production-20261007",
+  "zoneId": "01e244afa455228e04c47e78174d76f1",
+  "routes": [
+    {
+      "id": "d2de7457a6074eb392e289dcdf2eac2a",
+      "pattern": "urbanprocures.com/*",
+      "script": "urbanprocures-advanced-production-20261007"
+    },
+    {
+      "id": "f60664ab501641729178fbb23c909e9b",
+      "pattern": "www.urbanprocures.com/*",
+      "script": "urbanprocures-advanced-production-20261007"
+    }
+  ],
+  "dnsModified": true,
+  "pagesModified": true,
+  "status": "passed",
+  "legacyFallbackRestored": false,
+  "completedAt": "2026-10-07T11:28:39.262230+00:00",
+  "initialImmediateVerificationFailed": true,
+  "subsequentLiveVerificationPassed": true,
+  "legacyFallbackAvailable": false,
+  "legacyProjectDeleted": true
+}

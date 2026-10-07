@@ -1,0 +1,103 @@
+{
+  "urbanprocures-native-maintenance": {
+    "bindings": [
+      {
+        "name": "APP_ORIGIN",
+        "type": "plain_text"
+      },
+      {
+        "name": "NATIVE_JOBS_SECRET",
+        "type": "secret_text"
+      }
+    ],
+    "cron": {
+      "schedules": []
+    }
+  },
+  "urbanporcures-2-0": {
+    "bindings": [
+      {
+        "name": "ADMIN_EMAIL",
+        "type": "plain_text"
+      },
+      {
+        "name": "ADMIN_PASSWORD",
+        "type": "secret_text"
+      },
+      {
+        "name": "ASSETS",
+        "type": "assets"
+      },
+      {
+        "name": "JWT_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "KV",
+        "type": "kv_namespace"
+      },
+      {
+        "name": "MAILGUN_DOMAIN",
+        "type": "plain_text"
+      },
+      {
+        "name": "MAILGUN_SENDER_EMAIL",
+        "type": "plain_text"
+      },
+      {
+        "name": "R2",
+        "type": "r2_bucket",
+        "bucket_name": "urbanporcures-2-0-backups"
+      },
+      {
+        "name": "WEBHOOK_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "ZOHO_DC",
+        "type": "plain_text"
+      },
+      {
+        "name": "ZOHO_FROM_EMAIL",
+        "type": "plain_text"
+      },
+      {
+        "name": "ZOHO_SENDER_EMAIL",
+        "type": "plain_text"
+      }
+    ],
+    "cron": {
+      "schedules": [
+        {
+          "cron": "0 2 * * *",
+          "created_on": "2026-09-29T03:00:05.158798Z",
+          "modified_on": "2026-09-29T03:03:10.418159Z"
+        },
+        {
+          "cron": "*/2 * * * *",
+          "created_on": "2026-09-29T03:00:05.158798Z",
+          "modified_on": "2026-09-29T03:03:10.418159Z"
+        }
+      ]
+    }
+  },
+  "nick-handoff": {
+    "bindings": [
+      {
+        "name": "NICK",
+        "type": "durable_object_namespace"
+      },
+      {
+        "name": "OWNER_HASH",
+        "type": "plain_text"
+      },
+      {
+        "name": "SUBJECT",
+        "type": "plain_text"
+      }
+    ],
+    "cron": {
+      "schedules": []
+    }
+  }
+}

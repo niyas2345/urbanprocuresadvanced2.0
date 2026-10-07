@@ -1,3 +1,25 @@
+# Advanced live deployment — 7 October 2026
+
+Both urbanprocures.com and www.urbanprocures.com now route to
+urbanprocures-advanced-production-20261007. DNS is proxied AAAA 100::;
+there is no legacy Pages origin or fallback. Owner explicitly authorized deletion
+of the old project including www.urbanprocures.app, two legacy Workers, two D1
+Databases, legacy KV and all six identified old R2 buckets. Advanced staging and
+recovery resources, Nick and Fixperts remain separate and preserved.
+
+Both actual-domain acceptance reports pass after retirement. The owner updated
+ADMIN_INITIAL_PASSWORD securely after resetting the account; current login is
+verified. Production preview workflows and owner inbox delivery passed. Logs,
+traces, scheduled outbox and automatic mail are enabled.
+
+Release controls: preserve the exact production bindings and route definitions in
+wrangler.production.toml; run the --cutover production guard before future deploys;
+never deploy legacy source. Recover or fix using Advanced versions/data only.
+Private offline database retirement records are outside Git and are not deployable
+fallback sites. No old application remains hosted.
+
+## Historical cutover checkpoint (superseded)
+
 # Advanced production cutover checkpoint — 7 October 2026
 
 The current site remains on `urbanprocures-dev.pages.dev` for both apex and www.

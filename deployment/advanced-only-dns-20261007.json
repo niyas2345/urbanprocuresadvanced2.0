@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "id": "1feedc1f5ca6c498d18566667f8fba95",
+      "name": "urbanprocures.com",
+      "type": "AAAA",
+      "content": "100::",
+      "proxied": true,
+      "ttl": 1
+    },
+    {
+      "id": "f346d1757b2013d5e9b9ed4da39e6680",
+      "name": "www.urbanprocures.com",
+      "type": "AAAA",
+      "content": "100::",
+      "proxied": true,
+      "ttl": 1
+    }
+  ],
+  "legacyOriginRemoved": true,
+  "fallbackToLegacyEnabled": false
+}

@@ -12,7 +12,7 @@ try{
  verify((await page.locator('h1').textContent()).includes('The right people'),'approved homepage');
  const call=(path,body)=>page.evaluate(async({path,body})=>{const r=await fetch(path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});return {status:r.status,data:await r.json()};},{path,body});
  for(const role of ['vendor','contractor','get_a_quote']){
-  const r=await call('/api/terms?role='+role);verify(r.status===200,role+' published Terms');
+  const r=await call('/api/terms?role='+role);report.lastTermsStatus=r.status;verify(r.status===200,role+' published Terms');
   const text=await readFile('urbanprocures advanced/terms/'+(role==='get_a_quote'?'get-a-quote':role)+'-'+(role==='vendor'?'2026.2':'2026.1')+'.md','utf8');
   verify(r.data.data.content_text===text,role+' approved content');verify(r.data.data.content_sha256===createHash('sha256').update(text).digest('hex'),role+' approved hash');
  }
@@ -25,8 +25,9 @@ try{
   }
   verify((await call('/api/admin/email/workflow-test',{confirmOwnerOnlyTest:true})).status===403,'staging email test disabled in production');
   const mail=await call('/api/admin/email/health',{});report.mailHealthStatus=mail.status;report.mailAuthentication=mail.data.data?.authenticated===true;report.mailSafeCode=mail.data.providerCode;
-  report.remainingGate=report.mailAuthentication?'production workflow/live-domain tests':'production OAuth secret bindings required';
+  verify(mail.status===200&&report.mailAuthentication,'actual production OAuth authentication');
+  report.remainingGate=live?null:'live-domain acceptance';
  }finally{verify((await call('/api/auth/logout',{})).status===200,'owner session logged out');}
  report.status='passed';
-}catch{report.status='failed';process.exitCode=1;}
+}catch(error){report.status='failed';report.failure=error instanceof Error?error.message.slice(0,200):'Verification failed';process.exitCode=1;}
 finally{await browser.close();report.completedAt=new Date().toISOString();await writeFile('deployment/'+(live?'production-live-'+(process.argv.includes('--www')?'www':'apex')+'-verification-20261007.json':'production-preview-verification-20261007.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}

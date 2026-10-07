@@ -1,4 +1,4 @@
-"""Attach only the two approved routes; preserve Pages/DNS and roll back on failed acceptance."""
+"""Attach the approved routes; keep Advanced routing on failure per owner instruction."""
 import json,os,subprocess,urllib.request
 from pathlib import Path
 from datetime import datetime,timezone
@@ -26,10 +26,9 @@ try:
   route=api(f'/zones/{zone}/workers/routes',{'pattern':pattern,'script':worker})
   report['routes'].append({'id':route['id'],'pattern':pattern,'script':worker});save()
  for args in [[],['--www']]:run(['node','scripts/check-production-preview.mjs','--live',*args])
- report['status']='passed';report['rollback']='Delete exactly the two recorded Worker route IDs to restore unchanged Pages/DNS. Preserve all Advanced user data.'
+ report['status']='passed';report['fallbackPolicy']='Owner requires Advanced only; retire the legacy site after successful live verification.'
 except BaseException:
- for route in reversed(report['routes']):api(f'/zones/{zone}/workers/routes/'+route['id'],method='DELETE')
- report['status']='rolled-back';report['rollbackCompleted']=True
+ report['status']='verification-failed';report['legacyFallbackRestored']=False
  raise
 finally:
  report['completedAt']=datetime.now(timezone.utc).isoformat();save()

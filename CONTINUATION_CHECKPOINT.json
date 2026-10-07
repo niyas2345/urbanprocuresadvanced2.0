@@ -7,8 +7,8 @@
     "files_matched": 61,
     "mismatches": 0
   },
-  "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "2026-10-07: Updated owner runtime credential verified with HTTP 200 login; all 24 clean-preview checks pass and actual OAuth authenticated. Deployed tested Advanced production Worker version 90a002be-c8ee-4498-9548-b8ce33365bc4 with live PUBLIC_APP_ORIGIN and automatic transactional mail enabled; logs/traces and OAuth secrets preserved. Final domain-cutover execution request was aborted by user before execution; subsequent read-only Cloudflare check confirms zero Worker routes. Actual domains unchanged.",
+  "phase2_complete": true,
+  "LAST_COMPLETED_TASK": "2026-10-07: Advanced is live on urbanprocures.com and www.urbanprocures.com. Both actual-domain checks pass with owner Admin login and real D1/Terms/OAuth; automatic transactional email and persistent logs/traces enabled. Per explicit owner instruction, no legacy fallback: DNS replaced legacy Pages origin with proxied discard AAAA 100:: behind Advanced-only routes. Entire old Pages project including www.urbanprocures.app, two legacy Workers, two old D1 databases, old KV and six legacy R2 buckets deleted. Advanced staging/recovery and unrelated Fixperts/Nick resources preserved. Versioned release/source archive preparation is the final housekeeping step.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -39,9 +39,7 @@
     "scripts/test-deployed-browser.mjs",
     "scripts/configure-staging-zoho.mjs"
   ],
-  "FILES_STILL_REQUIRING_WORK": [
-    "Execute guarded apex/www cutover and live-domain checks once execution is allowed"
-  ],
+  "FILES_STILL_REQUIRING_WORK": [],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
     "configuration_isolation": true,
@@ -80,23 +78,21 @@
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
   ],
-  "KNOWN_FAILED_REQUIREMENTS": [
-    "Domain cutover execution cancelled before route creation; actual live-domain acceptance pending"
-  ],
+  "KNOWN_FAILED_REQUIREMENTS": [],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Resume python3 scripts/cutover-production.py with privileged Chromium only once user allows cancelled cutover execution. Do not redeploy or reset credentials. Latest clean-preview report passed; live settings already deployed. The script adds only exact apex/www routes while preserving Pages/DNS and removes newly created routes on failed actual live checks.",
-  "PRODUCTION_RESOURCES_TOUCHED": "New independent Advanced production preview only; existing production unchanged",
-  "Production Pages modified": "NO",
-  "Production Workers modified": "New Advanced preview created; existing Workers unchanged",
-  "Production D1 modified": "New Advanced preview DB created and migrated; existing D1 unchanged",
-  "Production R2 modified": "New empty Advanced preview bucket created; existing R2 unchanged",
-  "Production KV modified": "NO",
+  "NEXT_EXACT_ACTION": "Preserve Advanced-only production routes/configuration and secrets. No legacy fallback exists by owner instruction. Use Advanced releases for future fixes and monitor production outbox/provider failures; never recreate deleted legacy resources. Finish storing final release archive and remote branch if GitHub permits.",
+  "PRODUCTION_RESOURCES_TOUCHED": "Advanced live on both approved .com domains; legacy resources explicitly retired by owner authorization.",
+  "Production Pages modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
+  "Production Workers modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
+  "Production D1 modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
+  "Production R2 modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
+  "Production KV modified": "YES \u2014 legacy namespace deleted",
   "Production Queues modified": "NO",
-  "Production DNS modified": "NO",
+  "Production DNS modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
   "production secrets/bindings modified": "NO",
-  "urbanprocures.com deployed": "NO",
-  "www.urbanprocures.com deployed": "NO",
+  "urbanprocures.com deployed": "YES",
+  "www.urbanprocures.com deployed": "YES",
   "outbound_messages_or_invitations_sent": true,
   "remote_write_status": "BLOCKED: GitHub create_tree and subsequent create_branch returned 403 Resource not accessible by integration; no remote changes.",
   "local_baseline_tree_verified": "03ab917be2347da976a4797d81d781f3e9805fad",
@@ -152,7 +148,7 @@
     "createdAt": "2026-10-07T09:42:21.541772+00:00",
     "existingProductionModified": false,
     "stagingBindingsModified": false,
-    "domainCutover": false,
+    "domainCutover": true,
     "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
     "bucketCreated": true,
     "ownerAdminBootstrapped": true,
@@ -170,7 +166,8 @@
     "fixtureCleanupPassed": true,
     "automaticEmailDeliveryEnabled": true,
     "publicAppOrigin": "https://urbanprocures.com",
-    "ownerLoginAfterPasswordUpdateVerified": true
+    "ownerLoginAfterPasswordUpdateVerified": true,
+    "legacyFallbackAvailable": false
   },
   "release_local_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
 }

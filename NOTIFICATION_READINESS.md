@@ -1,6 +1,16 @@
 # Notification readiness — 2026-10-07
 
-## Current verified checkpoint
+## Current live checkpoint
+
+Advanced production mail is enabled. Actual OAuth health passes on both live
+domains; the owner confirmed the production password-reset email arrived in the
+inbox. Staging outbox provider acceptance/inbox delivery passed previously.
+Registration, procurement and award events use the real D1 outbox and server-side
+refresh-token OAuth. No browser OAuth credentials or manually maintained access
+token are used. Five-minute processing, failure states and persisted logs are on.
+The temporary production test outbox records were deleted before mail activation.
+
+## Historical checkpoints (superseded)
 
 Production OAuth is now verified: all three encrypted bindings are active and
 the deployed health check returned HTTP 200/authenticated true. Version

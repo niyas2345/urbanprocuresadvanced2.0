@@ -1,0 +1,29 @@
+{
+  "workers": [
+    "nick-handoff",
+    "urbanprocures-advanced-production-20261007",
+    "urbanprocures-advanced-staging-20261005"
+  ],
+  "pages": [
+    "urban-fixperts"
+  ],
+  "databases": [
+    {
+      "id": "3412487b-954b-4f21-92d3-20d85d30dc11",
+      "name": "urbanprocures-advanced-production-20261007-db"
+    },
+    {
+      "id": "e932ac9e-3f87-41a8-9308-72c66e8965d2",
+      "name": "urbanprocures-advanced-staging-recovery-20261007-286fcbd36f-db"
+    },
+    {
+      "id": "eb82db72-864e-4835-b230-3903f77706f2",
+      "name": "urbanprocures-advanced-staging-20261005-db"
+    }
+  ],
+  "buckets": [
+    "upa-staging-recovery-20261007-286fcbd36f-docs",
+    "urbanprocures-advanced-production-20261007-documents",
+    "urbanprocures-advanced-staging-20261005-documents"
+  ]
+}

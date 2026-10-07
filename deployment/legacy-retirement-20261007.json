@@ -1,0 +1,86 @@
+{
+  "retired": [
+    {
+      "kind": "worker",
+      "path": "/workers/scripts/urbanprocures-native-maintenance",
+      "success": true
+    },
+    {
+      "kind": "worker",
+      "path": "/workers/scripts/urbanporcures-2-0",
+      "success": true
+    },
+    {
+      "kind": "database",
+      "path": "/d1/database/15f861d6-4a86-445e-b56a-66d1b3bc04ba",
+      "success": true
+    },
+    {
+      "kind": "database",
+      "path": "/d1/database/cc56fc57-e3cf-43cf-831d-7820c9ca15ae",
+      "success": true
+    },
+    {
+      "kind": "kvNamespace",
+      "path": "/storage/kv/namespaces/71e4a67217974526851bef9ebc81fb24",
+      "success": true
+    },
+    {
+      "kind": "bucket",
+      "path": "/r2/buckets/urban-procure-preview-quote-documents",
+      "success": true
+    },
+    {
+      "kind": "bucket",
+      "path": "/r2/buckets/urban-procure-quote-documents",
+      "success": true
+    },
+    {
+      "kind": "bucket",
+      "path": "/r2/buckets/urbanporcures-2-0-backups",
+      "success": true
+    },
+    {
+      "kind": "pagesDomain",
+      "path": "/pages/projects/urbanprocures-dev/domains/urbanprocures.com",
+      "success": true
+    },
+    {
+      "kind": "pagesDomain",
+      "path": "/pages/projects/urbanprocures-dev/domains/www.urbanprocures.com",
+      "success": true
+    },
+    {
+      "kind": "pagesDomain",
+      "path": "/pages/projects/urbanprocures-dev/domains/www.urbanprocures.app",
+      "success": true
+    },
+    {
+      "kind": "pagesProject",
+      "path": "/pages/projects/urbanprocures-dev",
+      "success": true
+    },
+    {
+      "kind": "bucket",
+      "path": "/r2/buckets/urban-procure-preview-rfq-documents",
+      "success": true
+    },
+    {
+      "kind": "bucket",
+      "path": "/r2/buckets/urban-procure-rfq-documents",
+      "success": true
+    },
+    {
+      "kind": "temporaryMaintenanceWorker",
+      "path": "/workers/scripts/urbanprocures-legacy-retirement-20261007",
+      "success": true
+    },
+    {
+      "kind": "bucket",
+      "path": "/r2/buckets/urban-procures-bucket",
+      "success": true
+    }
+  ],
+  "blocked": [],
+  "scope": "Owner-authorized legacy Urban Procures retirement; Advanced and unrelated resources excluded."
+}

@@ -1,0 +1,86 @@
+{
+  "references": {
+    "pages:urbanprocures-dev": {
+      "preview": {
+        "d1_databases": {
+          "URBAN_PROCURE_DB": {
+            "id": "cc56fc57-e3cf-43cf-831d-7820c9ca15ae"
+          }
+        },
+        "r2_buckets": {
+          "URBAN_PROCURE_QUOTE_DOCUMENTS": {
+            "name": "urban-procure-preview-quote-documents"
+          },
+          "URBAN_PROCURE_RFQ_DOCUMENTS": {
+            "name": "urban-procure-preview-rfq-documents"
+          }
+        }
+      },
+      "production": {
+        "d1_databases": {
+          "URBAN_PROCURE_DB": {
+            "id": "15f861d6-4a86-445e-b56a-66d1b3bc04ba"
+          }
+        },
+        "r2_buckets": {
+          "URBAN_PROCURE_QUOTE_DOCUMENTS": {
+            "name": "urban-procure-quote-documents"
+          },
+          "URBAN_PROCURE_RFQ_DOCUMENTS": {
+            "name": "urban-procure-rfq-documents"
+          }
+        }
+      }
+    },
+    "pages:urban-fixperts": {
+      "preview": {},
+      "production": {}
+    },
+    "worker:nick-handoff": [],
+    "worker:urbanporcures-2-0": [
+      {
+        "name": "KV",
+        "type": "kv_namespace",
+        "namespace_id": "71e4a67217974526851bef9ebc81fb24"
+      },
+      {
+        "name": "R2",
+        "type": "r2_bucket",
+        "bucket_name": "urbanporcures-2-0-backups"
+      }
+    ],
+    "worker:urbanprocures-advanced-production-20261007": [
+      {
+        "name": "DB",
+        "type": "d1",
+        "id": "3412487b-954b-4f21-92d3-20d85d30dc11"
+      },
+      {
+        "name": "DOCUMENTS_BUCKET",
+        "type": "r2_bucket",
+        "bucket_name": "urbanprocures-advanced-production-20261007-documents"
+      }
+    ],
+    "worker:urbanprocures-advanced-staging-20261005": [
+      {
+        "name": "DB",
+        "type": "d1",
+        "id": "eb82db72-864e-4835-b230-3903f77706f2"
+      },
+      {
+        "name": "DOCUMENTS_BUCKET",
+        "type": "r2_bucket",
+        "bucket_name": "urbanprocures-advanced-staging-20261005-documents"
+      }
+    ],
+    "worker:urbanprocures-native-maintenance": []
+  },
+  "workerDomains": [],
+  "kvNamespaces": [
+    {
+      "id": "71e4a67217974526851bef9ebc81fb24",
+      "title": "urbanprocures-KV",
+      "supports_url_encoding": true
+    }
+  ]
+}

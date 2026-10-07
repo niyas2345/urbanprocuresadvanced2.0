@@ -1,0 +1,162 @@
+{
+  "legacyPages": {
+    "name": "urbanprocures-dev",
+    "domains": [
+      "urbanprocures-dev.pages.dev",
+      "urbanprocures.com",
+      "www.urbanprocures.app",
+      "www.urbanprocures.com"
+    ],
+    "deploymentConfigs": {
+      "preview": {
+        "d1_databases": {
+          "URBAN_PROCURE_DB": {
+            "id": "cc56fc57-e3cf-43cf-831d-7820c9ca15ae"
+          }
+        },
+        "r2_buckets": {
+          "URBAN_PROCURE_QUOTE_DOCUMENTS": {
+            "name": "urban-procure-preview-quote-documents"
+          },
+          "URBAN_PROCURE_RFQ_DOCUMENTS": {
+            "name": "urban-procure-preview-rfq-documents"
+          }
+        },
+        "environmentVariableNames": [
+          "APP_ENV",
+          "NATIVE_EMAIL_KEY",
+          "NATIVE_JOBS_SECRET",
+          "NODE_VERSION",
+          "PLATFORM_BILLING_MODE",
+          "PREVIEW_EMAIL_ALLOWLIST",
+          "RATE_LIMIT_SALT",
+          "TURNSTILE_SECRET",
+          "TURNSTILE_SITE_KEY",
+          "ZOHO_ACCOUNT_ID",
+          "ZOHO_CLIENT_ID",
+          "ZOHO_CLIENT_SECRET",
+          "ZOHO_DC",
+          "ZOHO_FROM_EMAIL",
+          "ZOHO_REFRESH_TOKEN"
+        ]
+      },
+      "production": {
+        "d1_databases": {
+          "URBAN_PROCURE_DB": {
+            "id": "15f861d6-4a86-445e-b56a-66d1b3bc04ba"
+          }
+        },
+        "r2_buckets": {
+          "URBAN_PROCURE_QUOTE_DOCUMENTS": {
+            "name": "urban-procure-quote-documents"
+          },
+          "URBAN_PROCURE_RFQ_DOCUMENTS": {
+            "name": "urban-procure-rfq-documents"
+          }
+        },
+        "environmentVariableNames": [
+          "APP_ENV",
+          "MAILGUN_SENDER_EMAIL",
+          "NATIVE_EMAIL_KEY",
+          "NATIVE_JOBS_SECRET",
+          "NODE_VERSION",
+          "PLATFORM_BILLING_MODE",
+          "RATE_LIMIT_SALT",
+          "SCHEDULED_JOBS_SECRET",
+          "SUPABASE_ANON_KEY",
+          "SUPABASE_SECRET_KEY",
+          "SUPABASE_URL",
+          "TURNSTILE_SECRET",
+          "TURNSTILE_SITE_KEY",
+          "ZOHO_ACCOUNT_ID",
+          "ZOHO_CLIENT_ID",
+          "ZOHO_CLIENT_SECRET",
+          "ZOHO_DC",
+          "ZOHO_FROM_EMAIL",
+          "ZOHO_REFRESH_TOKEN",
+          "ZOHO_SENDER_EMAIL",
+          "ZOHO_VERIFIED_DAILY_LIMIT"
+        ]
+      }
+    }
+  },
+  "workers": [
+    {
+      "id": "nick-handoff"
+    },
+    {
+      "id": "urbanporcures-2-0"
+    },
+    {
+      "id": "urbanprocures-advanced-production-20261007"
+    },
+    {
+      "id": "urbanprocures-advanced-staging-20261005"
+    },
+    {
+      "id": "urbanprocures-native-maintenance"
+    }
+  ],
+  "databases": [
+    {
+      "name": "urbanprocures-advanced-production-20261007-db",
+      "uuid": "3412487b-954b-4f21-92d3-20d85d30dc11"
+    },
+    {
+      "name": "urbanprocures-advanced-staging-recovery-20261007-286fcbd36f-db",
+      "uuid": "e932ac9e-3f87-41a8-9308-72c66e8965d2"
+    },
+    {
+      "name": "urbanprocures-advanced-staging-20261005-db",
+      "uuid": "eb82db72-864e-4835-b230-3903f77706f2"
+    },
+    {
+      "name": "urban-procure-audit-preview",
+      "uuid": "cc56fc57-e3cf-43cf-831d-7820c9ca15ae"
+    },
+    {
+      "name": "urban-procure-db",
+      "uuid": "15f861d6-4a86-445e-b56a-66d1b3bc04ba"
+    }
+  ],
+  "buckets": {
+    "buckets": [
+      {
+        "name": "upa-staging-recovery-20261007-286fcbd36f-docs",
+        "creation_date": "2026-10-07T09:24:59.627Z"
+      },
+      {
+        "name": "urban-procure-preview-quote-documents",
+        "creation_date": "2026-10-03T02:58:31.435Z"
+      },
+      {
+        "name": "urban-procure-preview-rfq-documents",
+        "creation_date": "2026-10-03T02:58:29.344Z"
+      },
+      {
+        "name": "urban-procure-quote-documents",
+        "creation_date": "2026-08-30T02:28:08.004Z"
+      },
+      {
+        "name": "urban-procure-rfq-documents",
+        "creation_date": "2026-08-30T02:28:03.757Z"
+      },
+      {
+        "name": "urban-procures-bucket",
+        "creation_date": "2026-08-31T02:05:37.018Z"
+      },
+      {
+        "name": "urbanporcures-2-0-backups",
+        "creation_date": "2026-09-28T11:04:40.554Z"
+      },
+      {
+        "name": "urbanprocures-advanced-production-20261007-documents",
+        "creation_date": "2026-10-07T09:42:23.652Z"
+      },
+      {
+        "name": "urbanprocures-advanced-staging-20261005-documents",
+        "creation_date": "2026-10-05T01:25:49.088Z"
+      }
+    ]
+  }
+}
