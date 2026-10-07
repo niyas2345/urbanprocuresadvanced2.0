@@ -21,6 +21,12 @@ Automatic mail is disabled pending production mail acceptance.
 
 ## Exact remaining credential blocker
 
+**Resolved, 7 October 2026:** all three encrypted production bindings are active.
+Production OAuth health passed HTTP 200/authenticated true after deployment
+`4ea934fe-9f2f-42cd-a397-67e464a62c4c`. Persistent invocation logs and traces
+are enabled at 100% sampling. The credential instructions below are historical;
+do not ask the owner to configure these bindings again.
+
 The new Worker is missing encrypted `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, and
 `ZOHO_REFRESH_TOKEN` bindings. Existing staging bindings are intact. Cloudflare
 does not expose encrypted secret values; runtime OAuth placeholders must never

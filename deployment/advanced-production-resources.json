@@ -13,11 +13,10 @@
   "ownerAdminBootstrapped": true,
   "migrationsApplied": 10,
   "qaDataCopied": false,
-  "deploymentVersion": "e52f04d4-a09b-4fc9-9ed7-01ff69b32aee",
-  "sourceCommit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1",
-  "missingOAuthSecrets": [
-    "ZOHO_CLIENT_ID",
-    "ZOHO_CLIENT_SECRET",
-    "ZOHO_REFRESH_TOKEN"
-  ]
+  "deploymentVersion": "4ea934fe-9f2f-42cd-a397-67e464a62c4c",
+  "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
+  "missingOAuthSecrets": [],
+  "oauthAuthenticationVerified": true,
+  "persistentLogsEnabled": true,
+  "persistentTracesEnabled": true
 }

@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "2026-10-07: Latest staging full 137 API/14 click-driven browser checks pass; actual deployed owner outbox sent exactly one message, owner confirmed inbox receipt. Code rollback/restoration verified. Remote isolated D1 restore matched all 29 table contents and 77 schema/index/trigger definitions; ten R2 objects restored byte-for-byte. Suspended 17 staging QA accounts, revoked sessions and suppressed 190 fixture notices while preserving immutable evidence. Created separate new production preview Worker/D1/R2; ten migrations and approved owner Admin bootstrap; 24 actual preview checks passed, zero QA data copied. Existing production and live domains untouched. New production OAuth secret bindings are the remaining external prerequisite.",
+  "LAST_COMPLETED_TASK": "2026-10-07: Owner configured all three production OAuth secrets; API verified all three were active together. Deployed production preview with --keep-vars, persistent invocation logs and traces at 100% sampling. Verified encrypted binding names and remote observability settings. Production OAuth health HTTP 200 authenticated true; 24 preview checks pass after deployment. Existing production domains unchanged; automatic outbound notifications still disabled pending production acceptance.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -73,19 +73,16 @@
     "remote R2 object byte-for-byte restores": 10
   },
   "TESTS_FAILED": [],
-  "TESTS_BLOCKED": {
-    "production mail acceptance": "New production Worker is missing ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET and ZOHO_REFRESH_TOKEN. Existing staging secrets are intact; encrypted values cannot be retrieved from Cloudflare and runtime proxy placeholders must not be used as bindings."
-  },
+  "TESTS_BLOCKED": {},
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
   ],
   "KNOWN_FAILED_REQUIREMENTS": [
-    "New production OAuth bindings and subsequent production mail acceptance pending",
-    "Production preview full workflows/cleanup, live-domain cutover and final acceptance pending"
+    "Full production workflow/cleanup, live-domain cutover and final acceptance pending"
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Owner securely configures and deploys ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET, ZOHO_REFRESH_TOKEN on urbanprocures-advanced-production-20261007. Then verify names/health, complete production preview workflows and QA cleanup, preserve Pages/DNS rollback state and cut over both live domains only after acceptance. Do not recreate any resources, regenerate credentials or repeat completed staging tests. See PRODUCTION_CUTOVER_PLAN.md.",
+  "NEXT_EXACT_ACTION": "Production OAuth credential blocker resolved. Preserve active secrets and logs/traces. Continue full production-preview workflow/notification acceptance with owner-only test email scope, safe fixture cleanup, DNS/Pages rollback preservation and final cutover/live-domain verification. Do not recreate resources or ask owner to configure secrets again.",
   "PRODUCTION_RESOURCES_TOUCHED": "New independent Advanced production preview only; existing production unchanged",
   "Production Pages modified": "NO",
   "Production Workers modified": "New Advanced preview created; existing Workers unchanged",
@@ -158,8 +155,12 @@
     "ownerAdminBootstrapped": true,
     "migrationsApplied": 10,
     "qaDataCopied": false,
-    "deploymentVersion": "e52f04d4-a09b-4fc9-9ed7-01ff69b32aee",
-    "sourceCommit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
+    "deploymentVersion": "4ea934fe-9f2f-42cd-a397-67e464a62c4c",
+    "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
+    "missingOAuthSecrets": [],
+    "oauthAuthenticationVerified": true,
+    "persistentLogsEnabled": true,
+    "persistentTracesEnabled": true
   },
   "release_local_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
 }

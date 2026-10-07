@@ -2,6 +2,12 @@
 
 **NOT READY FOR BLANKET PRODUCTION ACCEPTANCE**
 
+Production OAuth binding gate is resolved: all three secrets verified active,
+health HTTP 200/authenticated true, 24 preview checks pass. Persistent logs and
+traces are enabled on version `4ea934fe-9f2f-42cd-a397-67e464a62c4c`.
+Full production workflow and live-domain acceptance remain pending; older
+missing-secret statements are historical.
+
 Current checkpoint (7 October 2026): release source `4ec462f` is pinned on both
 Workers. Staging passed 137 API and 14 click-driven browser checks; real outbox
 provider acceptance and owner inbox receipt passed. Remote recovery matched

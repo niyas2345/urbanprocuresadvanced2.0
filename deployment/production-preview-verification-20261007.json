@@ -1,6 +1,6 @@
 {
   "origin": "https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev",
-  "startedAt": "2026-10-07T10:08:03.744Z",
+  "startedAt": "2026-10-07T10:25:21.118Z",
   "checks": [
     "production preview HTTPS",
     "approved homepage",
@@ -29,10 +29,9 @@
   ],
   "customerDomainModified": false,
   "mailSent": false,
-  "mailHealthStatus": 503,
-  "mailAuthentication": false,
-  "mailSafeCode": "EMAIL_NOT_CONFIGURED",
-  "remainingGate": "production OAuth secret bindings required",
+  "mailHealthStatus": 200,
+  "mailAuthentication": true,
+  "remainingGate": "production workflow/live-domain tests",
   "status": "passed",
-  "completedAt": "2026-10-07T10:08:06.348Z"
+  "completedAt": "2026-10-07T10:25:23.928Z"
 }

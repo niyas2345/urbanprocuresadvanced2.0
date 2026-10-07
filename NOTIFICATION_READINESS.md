@@ -2,6 +2,12 @@
 
 ## Current verified checkpoint
 
+Production OAuth is now verified: all three encrypted bindings are active and
+the deployed health check returned HTTP 200/authenticated true. Version
+`4ea934fe-9f2f-42cd-a397-67e464a62c4c` has persistent logs and traces enabled.
+The 24 preview checks passed again. Automatic sending remains disabled pending
+full production acceptance. Earlier missing-binding statements below are resolved.
+
 Release source: `4ec462f`; current staging version:
 `1783f55d-cc96-4869-827d-f3e7488da9f2`. Its source passed 137 deployed API
 checks and 14 click-driven browser checks before the final metadata-only redeploy.
