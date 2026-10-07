@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "origin": "https://urbanprocures.com",
+      "developerLinksAbsent": true,
+      "removedRoutesStatus": 404
+    },
+    {
+      "origin": "https://www.urbanprocures.com",
+      "developerLinksAbsent": true,
+      "removedRoutesStatus": 404
+    }
+  ],
+  "version": "80d9aa99-dcb7-466f-a692-7228606a6c04"
+}

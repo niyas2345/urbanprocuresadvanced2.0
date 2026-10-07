@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "2026-10-07: Advanced is live on urbanprocures.com and www.urbanprocures.com. Both actual-domain checks pass with owner Admin login and real D1/Terms/OAuth; automatic transactional email and persistent logs/traces enabled. Per explicit owner instruction, no legacy fallback: DNS replaced legacy Pages origin with proxied discard AAAA 100:: behind Advanced-only routes. Entire old Pages project including www.urbanprocures.app, two legacy Workers, two old D1 databases, old KV and six legacy R2 buckets deleted. Advanced staging/recovery and unrelated Fixperts/Nick resources preserved. Versioned release/source archive preparation is the final housekeeping step.",
+  "LAST_COMPLETED_TASK": "Removed Test Suite and Blueprint Docs navigation links and public routes; retained repository test/documentation files. Type checks and production build passed. Deployed version 80d9aa99-dcb7-466f-a692-7228606a6c04; verified link removal and 404 routes on both live domains.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -156,7 +156,7 @@
     "ownerAdminBootstrapped": true,
     "migrationsApplied": 10,
     "qaDataCopied": false,
-    "deploymentVersion": "90a002be-c8ee-4498-9548-b8ce33365bc4",
+    "deploymentVersion": "80d9aa99-dcb7-466f-a692-7228606a6c04",
     "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
     "missingOAuthSecrets": [],
     "oauthAuthenticationVerified": true,
