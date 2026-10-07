@@ -5,12 +5,15 @@ import {chromium} from 'playwright-core';
 import {stagingAdminCredentials} from './staging-admin-credentials.mjs';
 
 // Actual deployed application tests; no local Worker, DB doubles or synthetic sessions.
-const resources=JSON.parse(await readFile(new URL('../deployment/staging-resources.json',import.meta.url)));
-const admin=await stagingAdminCredentials();
-const origin=resources.stagingUrl;
-assert.equal(origin,'https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev');
+const productionPreview=process.argv.includes('--production-preview');
+const target=productionPreview?'production-preview':'staging';
+const resources=JSON.parse(await readFile(new URL('../deployment/'+(productionPreview?'advanced-production-resources':'staging-resources')+'.json',import.meta.url)));
+const origin=productionPreview?'https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev':resources.stagingUrl;
+const admin=productionPreview?{origin,adminEmail:process.env.ADMIN_BOOTSTRAP_EMAIL,adminPassword:process.env.ADMIN_INITIAL_PASSWORD}:await stagingAdminCredentials();
+assert.equal(origin,productionPreview?'https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev':'https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev');
 assert.equal(admin.origin,origin);
-assert.equal(resources.stagingDatabaseId,'eb82db72-864e-4835-b230-3903f77706f2');
+assert.equal(productionPreview?resources.databaseId:resources.stagingDatabaseId,productionPreview?'3412487b-954b-4f21-92d3-20d85d30dc11':'eb82db72-864e-4835-b230-3903f77706f2');
+assert.ok(admin.adminPassword);assert.equal(admin.adminEmail,'urbanprocures@urbanprocures.com');
 const runId=randomBytes(6).toString('hex'),password=randomBytes(24).toString('base64url');
 const report={runId,origin,startedAt:new Date().toISOString(),checks:[],failures:[],productionModified:false,outboundMessagesSent:false,temporaryUserIds:[],rfqIds:[]};
 const verify=(value,label)=>{assert.ok(value,label);report.checks.push(label);};
@@ -63,7 +66,7 @@ try {
  const extra=await call('/api/auth/register-vendor',{...details,email:'qa-'+runId+'-extra@example.invalid',termsVersionId:'vendor-2026.2'});verify(extra.status===201,'separate Vendor registration with categories');
  const losing={token:extra.body.token,profile:extra.body.vendor,user:extra.body.user};report.temporaryUserIds.push(losing.user.id);
  const otherResponse=await call('/api/auth/register-contractor',{...details,email:'qa-'+runId+'-other@example.invalid',termsVersionId:'contractor-2026.1'});verify(otherResponse.status===201,'separate Contractor registration');const other=otherResponse.body;report.temporaryUserIds.push(other.user.id);
- await writeFile('/tmp/urbanprocures-staging-workflow-'+runId+'.json',JSON.stringify({runId,password,users:fixtures.map(f=>({role:f.role,email:f.email,userId:f.user.id})),extraEmail:extra.body.user.email,otherEmail:other.user.email}),{mode:0o600});
+ await writeFile('/tmp/urbanprocures-'+target+'-workflow-'+runId+'.json',JSON.stringify({runId,password,users:fixtures.map(f=>({role:f.role,email:f.email,userId:f.user.id})),extraEmail:extra.body.user.email,otherEmail:other.user.email}),{mode:0o600});
  const adminLogin=await call('/api/auth/login',{email:admin.adminEmail,password:admin.adminPassword});verify(adminLogin.status===200&&adminLogin.body.user.role==='admin','temporary Admin authenticates with actual password');const adminToken=adminLogin.body.token;
  for(const resource of ['users','contractors','vendors','documents','rfqs','public-quotes','site-visits','awards','quotations','service-charges','audit-logs','invitations']){
   verify((await call('/api/admin/'+resource)).status===401,resource+' anonymous denied');verify((await call('/api/admin/'+resource,null,vendor.token)).status===403,resource+' Vendor denied');verify((await call('/api/admin/'+resource,null,adminToken)).status===200,resource+' Admin actual deployed query');
@@ -114,6 +117,7 @@ try {
  report.completedAt=new Date().toISOString();report.status='passed';
 }catch(error){report.status='failed';report.failures.push(error.message);process.exitCode=1;}
 finally{
- await browser.close();await writeFile(new URL('../deployment/staging-qa-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
+ report.target=target;report.productionPreviewModified=productionPreview;report.existingProductionModified=false;
+ await browser.close();await writeFile(new URL('../deployment/'+target+'-qa-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
  console.log(JSON.stringify({status:report.status,actualDeployedChecksPassed:report.checks.length,failures:report.failures,report:'deployment/staging-qa-results.json',productionModified:false}));
 }

@@ -66,4 +66,28 @@ for regression and rollback evidence, using the master's documented-fixture
 exception. The approved owner account remains active. Nothing was copied into
 production. See `deployment/staging-qa-quarantine-20261007.json` for exact IDs.
 
-This is a verified preview and cutover plan, not final production acceptance.
+## Latest production acceptance results
+
+The new preview passed 137 actual API/security checks and 14 browser procurement
+checks. The owner confirmed the production password-reset email arrived in the
+inbox. Four reserved QA accounts and all their business records were removed,
+including six RFQs/awards/charges, five private document objects and 42 queued
+test notifications. A private pre-cleanup backup is retained outside Git;
+immutable Terms guards and published Terms were verified preserved.
+
+The final clean-preview owner login returned HTTP 401. The account is active;
+the audit records a successful PASSWORD_RESET at 2026-10-07T10:53:36.878Z.
+The current runtime password does not match the account's current password hash.
+Do not overwrite that password or expose either value. Update the secure runtime
+binding to the current password, then reverify login before cutover.
+
+The prepared cutover uses only two exact Worker routes, urbanprocures.com/* and
+www.urbanprocures.com/*, preserving existing proxied DNS and the Pages project.
+HTTPS redirection is already enabled. `scripts/cutover-production.py` requires
+the cutover configuration/acceptance guard and unchanged DNS inventory, then
+runs actual apex/www acceptance. Failure removes only its newly created routes,
+returning traffic to the preserved Pages site. This route method makes rollback
+possible without deleting existing Pages custom-domain attachments.
+
+The script has not been executed. Both real domains remain unchanged. Final
+production acceptance is pending current owner login and live-domain checks.

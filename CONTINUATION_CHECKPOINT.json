@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "2026-10-07: Owner configured all three production OAuth secrets; API verified all three were active together. Deployed production preview with --keep-vars, persistent invocation logs and traces at 100% sampling. Verified encrypted binding names and remote observability settings. Production OAuth health HTTP 200 authenticated true; 24 preview checks pass after deployment. Existing production domains unchanged; automatic outbound notifications still disabled pending production acceptance.",
+  "LAST_COMPLETED_TASK": "2026-10-07: Production preview passed 137 genuine API/security checks and 14 browser workflow checks. Owner-only production password-reset email succeeded and owner confirmed inbox receipt. Removed four proven QA accounts, six RFQs/awards/charges, five private R2 fixture objects and 42 queued fixture notices with private pre-cleanup snapshot; immutable Terms guards restored and approved Terms/owner account preserved. Clean preview subsequently detected owner credential mismatch; audit shows successful owner PASSWORD_RESET at 10:53:36 UTC. Current domains remain unchanged; final cutover guard correctly blocks until owner login is reverified.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -40,8 +40,8 @@
     "scripts/configure-staging-zoho.mjs"
   ],
   "FILES_STILL_REQUIRING_WORK": [
-    "New production OAuth bindings and mail acceptance",
-    "Production preview full workflow/cleanup, live-domain cutover and final acceptance"
+    "Current owner password secure runtime binding / clean preview owner login",
+    "Execute guarded apex/www cutover and actual live-domain acceptance"
   ],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
@@ -70,19 +70,25 @@
     "new production preview genuine checks": 24,
     "remote D1 restored full table contents": 29,
     "remote D1 schema/index/trigger definitions matched": 77,
-    "remote R2 object byte-for-byte restores": 10
+    "remote R2 object byte-for-byte restores": 10,
+    "production preview genuine API/security checks": 137,
+    "production preview click-driven browser workflows": 14,
+    "production owner mail inbox receipt": true,
+    "production preview fixture cleanup and immutable guard restoration": true
   },
-  "TESTS_FAILED": [],
+  "TESTS_FAILED": [
+    "Clean preview owner login: HTTP 401 after successful owner password reset at 2026-10-07T10:53:36.878Z; runtime password does not match current account hash. Account active and unchanged by cleanup."
+  ],
   "TESTS_BLOCKED": {},
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
   ],
   "KNOWN_FAILED_REQUIREMENTS": [
-    "Full production workflow/cleanup, live-domain cutover and final acceptance pending"
+    "Current owner credential verification and final live-domain cutover/acceptance pending"
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Production OAuth credential blocker resolved. Preserve active secrets and logs/traces. Continue full production-preview workflow/notification acceptance with owner-only test email scope, safe fixture cleanup, DNS/Pages rollback preservation and final cutover/live-domain verification. Do not recreate resources or ask owner to configure secrets again.",
+  "NEXT_EXACT_ACTION": "Owner must update ADMIN_INITIAL_PASSWORD securely to current password and publish environment (never paste in chat). Recheck runtime hash match without displaying values, then node scripts/check-production-preview.mjs with privileged Chromium. On success, set production PUBLIC_APP_ORIGIN=https://urbanprocures.com and EMAIL_DELIVERY_ENABLED=true; add only audited apex/www route definitions to TOML. Run --cutover isolation guard; deploy Worker preserving OAuth secrets/logs. Use scripts/cutover-production.py only when route absence and DNS rollback inventory still match; it adds exact two Worker routes and automatically removes them if either actual live-domain acceptance fails. Preserve existing Pages and DNS.",
   "PRODUCTION_RESOURCES_TOUCHED": "New independent Advanced production preview only; existing production unchanged",
   "Production Pages modified": "NO",
   "Production Workers modified": "New Advanced preview created; existing Workers unchanged",
@@ -139,7 +145,7 @@
     "qa_fixture_accounts_suspended": 17,
     "qa_fixture_sessions_revoked": true
   },
-  "OUTBOUND_SCOPE": "Explicitly approved owner-only staging tests to urbanprocures@urbanprocures.com; no customer or QA-address email.",
+  "OUTBOUND_SCOPE": "Approved owner-only mail tests; production password-reset test received in inbox. No customer or QA-address emails sent.",
   "NEW_PRODUCTION_PREVIEW": {
     "accountId": "dcb411ece67dfdfb730635133ed31825",
     "workerName": "urbanprocures-advanced-production-20261007",
@@ -160,7 +166,11 @@
     "missingOAuthSecrets": [],
     "oauthAuthenticationVerified": true,
     "persistentLogsEnabled": true,
-    "persistentTracesEnabled": true
+    "persistentTracesEnabled": true,
+    "fullWorkflowApiChecksPassed": 137,
+    "browserWorkflowChecksPassed": 14,
+    "ownerMailInboxReceiptConfirmed": true,
+    "fixtureCleanupPassed": true
   },
   "release_local_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
 }

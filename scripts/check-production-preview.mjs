@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {chromium} from 'playwright-core';
-const origin='https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev';
-const report={origin,startedAt:new Date().toISOString(),checks:[],customerDomainModified:false,mailSent:false};
+const live=process.argv.includes('--live');
+const origin=live?(process.argv.includes('--www')?'https://www.urbanprocures.com':'https://urbanprocures.com'):'https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev';
+const report={origin,startedAt:new Date().toISOString(),checks:[],customerDomainModified:live,mailSent:false};
 const verify=(condition,label)=>{assert.ok(condition,label);report.checks.push(label);};
 const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY}});
 try{
@@ -16,7 +17,7 @@ try{
   verify(r.data.data.content_text===text,role+' approved content');verify(r.data.data.content_sha256===createHash('sha256').update(text).digest('hex'),role+' approved hash');
  }
  verify((await call('/api/admin/users')).status===401,'anonymous Admin access denied');
- const login=await call('/api/auth/login',{email:process.env.ADMIN_BOOTSTRAP_EMAIL,password:process.env.ADMIN_INITIAL_PASSWORD});verify(login.status===200,'approved owner Admin login');
+ const login=await call('/api/auth/login',{email:process.env.ADMIN_BOOTSTRAP_EMAIL,password:process.env.ADMIN_INITIAL_PASSWORD});report.loginStatus=login.status;report.loginSafeError=login.data.error;verify(login.status===200,'approved owner Admin login');
  try{
   const users=await call('/api/admin/users');verify(users.status===200,'real production D1 Admin listing');verify(users.data.data.length===1&&users.data.data[0].email==='urbanprocures@urbanprocures.com','one owner login and zero QA accounts');
   for(const path of ['rfqs','vendors','contractors','documents','awards','service-charges','public-quotes']){
@@ -28,4 +29,4 @@ try{
  }finally{verify((await call('/api/auth/logout',{})).status===200,'owner session logged out');}
  report.status='passed';
 }catch{report.status='failed';process.exitCode=1;}
-finally{await browser.close();report.completedAt=new Date().toISOString();await writeFile('deployment/production-preview-verification-20261007.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}
+finally{await browser.close();report.completedAt=new Date().toISOString();await writeFile('deployment/'+(live?'production-live-'+(process.argv.includes('--www')?'www':'apex')+'-verification-20261007.json':'production-preview-verification-20261007.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));}

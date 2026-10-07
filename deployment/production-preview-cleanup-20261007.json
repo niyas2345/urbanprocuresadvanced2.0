@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "checkedAt": "2026-10-07T10:54:42.013997+00:00",
+  "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
+  "fixtureAccountsRemoved": 4,
+  "removedCounts": {
+    "email_outbox": 42,
+    "password_reset_tokens": 0,
+    "auth_sessions": 10,
+    "notifications": 0,
+    "service_charges": 6,
+    "awards": 6,
+    "quote_items": 7,
+    "vendor_quotes": 7,
+    "rfq_documents": 5,
+    "rfq_items": 6,
+    "rfqs": 6,
+    "vendor_categories": 0,
+    "terms_acceptances": 0,
+    "terms_acceptance_evidence": 4,
+    "contractors": 2,
+    "vendors": 2,
+    "organizations": 4,
+    "public_terms_acceptances": 1,
+    "site_visits": 1,
+    "get_a_quote_requests": 1
+  },
+  "backupPath": "/tmp/urbanprocures-production-preview-private-backup-20261007.json",
+  "backupSha256": "f1c96abbb21bc9a7eaf7d0b568080950592be61330ce695ee66cd85adf13fd49",
+  "immutableGuardsRestored": true,
+  "ownerAdminPreserved": true,
+  "publishedTermsPreserved": true,
+  "foreignKeysPassed": true,
+  "r2FixtureKeys": [
+    "private/2f6e85b7-a9ca-4720-a49a-da9ad0688c48",
+    "private/7a417af5-79c6-4aad-9a57-99f6a041a135",
+    "private/c1d20917-1cbe-4574-ab74-412247d7bb4d",
+    "public-quotes/368206b0-b311-479e-b9a7-50a62716afea",
+    "private/6c33aa25-3623-49ff-8cb3-e3e374d47f55"
+  ],
+  "existingProductionModified": false,
+  "r2FixtureObjectsRemoved": 5
+}

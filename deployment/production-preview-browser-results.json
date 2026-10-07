@@ -1,0 +1,28 @@
+{
+  "origin": "https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev",
+  "startedAt": "2026-10-07T10:43:30.576Z",
+  "checks": [
+    "contractor browser actual credential login",
+    "browser RFQ BoQ and upload persist on deployed bindings",
+    "admin browser actual credential login",
+    "Admin browser renders actual private R2 image",
+    "Admin browser download retains uploaded filename",
+    "Admin browser downloads exact uploaded bytes",
+    "Admin browser publishes reviewed RFQ",
+    "vendor browser actual credential login",
+    "Vendor browser submits actual itemized quotation",
+    "owning Contractor browser confirms award",
+    "browser award uses server commercial calculation",
+    "winning contact visible after actual browser award",
+    "awarded RFQ persists after browser reload",
+    "Admin browser reads persisted award charge"
+  ],
+  "failures": [],
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "rfqId": "0aead3bd-2412-4cdd-bd25-49186bf41253",
+  "status": "passed",
+  "completedAt": "2026-10-07T10:43:41.383Z",
+  "target": "production-preview",
+  "productionPreviewModified": true
+}

@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright-core';
 import {stagingAdminCredentials} from './staging-admin-credentials.mjs';
-const previous=JSON.parse(await readFile(new URL('../deployment/staging-qa-results.json',import.meta.url)));
+const productionPreview=process.argv.includes('--production-preview');
+const target=productionPreview?'production-preview':'staging';
+const previous=JSON.parse(await readFile(new URL('../deployment/'+target+'-qa-results.json',import.meta.url)));
 assert.equal(previous.status,'passed');
-const origin=previous.origin;assert.equal(origin,'https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev');
-const fixture=JSON.parse(await readFile('/tmp/urbanprocures-staging-workflow-'+previous.runId+'.json'));
-const admin=await stagingAdminCredentials();
+const origin=previous.origin;assert.equal(origin,productionPreview?'https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev':'https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev');
+const fixture=JSON.parse(await readFile('/tmp/urbanprocures-'+target+'-workflow-'+previous.runId+'.json'));
+const admin=productionPreview?{adminEmail:process.env.ADMIN_BOOTSTRAP_EMAIL,adminPassword:process.env.ADMIN_INITIAL_PASSWORD}:await stagingAdminCredentials();
 const report={origin,startedAt:new Date().toISOString(),checks:[],failures:[],productionModified:false,outboundMessagesSent:false};
 const verify=(value,label)=>{assert.ok(value,label);report.checks.push(label);};
 const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY}});
@@ -43,4 +45,4 @@ try{
  await ops.getByRole('button',{name:'Service Charge Engine',exact:true}).click();await ops.getByText(data.id,{exact:false}).first().waitFor();verify(true,'Admin browser reads persisted award charge');
  report.status='passed';
 }catch(error){report.status='failed';report.failures.push(error.message);process.exitCode=1;}
-finally{await browser.close();report.completedAt=new Date().toISOString();await writeFile(new URL('../deployment/staging-browser-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,actualDeployedBrowserChecksPassed:report.checks.length,failures:report.failures,productionModified:false}));}
+finally{await browser.close();report.completedAt=new Date().toISOString();report.target=target;report.productionPreviewModified=productionPreview;await writeFile(new URL('../deployment/'+target+'-browser-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,actualDeployedBrowserChecksPassed:report.checks.length,failures:report.failures,existingProductionModified:false}));}
