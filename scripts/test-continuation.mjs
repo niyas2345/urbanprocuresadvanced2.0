@@ -19,6 +19,12 @@ for (const host of ['urbanprocures.com', 'www.urbanprocures.com', 'admin.urbanpr
 verify(!isIsolatedAdvancedRequest(new Request('http://localhost/api'), 'production', 'localhost'));
 verify(!isIsolatedAdvancedRequest(new Request('http://localhost/api'), 'advanced-development', 'www.urbanprocures.com'));
 verify(isIsolatedAdvancedRequest(new Request('http://localhost/api'), 'advanced-development', 'localhost'));
+for(const host of ['urbanprocures.com','www.urbanprocures.com','urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev']){
+ verify(isIsolatedAdvancedRequest(new Request(`https://${host}/api`),'advanced-production','urbanprocures.com'));
+ verify(!isIsolatedAdvancedRequest(new Request(`https://${host}/api`),'advanced-production','localhost'));
+}
+for(const host of ['admin.urbanprocures.com','urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev','example.com'])verify(!isIsolatedAdvancedRequest(new Request(`https://${host}/api`),'advanced-production','urbanprocures.com'));
+verify(!isIsolatedAdvancedRequest(new Request('http://urbanprocures.com/api'),'advanced-production','urbanprocures.com'));
 
 // Focused Worker boundary tests with explicit D1/R2 doubles, NOT Cloudflare integration certification.
 let actor = null; let r2Reads = 0;

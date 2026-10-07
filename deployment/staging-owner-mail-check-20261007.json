@@ -1,0 +1,18 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "checkedAt": "2026-10-07T06:56:16.120Z",
+  "checks": [
+    "staging HTTPS page",
+    "owner Admin actual password login",
+    "deployed Worker OAuth authentication",
+    "deployed outbox inspection",
+    "deployed Worker owner-only provider acceptance"
+  ],
+  "externalSendAttempted": true,
+  "productionModified": false,
+  "ownerLoginStatus": 200,
+  "oauthStatus": 200,
+  "deliveryStatus": 200,
+  "providerAccepted": true,
+  "logoutStatus": 200
+}

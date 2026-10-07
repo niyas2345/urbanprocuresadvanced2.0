@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {chromium} from 'playwright-core';
+import {stagingAdminCredentials} from './staging-admin-credentials.mjs';
 const previous=JSON.parse(await readFile(new URL('../deployment/staging-qa-results.json',import.meta.url)));
 assert.equal(previous.status,'passed');
 const origin=previous.origin;assert.equal(origin,'https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev');
 const fixture=JSON.parse(await readFile('/tmp/urbanprocures-staging-workflow-'+previous.runId+'.json'));
-const admin=JSON.parse(await readFile('/tmp/urbanprocures-staging-qa.json'));
+const admin=await stagingAdminCredentials();
 const report={origin,startedAt:new Date().toISOString(),checks:[],failures:[],productionModified:false,outboundMessagesSent:false};
 const verify=(value,label)=>{assert.ok(value,label);report.checks.push(label);};
-const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY}});
 const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aZ1sAAAAASUVORK5CYII=','base64');
 const fileName='qa-browser-'+Date.now()+'.png',title='Browser staging QA '+Date.now();
 const pages=[];

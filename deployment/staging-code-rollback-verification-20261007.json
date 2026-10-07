@@ -1,0 +1,15 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "startedAt": "2026-10-07T09:22:14.263Z",
+  "previous": "9bacb818-31fb-4215-81f3-a5d78c991726",
+  "current": "977e0867-9f77-4761-9dc6-a27e3b53acc4",
+  "checks": [
+    "rolled-back version HTTPS, owner login and outbox",
+    "restored latest version HTTPS, owner login and outbox"
+  ],
+  "productionModified": false,
+  "mailSent": false,
+  "rolledBack": true,
+  "latestRestored": true,
+  "completedAt": "2026-10-07T09:22:31.845Z"
+}

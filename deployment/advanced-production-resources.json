@@ -1,0 +1,16 @@
+{
+  "accountId": "dcb411ece67dfdfb730635133ed31825",
+  "workerName": "urbanprocures-advanced-production-20261007",
+  "databaseName": "urbanprocures-advanced-production-20261007-db",
+  "bucketName": "urbanprocures-advanced-production-20261007-documents",
+  "createdNew": true,
+  "createdAt": "2026-10-07T09:42:21.541772+00:00",
+  "existingProductionModified": false,
+  "stagingBindingsModified": false,
+  "domainCutover": false,
+  "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
+  "bucketCreated": true,
+  "ownerAdminBootstrapped": true,
+  "migrationsApplied": 10,
+  "qaDataCopied": false
+}

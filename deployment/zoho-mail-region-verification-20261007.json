@@ -1,0 +1,11 @@
+{
+ "credentialSource":"current runtime environment through authorized accounts.zoho.com proxy route",
+ "readOnlyComparison":{"mail.zoho.ae":401,"mail.zoho.com":{"httpStatus":401,"providerCode":"INVALID_OAUTHSCOPE","operation":"account lookup with send-only grant"}},
+ "ownerOnlySendTest":{"mailOrigin":"https://mail.zoho.com","accountId":"6991914000000008002","fromAddress":"urbanprocures@urbanprocures.com","toAddress":"urbanprocures@urbanprocures.com","httpStatus":200,"mailStatus":200,"providerAccepted":true},
+ "inboxReceiptConfirmed":true,
+ "inboxReceiptEvidence":"Owner confirmed receipt in this conversation",
+ "stagingMailOriginUpdated":true,
+ "stagingDeploymentVersion":"df675a6d-4281-4646-8038-236c1bccfb02",
+ "testExecutedFrom":"cloud runtime, not deployed staging Worker",
+ "productionModified":false
+}

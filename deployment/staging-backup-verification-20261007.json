@@ -1,0 +1,18 @@
+{
+  "databaseId": "eb82db72-864e-4835-b230-3903f77706f2",
+  "backupPath": "/tmp/urbanprocures-advanced-staging-checkpoint-20261007.sql",
+  "bytes": 181873,
+  "sha256": "f2d35dbd1a75053ce325ddb5952b3a9f08421a9aa6f53cd6575616f5487f17b9",
+  "localRestoreIntegrity": "ok",
+  "restoredRowCounts": {
+    "users": 11,
+    "rfqs": 12,
+    "awards": 12,
+    "rfq_documents": 10,
+    "terms_acceptances": 0,
+    "email_outbox": 41
+  },
+  "remoteRestoreTested": false,
+  "r2BackupTested": false,
+  "productionModified": false
+}

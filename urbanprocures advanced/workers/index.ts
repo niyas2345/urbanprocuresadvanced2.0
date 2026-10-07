@@ -9,10 +9,12 @@ import { awardRoute } from './award.ts';
 import { publicQuoteRoute } from './publicQuote.ts';
 import { procurementRoute } from './procurement.ts';
 import { operationsRoute } from './operations.ts';
+import { dispatchNotifications } from './notifications.ts';
 import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
+  EMAIL_DELIVERY_ENABLED?: string;
   ZOHO_CLIENT_ID?: string;
   ZOHO_CLIENT_SECRET?: string;
   ZOHO_REFRESH_TOKEN?: string;
@@ -30,6 +32,11 @@ export interface Env {
 }
 
 export default {
+  async scheduled(_controller:ScheduledController,env:Env,ctx:ExecutionContext):Promise<void>{
+    if(['advanced-staging','advanced-production'].includes(env.ENVIRONMENT)&&env.EMAIL_DELIVERY_ENABLED==='true'){
+      ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));
+    }
+  },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (!isIsolatedAdvancedRequest(request, env.ENVIRONMENT, env.PLATFORM_DOMAIN)) {
       return new Response(JSON.stringify({ success: false, error: 'Advanced environment isolation check failed' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
@@ -57,7 +64,7 @@ export default {
       const termsResponse=await termsRoute(request,env,await actorFor(request,env));
       if(termsResponse)return termsResponse;
       const authentication = await authRoute(request, env);
-      if (authentication) return authentication;
+      if (authentication) {if(authentication.ok&&method==='POST'&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return authentication;}
       for(const role of ['vendor','contractor']) {
         if(pathname.startsWith(`/api/${role}/`)) {
           const rejected=await termsGate(request,env,await actorFor(request,env),role);
@@ -65,12 +72,12 @@ export default {
         }
       }
       const operations=await operationsRoute(request.clone(),env,await actorFor(request,env));
-      if(operations)return operations;
+      if(operations){if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return operations;}
       // 1. PUBLIC GET A QUOTE (No account required)
       const awardResponse=await awardRoute(request,env,await actorFor(request,env));
-      if(awardResponse)return awardResponse;
+      if(awardResponse){if(awardResponse.ok&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return awardResponse;}
       const procurementResponse=await procurementRoute(request,env,await actorFor(request,env));
-      if(procurementResponse)return procurementResponse;
+      if(procurementResponse){if(procurementResponse.ok&&['POST','PUT'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return procurementResponse;}
       const publicResponse=await publicQuoteRoute(request,env);
       if(publicResponse)return publicResponse;
 

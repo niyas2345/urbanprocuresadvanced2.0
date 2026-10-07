@@ -447,3 +447,15 @@ CREATE INDEX reset_user ON password_reset_tokens(user_id);
 ALTER TABLE vendor_quotes ADD COLUMN revision_nonce TEXT;
 
 ALTER TABLE rfqs ADD COLUMN revision_nonce TEXT;
+
+CREATE TABLE email_outbox (
+ id TEXT PRIMARY KEY,
+ event_key TEXT NOT NULL UNIQUE,
+ user_id TEXT NOT NULL REFERENCES users(id),
+ subject TEXT NOT NULL,
+ content TEXT NOT NULL,
+ status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','sending','sent','review_required','suppressed')),
+ created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+ completed_at TEXT
+);
+CREATE INDEX email_outbox_pending ON email_outbox(status,created_at);

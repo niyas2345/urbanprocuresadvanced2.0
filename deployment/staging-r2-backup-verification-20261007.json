@@ -1,0 +1,69 @@
+{
+  "bucket": "urbanprocures-advanced-staging-20261005-documents",
+  "snapshotObjectsVerified": 10,
+  "backupDirectory": "/tmp/urbanprocures-advanced-staging-r2-backup-20261007",
+  "objects": [
+    {
+      "documentId": "440b5251-fc95-456b-85ae-a0c8323be06c",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "5eef8f4a-e3e8-4476-9fd2-bc538adad53f",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "b73daa8b-1699-4c43-be02-de11701c96a3",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "38f60663-32c2-4c32-a210-3dca9bdd5b96",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "483633b2-65ff-4adc-9389-7e6b00d9dbbe",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "50c84cd6-3871-4457-a962-0a3ba9dfaf90",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "7d867f80-3cfe-4c25-a520-05cd8a1c2651",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "29d910b6-f30d-4499-8185-95f856e478e9",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "017efadb-bb6f-482f-82d9-ceaa214d68d7",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    },
+    {
+      "documentId": "37320019-dd7f-4e3c-b3af-432bc9ce1f7c",
+      "bytes": 68,
+      "sha256": "a7888f2ee38611b92af5d97811c57a952e995d276979aa21b3590f1806cb1b23",
+      "storedHashMatched": true
+    }
+  ],
+  "remoteRestoreTested": false,
+  "productionModified": false
+}

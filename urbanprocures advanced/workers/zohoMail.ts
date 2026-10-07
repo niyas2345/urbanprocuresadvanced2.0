@@ -15,6 +15,10 @@ const safeOAuthCodes=new Set(['invalid_client','invalid_client_secret','invalid_
 export class ZohoOAuthError extends Error {
  constructor(public readonly providerStatus?:number,public readonly providerCode?:string){super('EMAIL_AUTHENTICATION_UNAVAILABLE');}
 }
+const safeMailCodes=new Set(['INVALID_TOKEN','INVALID_OAUTHSCOPE','AUTHENTICATION_FAILED','INVALID_FROM_ADDRESS','INVALID_ACCOUNT','URL_RULE_NOT_CONFIGURED','FORBIDDEN','LIMIT_EXCEEDED']);
+export class ZohoDeliveryError extends Error {
+ constructor(public readonly providerStatus?:number,public readonly providerCode?:string,public readonly mailStatus?:number){super('EMAIL_DELIVERY_UNAVAILABLE');}
+}
 export function zohoConfiguration(env:Env):ZohoConfiguration|null {
  if(!env.ZOHO_CLIENT_ID||!env.ZOHO_CLIENT_SECRET||!env.ZOHO_REFRESH_TOKEN||!env.ZOHO_MAIL_ACCOUNT_ID||!env.ZOHO_MAIL_FROM_ADDRESS||!env.ZOHO_MAIL_API_ORIGIN)return null;
  return {clientId:env.ZOHO_CLIENT_ID,clientSecret:env.ZOHO_CLIENT_SECRET,refreshToken:env.ZOHO_REFRESH_TOKEN,accountId:env.ZOHO_MAIL_ACCOUNT_ID,fromAddress:env.ZOHO_MAIL_FROM_ADDRESS,mailOrigin:env.ZOHO_MAIL_API_ORIGIN,accountsOrigin:env.ZOHO_ACCOUNTS_API_ORIGIN};
@@ -57,13 +61,19 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
      method:'POST',redirect:'manual',signal:AbortSignal.timeout(15000),
      headers:{Authorization:'Zoho-oauthtoken '+token,'Content-Type':'application/json'},
      body:JSON.stringify({fromAddress:config.fromAddress,...message,mailFormat:'plaintext'})
-    });data=await response.json();
-   }catch{throw Error('EMAIL_DELIVERY_UNAVAILABLE');}
+    });
+   }catch{throw new ZohoDeliveryError(undefined,'transport_failure');}
+   if(response.status>=300&&response.status<400)throw new ZohoDeliveryError(response.status,'redirect_refused');
+   try{data=await response.json();}catch{throw new ZohoDeliveryError(response.status,'unexpected_response');}
    if((response.status===401||Number(data?.status?.code)===401)&&attempt===0){
     if(cached?.token===token)cached=null;
     continue;
    }
-   if(!response.ok||Number(data?.status?.code)!==200)throw Error('EMAIL_DELIVERY_UNAVAILABLE');
+   if(!response.ok||Number(data?.status?.code)!==200){
+    const code=data?.data?.errorCode??data?.errorCode??data?.error;
+    const status=Number(data?.status?.code);
+    throw new ZohoDeliveryError(response.status,safeMailCodes.has(code)?code:'provider_rejected',Number.isInteger(status)&&status>=100&&status<=599?status:undefined);
+   }
    return;
   }
   throw Error('EMAIL_DELIVERY_UNAVAILABLE');

@@ -1,0 +1,18 @@
+{
+ "versionId": "f2ef8dbb-89cb-46b5-9a97-bd4f3d9b0403",
+ "worker": "urbanprocures-advanced-staging-20261005",
+ "migration": "0009_email_outbox.sql",
+ "backupSHA256": "7052fec2be4a6081feb5fe5afc4d114c8f7d028a7502ac55de2ccae86a39dc6e",
+ "backupLocalPath": "/tmp/urbanprocures-advanced-staging-before-outbox-20261007.sql",
+ "backupLocallyRestored": true,
+ "remoteRestoreVerified": false,
+ "preservedCounts": {"users":7,"awards":6,"documents":5,"termsEvidence":4},
+ "remoteOutboxRows": 0,
+ "automaticDeliveryEnabled": false,
+ "ownerOnlyTestAuthorized": true,
+ "externalDeliveryVerified": false,
+ "taskStagingHTTPSStatus": 403,
+ "localChecks": {"operations":96,"notificationRuntime":13,"offlineDatabase":92,"auth":23,"oauthContract":90,"oauthRuntime":13},
+ "notificationProviderTestsUseExplicitDouble": true,
+ "productionModified": false
+}

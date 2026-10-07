@@ -185,7 +185,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
             <div className="bg-white border border-[#e1e7e4] rounded-[6px] overflow-hidden shadow-[0_9px_25px_rgba(25,60,65,0.04)]">
               <div className="p-4 bg-[#f7f6f2] border-b border-[#e1e7e4] flex justify-between items-center text-xs font-bold text-[#123540]">
                 <span>Registered Documents & Attachments ({documents.length} Files)</span>
-                <span className="font-mono text-[#63797b]">Storage: Cloudflare R2 (urbanprocures-documents)</span>
+                <span className="font-mono text-[#63797b]">Storage: private Cloudflare R2</span>
               </div>
 
               <div className="overflow-x-auto">
@@ -217,7 +217,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                             </span>
                           ) : (
                             <span className="font-mono text-[#eb6a32] bg-[#eb6a32]/10 px-2 py-0.5 rounded font-bold">
-                              Public Quote
+                              {doc.publicQuoteId ? 'Public Quote' : 'Account document'}
                             </span>
                           )}
                         </td>
@@ -227,7 +227,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                           </span>
                         </td>
                         <td className="py-3 px-4 text-right font-mono text-[#63797b]">
-                          {(doc.fileSizeBytes / 1024).toFixed(0)} KB
+                          {doc.fileSizeBytes < 1024 ? `${doc.fileSizeBytes} B` : `${(doc.fileSizeBytes / 1024).toFixed(1)} KB`}
                         </td>
                         <td className="py-3 px-4 text-right">
                           <button

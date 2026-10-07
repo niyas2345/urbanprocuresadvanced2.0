@@ -2,6 +2,25 @@
 
 **NOT READY FOR BLANKET PRODUCTION ACCEPTANCE**
 
+Latest continuation: actual staging OAuth authentication is confirmed by the owner's
+browser screenshot (HTTP 200/authenticated true/no email). Notification outbox and
+owner-only test endpoint are now deployed to staging, migration 0009 applied;
+automatic sending remains disabled. See NOTIFICATION_READINESS.md and
+deployment/staging-notification-deployment-20261007.json for current evidence,
+backup checks and remaining delivery/rollback limitations. Earlier grant-error
+descriptions below are historical and no longer the current authentication blocker.
+
+2026-10-07 continuation: published runtime revision 15 is attached. Credential readiness
+metadata remains unknown. The environment-to-Worker secret upload helper is now disabled:
+proxy-backed environment values are not raw secrets and must not be persisted into Worker
+bindings. Configure actual OAuth credentials directly in the existing staging Worker's
+encrypted secret settings. Previous runtime `invalid_code` and staging
+`invalid_client_secret` are distinct, historical results, not proof of current credentials
+or a new live test. Owner Admin staging login was already verified; no password is missing.
+The 90 OAuth contract and 13 native workerd checks passed again using provider HTTP doubles;
+they do not establish live mail readiness. No Mac-control tools are exposed in this task.
+Production remains untouched.
+
 Master handoff authorizes production only after all mandatory actual deployed staging gates and rollback/data-safety checks pass. The independent Advanced staging Worker, D1 and private R2 are created and deployed; all eight canonical migrations applied. Existing production resources and domains remain unchanged. No Git push or outbound email occurred.
 
 Local implementation now includes RFQ creation/draft editing/BoQ/private R2 attachments, Admin publication with explicit identity review, Vendor and Contractor license verification, real queues/accounts/quotations/awards/charges/audit inspection, document ownership and reviewed release, quotation submission/amendments, immutable Terms gates and award linkage, concurrent award protection, HttpOnly strict cookies, CSRF origin checks, login throttling and single-use password recovery.
@@ -20,3 +39,17 @@ Remaining gates:
 - Additional mandatory staging acceptance/security gates, backup/rollback validation, production deployment, both live-domain workflows and QA cleanup remain pending. Existing production is read-only. No production resource may be reused, cloned, migrated, rebound or attached to Advanced staging. Production runtime isolation remains locked.
 
 Current branch: work. Baseline `c7004f30603f20d363697c034cddabf44c1d0bee`; first staging source commit `c569212c0082f700fc554d0147c15b6af1cb537f`. Local commits do not prove a GitHub push or production deployment.
+# Current staging evidence — 2026-10-07
+
+Staging version `977e0867-9f77-4761-9dc6-a27e3b53acc4` passed 137 deployed
+API checks and 14 click-driven browser checks. Actual deployed OAuth and
+owner-only mail provider acceptance passed. Migration 0010 adds Admin review
+notifications; automatic delivery remains disabled. Admin document labels now
+show byte sizes accurately and distinguish account documents from public quotes.
+
+Code rollback and restoration passed. D1 local restore and ten R2 backup hashes
+passed; remote recovery verification is in progress in separate resources.
+Remaining: controlled workflow-mail verification/activation, QA cleanup,
+production resource/configuration review, domain cutover and live acceptance.
+Production is unchanged and is not certified ready. Earlier status entries below
+are historical and superseded where they conflict with these results.

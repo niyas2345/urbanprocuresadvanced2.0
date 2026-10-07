@@ -48,6 +48,7 @@ apply(legacy, (DBDIR / 'migrations' / '0005_person_hours.sql').read_text().split
 apply(legacy, (DBDIR / 'migrations' / '0006_document_review.sql').read_text())
 apply(legacy, (DBDIR / 'migrations' / '0007_auth_security.sql').read_text())
 apply(legacy, (DBDIR / 'migrations' / '0008_quote_revision.sql').read_text())
+apply(legacy, (DBDIR / 'migrations' / '0009_email_outbox.sql').read_text())
 for table, names in columns(reference).items():
     verify(names <= columns(legacy).get(table, set()), 'Legacy upgrade missing columns in ' + table)
 verify(legacy.execute("SELECT password_hash,status FROM users WHERE id='legacy-vendor'").fetchone() == ('retained-hash','pending'), 'Unsalted legacy credentials must be preserved but inactive')
@@ -67,6 +68,7 @@ apply(snapshot, (DBDIR / 'migrations' / '0005_person_hours.sql').read_text().spl
 apply(snapshot, (DBDIR / 'migrations' / '0006_document_review.sql').read_text())
 apply(snapshot, (DBDIR / 'migrations' / '0007_auth_security.sql').read_text())
 apply(snapshot, (DBDIR / 'migrations' / '0008_quote_revision.sql').read_text())
+apply(snapshot, (DBDIR / 'migrations' / '0009_email_outbox.sql').read_text())
 for table, count in old_counts.items():
     verify(snapshot.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == count, 'Snapshot row count changed: ' + table)
 verify(columns(snapshot) == columns(reference), 'Snapshot upgrade must match canonical columns')

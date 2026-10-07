@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-10-07T10:00:27.331698+00:00",
+  "databaseId": "eb82db72-864e-4835-b230-3903f77706f2",
+  "qaAccountsSuspended": 17,
+  "qaAccountIds": [
+    "f6392e9c-93e2-4405-ae9d-24d4c513b59f",
+    "608b08f3-1b68-4c91-a086-343ae04f2da3",
+    "b948859b-753a-4d6b-a47a-bf71649f036c",
+    "12638499-5356-4204-b02a-62709b1b02c3",
+    "4108e005-0ffa-4462-b5c3-b82f59d5dfa7",
+    "3231a288-69fb-457b-98ce-d68a791cf45c",
+    "db4ed700-ce01-4956-b49b-590b8b247a39",
+    "0d0e1e44-55c9-4b3d-859e-e47aff9f4888",
+    "35359a7e-82b3-4201-86dd-9547d71322eb",
+    "1b02dd09-630c-4709-b58c-34dfd89b90fa",
+    "f09e0a11-9e6b-44b3-bfd2-c9c1bd20e4c5",
+    "8b0fa2ce-e606-4645-a796-314c2b69b5c2",
+    "468d5474-81e9-409a-a675-6e85accb4860",
+    "42745886-fad2-4bea-8e23-9348e7fb929f",
+    "74bdf4bd-7ee3-4f73-8f5b-0b9f833b3d70",
+    "04e9e5e7-b401-46d0-a93a-e73f71923187",
+    "qa-admin-0b2374b39d2b"
+  ],
+  "pendingFixtureEmailsSuppressed": 190,
+  "fixtureSessionsRevoked": true,
+  "ownerAdminPreserved": true,
+  "immutableEvidenceRetained": true,
+  "productionDataModified": false,
+  "retentionReason": "Private staging regression fixtures retained under master-handoff exception: immutable Terms/audit and rollback evidence. Accounts are suspended, sessions revoked and fixture notices suppressed. No fixture data copied to production."
+}

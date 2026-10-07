@@ -1,0 +1,19 @@
+{
+  "startedAt": "2026-10-07T09:23:39.371531+00:00",
+  "databaseName": "urbanprocures-advanced-staging-recovery-20261007-286fcbd36f-db",
+  "bucketName": "upa-staging-recovery-20261007-286fcbd36f-docs",
+  "productionModified": false,
+  "applicationBindingsModified": false,
+  "snapshotSha256": "f2d35dbd1a75053ce325ddb5952b3a9f08421a9aa6f53cd6575616f5487f17b9",
+  "status": "passed",
+  "databaseId": "e932ac9e-3f87-41a8-9308-72c66e8965d2",
+  "errorType": "AssertionError",
+  "completedAt": "2026-10-07T09:30:38.882812+00:00",
+  "bucketCreated": true,
+  "restoreMethod": "D1 parameterized query API; tables, dependency-ordered data, indexes and triggers",
+  "remoteTableCountsMatched": 29,
+  "remoteObjectsRestoredAndMatched": 10,
+  "remoteTableContentsSemanticallyMatched": 29,
+  "remoteSchemaMatched": true,
+  "remoteForeignKeyCheck": "passed"
+}

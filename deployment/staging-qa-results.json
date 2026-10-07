@@ -1,7 +1,7 @@
 {
-  "runId": "7e91af8b1163",
+  "runId": "22ddaca37b16",
   "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
-  "startedAt": "2026-10-05T01:44:33.650Z",
+  "startedAt": "2026-10-07T09:40:05.647Z",
   "checks": [
     "HTTPS homepage loads with TLS verification",
     "approved homepage renders",
@@ -138,27 +138,25 @@
     "all five awards have persistent Service Charge records",
     "Admin browser authenticates",
     "Admin browser inspects full stored accepted Terms",
-    "unconfigured Zoho reports unavailable without sending mail",
+    "nonexistent-account recovery check sends no email",
     "unknown API returns honest 404"
   ],
   "failures": [],
   "productionModified": false,
   "outboundMessagesSent": false,
   "temporaryUserIds": [
-    "4108e005-0ffa-4462-b5c3-b82f59d5dfa7",
-    "0d0e1e44-55c9-4b3d-859e-e47aff9f4888",
-    "3231a288-69fb-457b-98ce-d68a791cf45c",
-    "db4ed700-ce01-4956-b49b-590b8b247a39"
+    "f6392e9c-93e2-4405-ae9d-24d4c513b59f",
+    "12638499-5356-4204-b02a-62709b1b02c3",
+    "608b08f3-1b68-4c91-a086-343ae04f2da3",
+    "b948859b-753a-4d6b-a47a-bf71649f036c"
   ],
   "rfqIds": [
-    "0171b4ce-6fbb-466e-9a7b-cf04666bc637",
-    "db3bd459-d09f-49c1-af7b-228dcd694b92",
-    "aebcefad-4207-495d-98e1-c4df25bf94bb",
-    "4baa2a19-be0d-473a-9f41-ec7af66c5cc0",
-    "7697de44-fda2-49f2-bfa5-8027e92e5440"
+    "3010e82c-4850-4043-a142-8b397ad513a1",
+    "324d96dc-4225-40e5-8e3f-1f0d80a4c2cc",
+    "04bfc6ba-23f4-428d-9387-d43110bcab1b",
+    "8291642a-70be-448a-ae5b-4f91e58b864e",
+    "9fde96ba-93b7-4f9f-a82d-cd502fb1c1d5"
   ],
-  "completedAt": "2026-10-05T01:44:56.540Z",
-  "status": "passed",
-  "sourceCommit": "c569212c0082f700fc554d0147c15b6af1cb537f",
-  "workerDeploymentVersion": "2a56c213-dea9-48de-974a-d3a267604875"
+  "completedAt": "2026-10-07T09:41:04.794Z",
+  "status": "passed"
 }

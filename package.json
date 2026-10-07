@@ -12,7 +12,7 @@
     "lint": "tsc --noEmit && tsc --project tsconfig.worker.json --noEmit",
     "check:repository": "node scripts/check-repository.mjs",
     "check:isolation": "node scripts/check-isolation.mjs",
-    "test:continuation": "node scripts/test-continuation.mjs",
+    "test:continuation": "tsx scripts/test-continuation.mjs",
     "dev:legacy": "tsx server.ts",
     "worker:dev": "node scripts/check-repository.mjs && node scripts/check-isolation.mjs && wrangler dev --local --config \"urbanprocures advanced/workers/wrangler.toml\"",
     "db:migrate:local": "node scripts/check-repository.mjs && node scripts/check-isolation.mjs && wrangler d1 migrations apply DB --local --config \"urbanprocures advanced/workers/wrangler.toml\"",

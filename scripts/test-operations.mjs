@@ -15,6 +15,7 @@ try {
  verify((await call('/api/admin/email/health',{})).status===401,'anonymous cannot probe OAuth');
  verify((await call('/api/admin/email/health',{},v.token)).status===403,'Vendor cannot probe OAuth');
  verify((await call('/api/admin/email/health',{},adminToken)).status===503,'unconfigured Admin OAuth probe fails without mail');
+ verify((await call('/api/admin/email/test',{confirmOwnerOnlyTest:true},adminToken)).status===403,'delivery test denied outside staging and approved owner');
  for(const resource of ['users','contractors','vendors','documents','rfqs','public-quotes','site-visits','awards','quotations','service-charges','audit-logs','invitations']) {
   verify((await call('/api/admin/'+resource,null,v.token)).status===403,resource+' Vendor denied');verify((await call('/api/admin/'+resource,null,adminToken)).status===200,resource+' real Admin query');verify((await call('/api/admin/'+resource)).status===401,resource+' anonymous denied');
  }
@@ -41,5 +42,15 @@ try {
  const cookieResponse=await call('/api/auth/login',{email:'contractor@example.invalid',password:details.password});verify(cookieResponse.headers.get('Set-Cookie').includes('HttpOnly')&&cookieResponse.headers.get('Set-Cookie').includes('SameSite=Strict'),'HttpOnly strict session cookie');const cookie=cookieResponse.headers.get('Set-Cookie').split(';')[0];verify((await mf.dispatchFetch('http://localhost/api/auth/logout',{method:'POST',headers:{Cookie:cookie,Origin:'https://attacker.example.invalid'}})).status===403,'cross-origin cookie action denied');verify((await (await mf.dispatchFetch('http://localhost/api/auth/me',{headers:{Cookie:cookie}})).json()).authenticated,'cookie session survives reload');
  const resetToken='f'.repeat(64);await db.prepare('INSERT INTO password_reset_tokens (digest,user_id,expires_at,created_at) VALUES (?,?,?,?)').bind(createHash('sha256').update(resetToken).digest('hex'),c.user.id,'2099-01-01T00:00:00.000Z',now).run();verify((await call('/api/auth/reset-password',{token:resetToken,password:'New-fixture-password-2026!'})).status===200,'single-use password reset');verify((await call('/api/contractor/rfqs',null,c.token)).status===401,'reset revokes sessions');verify((await call('/api/auth/reset-password',{token:resetToken,password:'Another-fixture-password-2026!'})).status===400,'reset replay rejected');verify((await call('/api/auth/forgot-password',{email:'contractor@example.invalid'})).status===503,'missing Zoho fails honestly');
  for(let i=0;i<11;i++)await call('/api/auth/login',{email:'rate-limit-fixture@example.invalid',password:'Bad-fixture-password'});verify((await call('/api/auth/login',{email:'rate-limit-fixture@example.invalid',password:'Bad-fixture-password'})).status===429,'account login abuse throttled');
+ const outbox=await db.prepare('SELECT event_key,status,content FROM email_outbox').all();
+ verify(outbox.results.filter(e=>e.event_key.startsWith('registration:')).length===3,'each registration queues one durable event');
+ verify(outbox.results.filter(e=>e.event_key.startsWith('quotation:')).length===1,'quotation amendments do not duplicate submission email');
+ verify(outbox.results.filter(e=>e.event_key.startsWith('award:')).length===2,'award queues only Contractor and winning Vendor');
+ verify(outbox.results.filter(e=>e.event_key.startsWith('rfq:')).length===0,'publication excludes Vendor not yet verified at publication time');
+ verify(outbox.results.every(e=>e.status==='pending'),'mail remains disabled throughout QA');
+ verify(outbox.results.filter(e=>e.event_key.startsWith('admin-registration:')).length===3,'new registrations queue real Admin review notifications');
+ verify(outbox.results.filter(e=>e.event_key.startsWith('admin-rfq:')).length===4,'draft submission and new submitted RFQs queue Admin review once');
+ verify((await call('/api/admin/email/outbox',null,v.token)).status!==200,'non-Admin cannot inspect mail outbox');
+ verify((await call('/api/admin/email/outbox',null,adminToken)).status===200,'Admin inspects actual outbox status');
  console.log(JSON.stringify({genuineOperationsWorkerD1R2ChecksPassed:checks,productionResourcesTouched:false},null,2));
 }finally{await mf.dispose();}

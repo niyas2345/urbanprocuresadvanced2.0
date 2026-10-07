@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash,randomBytes} from 'node:crypto';
 import {chromium} from 'playwright-core';
+import {stagingAdminCredentials} from './staging-admin-credentials.mjs';
 
 // Actual deployed application tests; no local Worker, DB doubles or synthetic sessions.
 const resources=JSON.parse(await readFile(new URL('../deployment/staging-resources.json',import.meta.url)));
-const admin=JSON.parse(await readFile(process.env.STAGING_QA_CREDENTIAL_FILE||'/tmp/urbanprocures-staging-qa.json'));
+const admin=await stagingAdminCredentials();
 const origin=resources.stagingUrl;
 assert.equal(origin,'https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev');
 assert.equal(admin.origin,origin);
@@ -13,7 +14,7 @@ assert.equal(resources.stagingDatabaseId,'eb82db72-864e-4835-b230-3903f77706f2')
 const runId=randomBytes(6).toString('hex'),password=randomBytes(24).toString('base64url');
 const report={runId,origin,startedAt:new Date().toISOString(),checks:[],failures:[],productionModified:false,outboundMessagesSent:false,temporaryUserIds:[],rfqIds:[]};
 const verify=(value,label)=>{assert.ok(value,label);report.checks.push(label);};
-const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY}});
 const apiContext=await browser.newContext(),apiPage=await apiContext.newPage();
 const call=async(path,body,token,method=body?'POST':'GET')=>apiPage.evaluate(async({path,body,token,method})=>{
  const response=await fetch(path,{method,credentials:'omit',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},...(body?{body:JSON.stringify(body)}:{})});

@@ -1,5 +1,7 @@
 import type { Env } from './index.ts';
-import {verifyZohoAuthentication,ZohoOAuthError} from './zohoMail.ts';
+import {verifyZohoAuthentication,ZohoOAuthError,ZohoDeliveryError,sendZohoMail} from './zohoMail.ts';
+import {rateAllowed} from './recovery.ts';
+import {dispatchNotifications} from './notifications.ts';
 import type { Actor } from './terms.ts';
 import { organizationFor, termsGate } from './terms.ts';
 import { rfqDto } from './procurement.ts';
@@ -102,6 +104,32 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
   return new Response(object.body,{headers:{'Content-Type':doc.file_type,'Content-Disposition':`${docAccess[2]==='download'?'attachment':'inline'}; filename="${doc.file_name.replace(/[\r\n"\\]/g,'_')}"`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'"}});
  }
  if(actor.role!=='admin')return null;
+ if(path==='/api/admin/email/workflow-test'&&method==='POST'){
+  // Explicit owner-only staging test of the real outbox claim/send/completion.
+  // The global delivery switch stays off and no other pending event is drained.
+  if(env.ENVIRONMENT!=='advanced-staging'||actor.email.toLowerCase()!=='urbanprocures@urbanprocures.com')return fail('OWNER_STAGING_TEST_REQUIRED',403);
+  if(body.confirmOwnerOnlyTest!==true)return fail('EXPLICIT_TEST_CONFIRMATION_REQUIRED');
+  if(!await rateAllowed(env,'owner-outbox-test',1,3600000))return fail('TRY_AGAIN_LATER',429);
+  const id=crypto.randomUUID();
+  await env.DB.prepare('INSERT INTO email_outbox(id,event_key,user_id,subject,content) VALUES (?,?,?,?,?)').bind(id,'owner-test:'+id,actor.id,'Urban Procures staging outbox workflow test','Owner-authorized staging notification workflow test. No customer recipients or production resources were used.').run();
+  const result=await dispatchNotifications({...env,EMAIL_DELIVERY_ENABLED:'true'},sendZohoMail,id);
+  await audit(env,actor,'OWNER_STAGING_OUTBOX_TEST','email',id).run();
+  return result.sent===1?ok({providerAccepted:true,outboxStatus:'sent',inboxDeliveryVerified:false}):fail('EMAIL_DELIVERY_UNAVAILABLE',503);
+ }
+ if(path==='/api/admin/email/test'&&method==='POST'){
+  // Owner-approved staging-only test: never accepts a recipient from the browser.
+  if(env.ENVIRONMENT!=='advanced-staging'||actor.email.toLowerCase()!=='urbanprocures@urbanprocures.com')return fail('OWNER_STAGING_TEST_REQUIRED',403);
+  if(body.confirmOwnerOnlyTest!==true)return fail('EXPLICIT_TEST_CONFIRMATION_REQUIRED');
+  if(!await rateAllowed(env,'owner-mail-test',1,3600000))return fail('TRY_AGAIN_LATER',429);
+  try{
+   await sendZohoMail(env,{toAddress:'urbanprocures@urbanprocures.com',subject:'Urban Procures staging email delivery test',content:'Owner-authorized staging delivery test. No production resources or customer accounts were changed.'});
+  }catch(error){return Response.json({success:false,error:'EMAIL_DELIVERY_UNAVAILABLE',phase:error instanceof ZohoOAuthError?'oauth':'mail',providerStatus:error instanceof ZohoOAuthError||error instanceof ZohoDeliveryError?error.providerStatus??null:null,providerCode:error instanceof ZohoOAuthError||error instanceof ZohoDeliveryError?error.providerCode??null:'internal_configuration_failure',mailStatus:error instanceof ZohoDeliveryError?error.mailStatus??null:null},{status:503,headers:{'Cache-Control':'no-store'}});}
+  await audit(env,actor,'OWNER_STAGING_EMAIL_TEST','email','owner-test').run();
+  return ok({providerAccepted:true,inboxDeliveryVerified:false});
+ }
+ if(path==='/api/admin/email/outbox'&&method==='GET'){
+  const rows=await env.DB.prepare('SELECT status,count(*) AS count FROM email_outbox GROUP BY status').all();return ok(rows.results);
+ }
  if(path==='/api/admin/email/health'&&method==='POST'){
   try{await verifyZohoAuthentication(env);return ok({authenticated:true,emailSent:false});}
   catch(error){return Response.json({success:false,error:'EMAIL_AUTHENTICATION_UNAVAILABLE',providerStatus:error instanceof ZohoOAuthError?error.providerStatus??null:null,providerCode:error instanceof ZohoOAuthError?error.providerCode??null:error instanceof Error&&['EMAIL_NOT_CONFIGURED','EMAIL_CONFIGURATION_INVALID'].includes(error.message)?error.message:'internal_configuration_failure'},{status:503,headers:{'Cache-Control':'no-store'}});}

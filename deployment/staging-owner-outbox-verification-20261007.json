@@ -1,0 +1,18 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "startedAt": "2026-10-07T09:32:18.023Z",
+  "ownerOnly": true,
+  "productionModified": false,
+  "checks": [
+    "anonymous denied",
+    "explicit confirmation enforced",
+    "real deployed outbox claim, Zoho send and sent completion",
+    "duplicate owner test throttled"
+  ],
+  "httpStatus": 200,
+  "providerAccepted": true,
+  "outboxStatus": "sent",
+  "status": "passed",
+  "completedAt": "2026-10-07T09:32:21.650Z",
+  "ownerInboxReceiptConfirmed": true
+}

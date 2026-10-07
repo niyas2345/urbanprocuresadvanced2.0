@@ -1,5 +1,5 @@
-# Isolated owner-authorized staging. No production custom routes.
-name = "urbanprocures-advanced-staging-20261005"
+# New Advanced production resources only. No live domains until preview acceptance.
+name = "urbanprocures-advanced-production-20261007"
 account_id = "dcb411ece67dfdfb730635133ed31825"
 main = "index.ts"
 compatibility_date = "2026-10-01"
@@ -7,22 +7,24 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 [vars]
-ENVIRONMENT = "advanced-staging"
-PLATFORM_DOMAIN = "urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev"
-PUBLIC_APP_ORIGIN = "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev"
+ENVIRONMENT = "advanced-production"
+PLATFORM_DOMAIN = "urbanprocures.com"
+PUBLIC_APP_ORIGIN = "https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev"
 ZOHO_MAIL_ACCOUNT_ID = "6991914000000008002"
+ZOHO_MAIL_FROM_ADDRESS = "urbanprocures@urbanprocures.com"
 ZOHO_MAIL_API_ORIGIN = "https://mail.zoho.com"
 ZOHO_ACCOUNTS_API_ORIGIN = "https://accounts.zoho.com"
+EMAIL_DELIVERY_ENABLED = "false"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "urbanprocures-advanced-staging-20261005-db"
-database_id = "eb82db72-864e-4835-b230-3903f77706f2"
+database_name = "urbanprocures-advanced-production-20261007-db"
+database_id = "3412487b-954b-4f21-92d3-20d85d30dc11"
 migrations_dir = "../database/migrations"
 
 [[r2_buckets]]
 binding = "DOCUMENTS_BUCKET"
-bucket_name = "urbanprocures-advanced-staging-20261005-documents"
+bucket_name = "urbanprocures-advanced-production-20261007-documents"
 
 [assets]
 directory = "../../dist"
@@ -30,6 +32,5 @@ binding = "ASSETS"
 not_found_handling = "single-page-application"
 run_worker_first = true
 
-# Bounded outbox draining; dispatch remains inert while delivery is disabled.
 [triggers]
 crons = ["*/5 * * * *"]

@@ -1,0 +1,16 @@
+{
+ "worker":"urbanprocures-advanced-staging-20261005",
+ "versionId":"6a03ec84-372d-4f4a-93bc-fa56146b6988",
+ "ownerReportedPriorEmailTest":{"httpStatus":503,"error":"EMAIL_DELIVERY_UNAVAILABLE"},
+ "safeDiagnosticFields":["phase","providerStatus","providerCode","mailStatus"],
+ "providerCodeWhitelistEnforced":true,
+ "rawProviderResponsesReturned":false,
+ "diagnosticTestsPassed":20,
+ "oauthContractTestsPassed":90,
+ "oauthRuntimeTestsPassed":13,
+ "typeChecksPassed":true,
+ "providerTestsUseExplicitDoubles":true,
+ "newLiveDeliveryTestPerformed":false,
+ "automaticDeliveryEnabled":false,
+ "productionModified":false
+}
