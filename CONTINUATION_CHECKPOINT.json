@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Removed Test Suite and Blueprint Docs navigation links and public routes; retained repository test/documentation files. Type checks and production build passed. Deployed version 80d9aa99-dcb7-466f-a692-7228606a6c04; verified link removal and 404 routes on both live domains.",
+  "LAST_COMPLETED_TASK": "Removed Admin from the main header navigation only. Footer Admin and top-right portal dropdown retained and verified on both actual domains. Type checks and build passed. Production deployment a4e60b13-3305-436a-9ac3-c6fdf661767c.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -156,7 +156,7 @@
     "ownerAdminBootstrapped": true,
     "migrationsApplied": 10,
     "qaDataCopied": false,
-    "deploymentVersion": "80d9aa99-dcb7-466f-a692-7228606a6c04",
+    "deploymentVersion": "a4e60b13-3305-436a-9ac3-c6fdf661767c",
     "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
     "missingOAuthSecrets": [],
     "oauthAuthenticationVerified": true,

@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "origin": "https://urbanprocures.com",
+      "headerCustomerLinksOnly": true,
+      "footerAdminPreserved": true,
+      "portalAdminPreserved": true
+    },
+    {
+      "origin": "https://www.urbanprocures.com",
+      "headerCustomerLinksOnly": true,
+      "footerAdminPreserved": true,
+      "portalAdminPreserved": true
+    }
+  ],
+  "version": "a4e60b13-3305-436a-9ac3-c6fdf661767c"
+}

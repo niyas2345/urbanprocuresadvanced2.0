@@ -124,12 +124,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, activeR
             >
               Vendor
             </button>
-            <button
-              onClick={() => onNavigate('/admin')}
-              className="text-[#63797b] hover:text-[#123540] text-xs transition-colors"
-            >
-              Admin
-            </button>
           </nav>
 
           {/* Action CTA */}

@@ -13,7 +13,7 @@
   "ownerAdminBootstrapped": true,
   "migrationsApplied": 10,
   "qaDataCopied": false,
-  "deploymentVersion": "80d9aa99-dcb7-466f-a692-7228606a6c04",
+  "deploymentVersion": "a4e60b13-3305-436a-9ac3-c6fdf661767c",
   "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
   "missingOAuthSecrets": [],
   "oauthAuthenticationVerified": true,
