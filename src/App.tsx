@@ -9,8 +9,6 @@ import { GetAQuotePage } from './pages/GetAQuotePage.tsx';
 import { ContractorPage } from './pages/ContractorPage.tsx';
 import { VendorPage } from './pages/VendorPage.tsx';
 import { AdminPage } from './pages/AdminPage.tsx';
-import { TestSuitePage } from './pages/TestSuitePage.tsx';
-import { DocsViewerPage } from './pages/DocsViewerPage.tsx';
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
@@ -64,12 +62,6 @@ export default function App() {
     }
     if (currentPath.startsWith('/admin')) {
       return <AdminPage onNavigate={navigate} />;
-    }
-    if (currentPath === '/test-suite') {
-      return <TestSuitePage onNavigate={navigate} />;
-    }
-    if (currentPath === '/docs') {
-      return <DocsViewerPage onNavigate={navigate} />;
     }
     return <HomePage onNavigate={navigate} />;
   };

@@ -49,18 +49,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           >
             Admin
           </button>
-          <button
-            onClick={() => onNavigate('/test-suite')}
-            className="hover:text-[#eb6a32] transition-colors text-[#a1b7b6]"
-          >
-            Test Suite & Gates
-          </button>
-          <button
-            onClick={() => onNavigate('/docs')}
-            className="hover:text-[#eb6a32] transition-colors text-[#a1b7b6]"
-          >
-            Blueprint Docs
-          </button>
         </nav>
       </div>
 

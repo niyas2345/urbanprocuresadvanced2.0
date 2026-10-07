@@ -44,6 +44,9 @@ export default {
     const url = new URL(request.url);
     const { pathname, searchParams } = url;
     const method = request.method;
+    if (/^\/(test-suite|docs)(\/|$)/.test(pathname)) {
+      return new Response('Page not found', {status:404, headers:{'Content-Type':'text/plain; charset=utf-8'}});
+    }
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
