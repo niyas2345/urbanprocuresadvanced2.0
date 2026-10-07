@@ -1,6 +1,6 @@
 {
   "origin": "https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev",
-  "startedAt": "2026-10-07T10:56:13.247Z",
+  "startedAt": "2026-10-07T11:16:43.138Z",
   "checks": [
     "production preview HTTPS",
     "approved homepage",
@@ -13,12 +13,26 @@
     "get_a_quote published Terms",
     "get_a_quote approved content",
     "get_a_quote approved hash",
-    "anonymous Admin access denied"
+    "anonymous Admin access denied",
+    "approved owner Admin login",
+    "real production D1 Admin listing",
+    "one owner login and zero QA accounts",
+    "empty production rfqs; staging fixtures not copied",
+    "empty production vendors; staging fixtures not copied",
+    "empty production contractors; staging fixtures not copied",
+    "empty production documents; staging fixtures not copied",
+    "empty production awards; staging fixtures not copied",
+    "empty production service-charges; staging fixtures not copied",
+    "empty production public-quotes; staging fixtures not copied",
+    "staging email test disabled in production",
+    "owner session logged out"
   ],
   "customerDomainModified": false,
   "mailSent": false,
-  "loginStatus": 401,
-  "loginSafeError": "Invalid credentials or unavailable account",
-  "status": "failed",
-  "completedAt": "2026-10-07T10:56:14.786Z"
+  "loginStatus": 200,
+  "mailHealthStatus": 200,
+  "mailAuthentication": true,
+  "remainingGate": "production workflow/live-domain tests",
+  "status": "passed",
+  "completedAt": "2026-10-07T11:16:49.153Z"
 }

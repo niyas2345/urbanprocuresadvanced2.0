@@ -13,10 +13,12 @@
   "ownerAdminBootstrapped": true,
   "migrationsApplied": 10,
   "qaDataCopied": false,
-  "deploymentVersion": "4ea934fe-9f2f-42cd-a397-67e464a62c4c",
+  "deploymentVersion": "90a002be-c8ee-4498-9548-b8ce33365bc4",
   "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
   "missingOAuthSecrets": [],
   "oauthAuthenticationVerified": true,
   "persistentLogsEnabled": true,
-  "persistentTracesEnabled": true
+  "persistentTracesEnabled": true,
+  "automaticEmailDeliveryEnabled": true,
+  "publicAppOrigin": "https://urbanprocures.com"
 }

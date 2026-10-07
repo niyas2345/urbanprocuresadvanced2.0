@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": false,
-  "LAST_COMPLETED_TASK": "2026-10-07: Production preview passed 137 genuine API/security checks and 14 browser workflow checks. Owner-only production password-reset email succeeded and owner confirmed inbox receipt. Removed four proven QA accounts, six RFQs/awards/charges, five private R2 fixture objects and 42 queued fixture notices with private pre-cleanup snapshot; immutable Terms guards restored and approved Terms/owner account preserved. Clean preview subsequently detected owner credential mismatch; audit shows successful owner PASSWORD_RESET at 10:53:36 UTC. Current domains remain unchanged; final cutover guard correctly blocks until owner login is reverified.",
+  "LAST_COMPLETED_TASK": "2026-10-07: Updated owner runtime credential verified with HTTP 200 login; all 24 clean-preview checks pass and actual OAuth authenticated. Deployed tested Advanced production Worker version 90a002be-c8ee-4498-9548-b8ce33365bc4 with live PUBLIC_APP_ORIGIN and automatic transactional mail enabled; logs/traces and OAuth secrets preserved. Final domain-cutover execution request was aborted by user before execution; subsequent read-only Cloudflare check confirms zero Worker routes. Actual domains unchanged.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -40,8 +40,7 @@
     "scripts/configure-staging-zoho.mjs"
   ],
   "FILES_STILL_REQUIRING_WORK": [
-    "Current owner password secure runtime binding / clean preview owner login",
-    "Execute guarded apex/www cutover and actual live-domain acceptance"
+    "Execute guarded apex/www cutover and live-domain checks once execution is allowed"
   ],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
@@ -76,19 +75,17 @@
     "production owner mail inbox receipt": true,
     "production preview fixture cleanup and immutable guard restoration": true
   },
-  "TESTS_FAILED": [
-    "Clean preview owner login: HTTP 401 after successful owner password reset at 2026-10-07T10:53:36.878Z; runtime password does not match current account hash. Account active and unchanged by cleanup."
-  ],
+  "TESTS_FAILED": [],
   "TESTS_BLOCKED": {},
   "EXPECTED_REJECTIONS": [
     "check-isolation --remote rejects unprovisioned D1 placeholder"
   ],
   "KNOWN_FAILED_REQUIREMENTS": [
-    "Current owner credential verification and final live-domain cutover/acceptance pending"
+    "Domain cutover execution cancelled before route creation; actual live-domain acceptance pending"
   ],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Owner must update ADMIN_INITIAL_PASSWORD securely to current password and publish environment (never paste in chat). Recheck runtime hash match without displaying values, then node scripts/check-production-preview.mjs with privileged Chromium. On success, set production PUBLIC_APP_ORIGIN=https://urbanprocures.com and EMAIL_DELIVERY_ENABLED=true; add only audited apex/www route definitions to TOML. Run --cutover isolation guard; deploy Worker preserving OAuth secrets/logs. Use scripts/cutover-production.py only when route absence and DNS rollback inventory still match; it adds exact two Worker routes and automatically removes them if either actual live-domain acceptance fails. Preserve existing Pages and DNS.",
+  "NEXT_EXACT_ACTION": "Resume python3 scripts/cutover-production.py with privileged Chromium only once user allows cancelled cutover execution. Do not redeploy or reset credentials. Latest clean-preview report passed; live settings already deployed. The script adds only exact apex/www routes while preserving Pages/DNS and removes newly created routes on failed actual live checks.",
   "PRODUCTION_RESOURCES_TOUCHED": "New independent Advanced production preview only; existing production unchanged",
   "Production Pages modified": "NO",
   "Production Workers modified": "New Advanced preview created; existing Workers unchanged",
@@ -161,7 +158,7 @@
     "ownerAdminBootstrapped": true,
     "migrationsApplied": 10,
     "qaDataCopied": false,
-    "deploymentVersion": "4ea934fe-9f2f-42cd-a397-67e464a62c4c",
+    "deploymentVersion": "90a002be-c8ee-4498-9548-b8ce33365bc4",
     "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
     "missingOAuthSecrets": [],
     "oauthAuthenticationVerified": true,
@@ -170,7 +167,10 @@
     "fullWorkflowApiChecksPassed": 137,
     "browserWorkflowChecksPassed": 14,
     "ownerMailInboxReceiptConfirmed": true,
-    "fixtureCleanupPassed": true
+    "fixtureCleanupPassed": true,
+    "automaticEmailDeliveryEnabled": true,
+    "publicAppOrigin": "https://urbanprocures.com",
+    "ownerLoginAfterPasswordUpdateVerified": true
   },
   "release_local_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
 }
