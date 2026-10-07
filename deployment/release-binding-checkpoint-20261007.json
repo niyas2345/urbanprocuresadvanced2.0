@@ -1,0 +1,22 @@
+{
+  "staging": {
+    "worker": "urbanprocures-advanced-staging-20261005",
+    "version": "1783f55d-cc96-4869-827d-f3e7488da9f2",
+    "sourceCommit": "4ec462f",
+    "automaticMailEnabled": false,
+    "missingOAuthBindings": []
+  },
+  "productionPreview": {
+    "worker": "urbanprocures-advanced-production-20261007",
+    "version": "e52f04d4-a09b-4fc9-9ed7-01ff69b32aee",
+    "sourceCommit": "4ec462f",
+    "automaticMailEnabled": false,
+    "missingOAuthBindings": [
+      "ZOHO_CLIENT_ID",
+      "ZOHO_CLIENT_SECRET",
+      "ZOHO_REFRESH_TOKEN"
+    ]
+  },
+  "existingProductionModified": false,
+  "domainCutover": false
+}

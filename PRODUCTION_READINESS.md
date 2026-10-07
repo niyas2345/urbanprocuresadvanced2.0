@@ -2,6 +2,20 @@
 
 **NOT READY FOR BLANKET PRODUCTION ACCEPTANCE**
 
+Current checkpoint (7 October 2026): release source `4ec462f` is pinned on both
+Workers. Staging passed 137 API and 14 click-driven browser checks; real outbox
+provider acceptance and owner inbox receipt passed. Remote recovery matched
+29 full table contents, 77 schema/index/trigger definitions and ten R2 objects.
+Seventeen QA logins are suspended, their sessions revoked and fixture notices
+suppressed. Immutable regression evidence remains only in private staging.
+
+The new independent production preview passed 24 HTTPS/auth/Terms/empty-data
+checks. Its ten migrations and approved owner Admin are verified, with no staging
+QA data copied. Production OAuth bindings are still missing on this NEW Worker.
+Existing production and both live domains are unchanged. The exact remaining
+secure-binding action and cutover sequence are in PRODUCTION_CUTOVER_PLAN.md.
+Older checkpoint entries below are historical.
+
 Latest continuation: actual staging OAuth authentication is confirmed by the owner's
 browser screenshot (HTTP 200/authenticated true/no email). Notification outbox and
 owner-only test endpoint are now deployed to staging, migration 0009 applied;

@@ -120,8 +120,8 @@
     "migrations_applied": 10,
     "deployed": true,
     "existing_resources_modified": false,
-    "deployment_version": "075e3c85-9e61-484f-a4b7-d1b8717b9802",
-    "source_commit": "bd21844041c9f35564257d00a221553a4dc2f5ad+production-boundary-uncommitted-20261007",
+    "deployment_version": "1783f55d-cc96-4869-827d-f3e7488da9f2",
+    "source_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1",
     "http_smoke_status": 200,
     "qa_api_browser_checks_passed": 137,
     "qa_procurement_browser_checks_passed": 14,
@@ -158,6 +158,8 @@
     "ownerAdminBootstrapped": true,
     "migrationsApplied": 10,
     "qaDataCopied": false,
-    "deploymentVersion": "3bee71a1-2d62-4201-9b77-1523ebe7455f"
-  }
+    "deploymentVersion": "e52f04d4-a09b-4fc9-9ed7-01ff69b32aee",
+    "sourceCommit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
+  },
+  "release_local_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
 }

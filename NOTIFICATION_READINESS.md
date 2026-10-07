@@ -2,23 +2,29 @@
 
 ## Current verified checkpoint
 
-Latest staging version: `977e0867-9f77-4761-9dc6-a27e3b53acc4`.
-The deployed Worker OAuth health check and owner-only send both passed;
-Zoho accepted the Worker message. Owner confirmed receipt of the earlier
-cloud-runtime message; receipt of the subsequent Worker message is not asserted.
-Chromium certificate trust is working with TLS verification enabled.
-All 137 deployed API checks and 14 click-driven browser checks passed on this version.
+Release source: `4ec462f`; current staging version:
+`1783f55d-cc96-4869-827d-f3e7488da9f2`. Its source passed 137 deployed API
+checks and 14 click-driven browser checks before the final metadata-only redeploy.
+The actual deployed outbox owner-only send passed, and the owner confirmed inbox
+receipt. Chromium certificate trust works with TLS verification enabled.
 
 Migration 0010 adds Admin registration/RFQ-review notifications. The five-minute
 outbox drain is deployed, but remains inert with `EMAIL_DELIVERY_ENABLED=false`.
-Local operations/database checks pass (98/93). Controlled deployed workflow
-dispatch and reconciliation remain acceptance work before automatic activation.
+Local operations/database checks pass (98/93); notification dispatch checks pass
+(17, explicit provider double). Controlled real outbox dispatch passed four checks.
+Ambiguous failures still require reconciliation before any manual retry.
 
 Staging code rollback and return to the latest version passed genuine HTTPS,
 owner login and outbox checks. D1 backup restored locally with integrity `ok`;
 ten R2 snapshot objects matched their stored sizes and hashes. The separate
-remote recovery drill is in progress. Backup files are private, outside Git.
-Production remains unchanged. The notes below describe earlier checkpoints
+remote recovery drill passed: 29 full table contents, 77 schema/index/trigger
+definitions and ten restored R2 byte sequences matched. Backup files are private,
+outside Git. Seventeen QA accounts are suspended, their sessions revoked and
+fixture notices suppressed; immutable evidence remains in private staging only.
+
+The separate new production preview passed 24 HTTPS/auth/Terms/empty-data checks.
+It is missing ZOHO_CLIENT_ID, ZOHO_CLIENT_SECRET and ZOHO_REFRESH_TOKEN bindings.
+Existing production and both live domains remain unchanged. The notes below describe earlier checkpoints
 and are superseded by these current results.
 
 Deployed staging version: df675a6d-4281-4646-8038-236c1bccfb02.
