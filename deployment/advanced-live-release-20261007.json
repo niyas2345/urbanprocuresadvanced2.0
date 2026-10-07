@@ -1,0 +1,17 @@
+{
+  "releaseCommit": "b1137c551638d6aa4cb082ec1148be4865094c18",
+  "worker": "urbanprocures-advanced-production-20261007",
+  "workerVersion": "90a002be-c8ee-4498-9548-b8ce33365bc4",
+  "domains": [
+    "https://urbanprocures.com",
+    "https://www.urbanprocures.com"
+  ],
+  "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
+  "privateBucket": "urbanprocures-advanced-production-20261007-documents",
+  "legacyFallback": false,
+  "sourceArchive": "urbanprocures-advanced-live-20261007.tar.gz",
+  "sourceArchiveSha256": "b524ce76fae6080688c06ca5e6983f071dd7acf9085793ccc8b615f2e9db91ee",
+  "deployedWorkerArchive": "urbanprocures-advanced-live-worker-20261007.multipart",
+  "deployedWorkerSha256": "2a3592c46a554ca46e7c9eaece1ee77f949af61ba8f3d8053a389279f4f21bbc",
+  "secretsIncluded": false
+}

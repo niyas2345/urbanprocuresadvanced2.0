@@ -71,7 +71,9 @@
     "production preview genuine API/security checks": 137,
     "production preview click-driven browser workflows": 14,
     "production owner mail inbox receipt": true,
-    "production preview fixture cleanup and immutable guard restoration": true
+    "production preview fixture cleanup and immutable guard restoration": true,
+    "actual live-domain checks": 50,
+    "legacy retirement remote inventory verification": true
   },
   "TESTS_FAILED": [],
   "TESTS_BLOCKED": {},
@@ -81,7 +83,7 @@
   "KNOWN_FAILED_REQUIREMENTS": [],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Preserve Advanced-only production routes/configuration and secrets. No legacy fallback exists by owner instruction. Use Advanced releases for future fixes and monitor production outbox/provider failures; never recreate deleted legacy resources. Finish storing final release archive and remote branch if GitHub permits.",
+  "NEXT_EXACT_ACTION": "Production launch and requested legacy retirement complete. Preserve the pinned Advanced release and secret bindings. Future fixes must use Advanced versions only; no legacy fallback exists.",
   "PRODUCTION_RESOURCES_TOUCHED": "Advanced live on both approved .com domains; legacy resources explicitly retired by owner authorization.",
   "Production Pages modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
   "Production Workers modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
@@ -94,7 +96,7 @@
   "urbanprocures.com deployed": "YES",
   "www.urbanprocures.com deployed": "YES",
   "outbound_messages_or_invitations_sent": true,
-  "remote_write_status": "BLOCKED: GitHub create_tree and subsequent create_branch returned 403 Resource not accessible by integration; no remote changes.",
+  "remote_write_status": "SUCCESS: authorized release branch advanced-live-20261007 pushed to GitHub. Earlier integration API 403 is historical; Git transport write worked.",
   "local_baseline_tree_verified": "03ab917be2347da976a4797d81d781f3e9805fad",
   "TYPECHECK_ERRORS": [],
   "bundled_sqlite_modified": false,
@@ -169,5 +171,5 @@
     "ownerLoginAfterPasswordUpdateVerified": true,
     "legacyFallbackAvailable": false
   },
-  "release_local_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1"
+  "release_local_commit": "b1137c551638d6aa4cb082ec1148be4865094c18"
 }

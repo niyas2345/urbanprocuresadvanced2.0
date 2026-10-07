@@ -1,4 +1,5 @@
 {
+  "status": "passed",
   "workers": [
     "nick-handoff",
     "urbanprocures-advanced-production-20261007",
@@ -6,6 +7,11 @@
   ],
   "pages": [
     "urban-fixperts"
+  ],
+  "buckets": [
+    "upa-staging-recovery-20261007-286fcbd36f-docs",
+    "urbanprocures-advanced-production-20261007-documents",
+    "urbanprocures-advanced-staging-20261005-documents"
   ],
   "databases": [
     {
@@ -21,9 +27,5 @@
       "name": "urbanprocures-advanced-staging-20261005-db"
     }
   ],
-  "buckets": [
-    "upa-staging-recovery-20261007-286fcbd36f-docs",
-    "urbanprocures-advanced-production-20261007-documents",
-    "urbanprocures-advanced-staging-20261005-documents"
-  ]
+  "legacyKvRemaining": false
 }
