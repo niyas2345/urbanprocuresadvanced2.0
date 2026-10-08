@@ -7,9 +7,10 @@ interface DocumentViewerModalProps {
   document: (DocumentMetadata & { dataUrl?: string; sha256Hash?: string }) | null;
   onClose: () => void;
   viewerRole?: string;
+  approvalActions?: React.ReactNode;
 }
 
-export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ document, onClose, viewerRole = 'admin' }) => {
+export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ document, onClose, viewerRole = 'admin', approvalActions }) => {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
 
@@ -42,6 +43,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#082631]/80 backdrop-blur-sm animate-in fade-in duration-150 font-['DM_Sans']">
       <div className="bg-white border border-[#e1e7e4] w-full max-w-4xl rounded-[6px] shadow-[0_20px_50px_rgba(18,53,64,0.25)] overflow-hidden flex flex-col max-h-[90vh]">
+        {approvalActions&&<div className="p-4 bg-white border-b">{approvalActions}</div>}
         {/* Modal Header */}
         <div className="px-6 py-4 bg-[#123f47] text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -67,10 +69,10 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
             <button
               onClick={handleCopyKey}
               className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] text-xs font-semibold bg-white/10 hover:bg-white/20 text-[#e3edeb] transition-colors"
-              title="Copy Cloudflare R2 object key"
+              title="Copy document reference for support"
             >
               {copiedKey ? <Check className="w-3.5 h-3.5 text-[#eb6a32]" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedKey ? 'Copied Key' : 'Copy Key'}</span>
+              <span>{copiedKey ? 'Reference copied' : 'Copy Reference'}</span>
             </button>
             <button
               onClick={handleDownload}

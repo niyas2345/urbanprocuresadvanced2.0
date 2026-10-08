@@ -46,7 +46,7 @@ export async function procurementRoute(request:Request,env:Env,actor:Actor|null)
   const categories=JSON.parse(vendor.trade_categories) as string[];
   if(path==='/api/vendor/rfqs' && request.method==='GET') {
     const rows=await env.DB.prepare("SELECT * FROM rfqs WHERE deleted_at IS NULL AND status IN ('reviewed_published','receiving_quotations') AND submission_deadline>? ORDER BY created_at DESC").bind(new Date().toISOString()).all<any>();
-    const matching=new URL(request.url).searchParams.get('scope')==='all'?rows.results:rows.results.filter(r=>categories.includes(r.category));
+    const matching=new URL(request.url).searchParams.get('scope')!=='matching'||categories.some(c=>/technical services/i.test(c))?rows.results:rows.results.filter(r=>categories.includes(r.category));
     return Response.json({success:true,data:await Promise.all(matching.map(r=>rfqDto(env,r,true)))});
   }
   if(path==='/api/vendor/my-quotes' && request.method==='GET') {
@@ -71,7 +71,7 @@ export async function procurementRoute(request:Request,env:Env,actor:Actor|null)
   if(bid && ['POST','PUT'].includes(request.method)) {
     let body:any;try{const raw=await request.text();if(raw.length>30000000)return Response.json({success:false,error:'REQUEST_TOO_LARGE'},{status:413});body=JSON.parse(raw);}catch{return Response.json({success:false,error:'INVALID_QUOTATION'},{status:400});}
     const rfq=await env.DB.prepare("SELECT * FROM rfqs WHERE id=? AND status IN ('reviewed_published','receiving_quotations') AND submission_deadline>?").bind(bid[1],new Date().toISOString()).first<any>();
-    if(!rfq || !categories.includes(rfq.category))return Response.json({success:false,error:'RFQ_NOT_AVAILABLE'},{status:403});
+    if(!rfq)return Response.json({success:false,error:'RFQ_NOT_AVAILABLE'},{status:403});
     const pricingMode=body?.pricingMode??'itemized';
     if(!['itemized','total','file'].includes(pricingMode)|| (pricingMode==='itemized'&&(!Array.isArray(body?.items)||!body.items.length||body.items.length>500)) || !Number.isSafeInteger(body.leadTimeDays) || body.leadTimeDays<1 || !Number.isSafeInteger(body.validityDays) || body.validityDays<1 || typeof body.paymentTerms!=='string' || !body.paymentTerms.trim() || body.paymentTerms.length>3000)return Response.json({success:false,error:'INVALID_QUOTATION'},{status:400});
     const boq=await env.DB.prepare('SELECT id,quantity FROM rfq_items WHERE rfq_id=?').bind(rfq.id).all<any>();

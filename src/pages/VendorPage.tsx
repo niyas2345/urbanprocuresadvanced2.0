@@ -18,7 +18,7 @@ interface VendorPageProps {
 export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState<'rfqs' | 'my_quotes' | 'profile'>('rfqs');
-  const [categoryFilter, setCategoryFilter] = useState<'matching' | 'all'>('matching');
+  const [categoryFilter, setCategoryFilter] = useState<'matching' | 'all'>('all');
   const [selectedRfq, setSelectedRfq] = useState<RFQ | null>(null);
   const [inspectDoc, setInspectDoc] = useState<any | null>(null);
 
@@ -75,7 +75,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   useDashboardRefresh(refreshVendor,isVendorLoggedIn&&hasAcceptedTerms);
   const withdrawQuote=async(id:string,action:'recall'|'remove')=>{if(!window.confirm(action==='recall'?'Recall this quotation? It will be withdrawn from comparison.':'Remove this quotation? Its audit history will be retained.'))return;try{await api.vendor.withdrawQuote(id,action);await refreshVendor();showToast('Quotation withdrawn. Admin and Contractor views will update.','success');}catch(e:any){showToast(e.message,'error');}};
   useEffect(()=>{setSelectedRfq(null);},[categoryFilter]);
-  const matchingRfqs=categoryFilter==='all'?eligibleRfqs:eligibleRfqs.filter(r=>vendor?.tradeCategories.includes(r.category));
+  const matchingRfqs=categoryFilter==='all'||vendor?.tradeCategories.some(c=>/technical services/i.test(c))?eligibleRfqs:eligibleRfqs.filter(r=>vendor?.tradeCategories.includes(r.category));
 
   // Calculate total quote amount from item rates
   const calculateTotal = (rfq: RFQ) => {
@@ -285,12 +285,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                       onChange={(e) => setRegCategories([e.target.value])}
                       className="w-full px-3 py-2 border border-[#bccbca] rounded-[5px] bg-white"
                     >
-                      <option value="Joinery & Carpentry">Joinery & Carpentry</option>
-                      <option value="Gypsum & Drywall">Gypsum & Drywall</option>
-                      <option value="MEP & HVAC">MEP & HVAC</option>
-                      <option value="Glazing & Facades">Glazing & Facades</option>
-                      <option value="Flooring, Marble & Tiling">Flooring, Marble & Tiling</option>
-                      <option value="Painting & Wall Finishes">Painting & Wall Finishes</option>
+                      {['Joinery & Carpentry','Gypsum & Drywall','MEP & HVAC','Glazing & Facades','Flooring, Marble & Tiling','Painting & Wall Finishes','Technical Services LLC','Maintenance Company','Painting Contracting','Waterproofing & Insulation','Swimming Pool Maintenance','Civil Works','Pumping Works','MEP Works'].map(category=><option key={category} value={category}>{category}</option>)}
                     </select>
                   </div>
                 </div>
@@ -480,8 +475,8 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                               )}
 
                               <button
-                                disabled={!vendor?.tradeCategories.includes(rfq.category)}
-                                title={!vendor?.tradeCategories.includes(rfq.category)?'Bidding is limited to your registered trade categories.':undefined}
+                                
+                                
                                 onClick={() => {
                                   if (!hasAcceptedTerms) {
                                     setTermsModalOpen(true);
@@ -491,7 +486,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                                 }}
                                 className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2 rounded-[5px] text-xs flex items-center gap-1.5 transition-colors shadow-sm active:translate-y-0.5"
                               >
-                                <span>{isWon ? 'View Award Details' : vendor?.tradeCategories.includes(rfq.category)?'Review & Submit Quote':'Outside my trade categories'}</span>
+                                <span>{isWon ? 'View Award Details' : 'Review & Submit Quote'}</span>
                                 <ChevronRight className="w-4 h-4" />
                               </button>
                             </div>

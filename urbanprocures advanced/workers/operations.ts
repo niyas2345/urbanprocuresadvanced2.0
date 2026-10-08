@@ -108,7 +108,7 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
   if(!permitted&&doc.quotation_id&&actor.role==='contractor'){const profile=await organizationFor(env,actor);permitted=!!await env.DB.prepare("SELECT q.id FROM vendor_quotes q JOIN rfqs r ON r.id=q.rfq_id WHERE q.id=? AND r.contractor_id=? AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL AND r.deleted_at IS NULL AND r.status NOT IN ('draft','cancelled') AND (?=1 OR EXISTS(SELECT 1 FROM awards a WHERE a.quotation_id=q.id))").bind(doc.quotation_id,profile?.id??'',doc.vendor_access_approved).first();}
   if(!permitted&&doc.rfq_id&&!doc.quotation_id&&actor.role==='vendor'&&doc.vendor_access_approved===1){
    const profile=await organizationFor(env,actor),vendor=await env.DB.prepare('SELECT * FROM vendors WHERE id=?').bind(profile?.id??'').first<any>(),rfq=await env.DB.prepare('SELECT * FROM rfqs WHERE id=?').bind(doc.rfq_id).first<any>();
-   permitted=vendor?.verification_status==='verified'&&rfq&&JSON.parse(vendor.trade_categories).includes(rfq.category)&&['reviewed_published','receiving_quotations'].includes(rfq.status)&&Date.parse(rfq.submission_deadline)>Date.now();
+   permitted=vendor?.verification_status==='verified'&&rfq&&['reviewed_published','receiving_quotations'].includes(rfq.status)&&Date.parse(rfq.submission_deadline)>Date.now();
    if(!permitted)permitted=!!await env.DB.prepare('SELECT id FROM awards WHERE rfq_id=? AND vendor_id=?').bind(doc.rfq_id,profile?.id??'').first();
   }
   if(!permitted)return fail('DOCUMENT_NOT_AVAILABLE',404);
