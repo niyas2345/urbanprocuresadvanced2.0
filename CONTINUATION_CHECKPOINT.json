@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Trade license registration upload, contextual Admin review, real All Open RFQs filter, masked public RFQ summaries and consent-based verified business directory implemented locally.",
+  "LAST_COMPLETED_TASK": "Registration license uploads, contextual Admin document review, real RFQ filters and consent-based homepage directory passed local and deployed staging workflows.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -232,11 +232,17 @@
     "fixtureMailSuppressed": true
   },
   "ONBOARDING_DISCOVERY": {
-    "status": "staging-validation",
+    "status": "production-preflight-passed",
     "localFeatureChecksPassed": 35,
     "localOperationsRegressionChecksPassed": 98,
     "offlineDatabaseChecksPassed": 107,
     "productionModified": false,
-    "migration": "0014_business_directory.sql"
+    "migration": "0014_business_directory.sql",
+    "stagingFeatureChecksPassed": 36,
+    "stagingBrowserChecksPassed": 24,
+    "localAuthChecksPassed": 23,
+    "wranglerMigrationStatementsChecked": 128,
+    "productionReadOnlyPreflightChecksPassed": 10,
+    "productionBackupRestoredWithForeignKeys": true
   }
 }

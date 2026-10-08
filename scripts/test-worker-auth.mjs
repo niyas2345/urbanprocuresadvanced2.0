@@ -10,7 +10,7 @@ const verify = (condition) => { assert.ok(condition); checks++; };
 const call = (path, body, token) => mf.dispatchFetch(`http://localhost${path}`, { method: body ? 'POST' : 'GET', headers: { 'content-type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
 try {
   const db = await mf.getD1Database('DB');
-  for (const file of ['0001_canonical_schema.sql','0002_terms_evidence.sql','0003_clickwrap_commercial.sql','0006_document_review.sql','0007_auth_security.sql']) {
+  for (const file of ['0001_canonical_schema.sql','0002_terms_evidence.sql','0003_clickwrap_commercial.sql','0006_document_review.sql','0007_auth_security.sql','0014_business_directory.sql']) {
     const sql = fs.readFileSync(`urbanprocures advanced/database/migrations/${file}`, 'utf8').replace(/--[^\n]*/g, '').replace(/\s*\n\s*/g, ' ');
     await db.exec(sql);
   }

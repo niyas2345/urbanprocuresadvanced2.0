@@ -1,0 +1,42 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "runId": "8020c11ab89b",
+  "checks": [
+    "QA Admin login",
+    "contractor registration blocked without license",
+    "contractor public listing consent starts unchecked",
+    "contractor genuine registration form saves license",
+    "vendor registration blocked without license",
+    "vendor public listing consent starts unchecked",
+    "vendor genuine registration form saves license",
+    "Vendor sees plain verification guidance",
+    "Admin browser login",
+    "contractor license privately previewed",
+    "contractor license exact download verified",
+    "contractor verified from contextual review control",
+    "vendor license privately previewed",
+    "vendor license exact download verified",
+    "vendor verified from contextual review control",
+    "contractor approved opted-in directory renders",
+    "vendor approved opted-in directory renders",
+    "Browser discovery RFQ fixture saved",
+    "RFQ approved",
+    "Browser discovery RFQ fixture saved",
+    "RFQ approved",
+    "Matching browser filter excludes other trade",
+    "All Open RFQs browser filter includes other trade",
+    "Approved RFQ homepage card renders"
+  ],
+  "temporaryUserIds": [
+    "1f314217-38ab-4653-9810-2c7331600d30",
+    "061bdeb8-6291-4b66-93cf-4d25354102cc"
+  ],
+  "rfqIds": [
+    "66385974-8ee6-4cdb-9244-7f7f94ff88d8",
+    "09824897-d3be-4be5-a0cb-cd5d9020b1a4"
+  ],
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "status": "passed",
+  "completedAt": "2026-10-08T11:29:12.339Z"
+}
