@@ -35,7 +35,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     for(const key of Object.keys(expected))if((active.match(new RegExp('^'+key+'\\s*=','gm'))||[]).length!==1)errors.push('Duplicate staging '+key);
     if(!/^main\s*=\s*"index\.ts"\s*$/m.test(active)||!/^directory\s*=\s*"\.\.\/\.\.\/dist"\s*$/m.test(active))errors.push('Unexpected Worker/asset source path');
     const bindings=[...active.matchAll(/^binding\s*=\s*"([^"]+)"/gm)].map(m=>m[1]).sort();
-    if(JSON.stringify(bindings)!==JSON.stringify(['ASSETS','DB','DOCUMENTS_BUCKET']))errors.push('Unexpected staging binding');
+    if(!/^\[ai\]\s*\nbinding\s*=\s*"AI"\s*$/m.test(active))errors.push('Expected document-processing AI binding');
+    if(JSON.stringify(bindings)!==JSON.stringify(['AI','ASSETS','DB','DOCUMENTS_BUCKET']))errors.push('Unexpected staging binding');
     if(!process.argv.includes('--provision')){
       const evidence=JSON.parse(fs.readFileSync(new URL('../deployment/staging-resources.json',import.meta.url),'utf8'));
       const id=active.match(/^database_id\s*=\s*"([^"]+)"/m)?.[1];

@@ -219,6 +219,8 @@ export const api = {
 
   // Real Cloudflare R2 Documents
   documents: {
+    correct: (id:string,body:any) => request('/admin/documents/'+id+'/standardize',{method:'PUT',body:JSON.stringify(body)}),
+    standardize: (id:string) => request('/admin/documents/'+id+'/standardize',{method:'POST',body:'{}'}),
     upload: async (fileData: { fileName: string; fileType: string; data: string; documentPurpose?: string; rfqId?: string; publicQuoteId?: string }) => {
       const res = await request('/documents/upload', {
         method: 'POST',

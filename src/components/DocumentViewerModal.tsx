@@ -4,7 +4,7 @@ import { DocumentMetadata } from '../types/index.ts';
 import { X, FileText, Download, CheckCircle, ShieldAlert, Eye, HardDrive, Check, Copy } from 'lucide-react';
 
 interface DocumentViewerModalProps {
-  document: (DocumentMetadata & { dataUrl?: string; sha256Hash?: string }) | null;
+  document: (DocumentMetadata & { dataUrl?: string; sha256Hash?: string; standardized?: boolean }) | null;
   onClose: () => void;
   viewerRole?: string;
   approvalActions?: React.ReactNode;
@@ -15,7 +15,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   const [copiedKey, setCopiedKey] = useState(false);
 
   const [preview,setPreview]=useState(''),[error,setError]=useState('');
-  useEffect(()=>{let url='',cancelled=false;setPreview('');setError('');if(document?.id){fetch(`/api/documents/${document.id}/view`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}}).then(async res=>{if(!res.ok)throw Error('Document access failed');url=URL.createObjectURL(await res.blob());if(!cancelled)setPreview(url);else URL.revokeObjectURL(url);}).catch(err=>{if(!cancelled)setError(err.message);});}else if(document?.dataUrl)setPreview(document.dataUrl);return()=>{cancelled=true;if(url)URL.revokeObjectURL(url);};},[document?.id]);
+  useEffect(()=>{let url='',cancelled=false;setPreview('');setError('');if(document?.id){fetch(`/api/documents/${document.id}/${document.standardized?'standardized/':''}view`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}}).then(async res=>{if(!res.ok)throw Error('Document access failed');url=URL.createObjectURL(await res.blob());if(!cancelled)setPreview(url);else URL.revokeObjectURL(url);}).catch(err=>{if(!cancelled)setError(err.message);});}else if(document?.dataUrl)setPreview(document.dataUrl);return()=>{cancelled=true;if(url)URL.revokeObjectURL(url);};},[document?.id,document?.standardized]);
   if (!document) return null;
 
   const isPdf = document.fileType?.includes('pdf') || document.fileName.toLowerCase().endsWith('.pdf');
@@ -31,7 +31,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   };
 
   const handleDownload = async () => {
-    try {const res=await fetch(`/api/documents/${document.id}/download`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}});if(!res.ok)throw Error('Document download failed');const url=URL.createObjectURL(await res.blob());const a=window.document.createElement('a');a.href=url;a.download=document.fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setDownloadSuccess(true);}catch(err:any){setError(err.message);}
+    try {const res=await fetch(`/api/documents/${document.id}/${document.standardized?'standardized/':''}download`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}});if(!res.ok)throw Error('Document download failed');const url=URL.createObjectURL(await res.blob());const a=window.document.createElement('a');a.href=url;a.download=document.fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setDownloadSuccess(true);}catch(err:any){setError(err.message);}
   };
 
   const handleCopyKey = () => {
@@ -114,7 +114,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
 
           {/* Interactive Document Preview Canvas */}
           <div className="border border-[#e1e7e4] rounded-[6px] bg-white overflow-hidden min-h-[360px] flex flex-col items-center justify-center p-6 text-center relative shadow-sm">
-            {error?<p role="alert">{error}</p>:!preview?<p>Loading document…</p>:isImage?<img src={preview} alt={document.fileName} className="max-h-[400px] max-w-full object-contain"/>:isPdf?<iframe title={document.fileName} src={preview} className="w-full h-[480px]"/>:<p>Use Download to open this file.</p>}
+            {error?<p role="alert">{error}</p>:!preview?<p>Loading document…</p>:isImage?<img src={preview} alt={document.fileName} className="max-h-[400px] max-w-full object-contain"/>:(isPdf||document.fileType==='text/html')?<iframe sandbox={document.fileType==='text/html'?'':undefined} title={document.fileName} src={preview} className="w-full h-[480px]"/>:<p>Use Download to open this file.</p>}
 
           </div>
         </div>

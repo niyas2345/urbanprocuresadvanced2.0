@@ -28,6 +28,11 @@ try {
  verify((await call(`/api/admin/vendors/${v.vendor.id}/verification`,{status:'verified'},adminToken,'PATCH')).status===409,'license required before verification');
  r=await call('/api/documents/upload',{...pdf,documentPurpose:'trade_license'},v.token);verify(r.status===201,'Vendor license persisted');verify((await call(`/api/admin/vendors/${v.vendor.id}/verification`,{status:'verified'},adminToken,'PATCH')).status===200,'Admin verified Vendor');
  const discovery=await (await call('/api/vendor/rfqs',null,v.token)).json();verify(discovery.data[0].projectName!==draft.projectName,'project identifier masked');verify(discovery.data[0].documents.length===0,'unreviewed documents omitted');
+ verify((await call(`/api/admin/documents/${doc}/release`,{identityReviewConfirmed:true},adminToken)).status===409,'Original cannot be released without standardized copy');
+ verify((await call(`/api/admin/documents/${doc}/standardize`,{content:{title:'Urban Procures RFQ',summary:'Fixture specifications',rows:[{description:'Fixture item',quantity:'2',unit:'nos'}],warnings:[]}},v.token,'PUT')).status===403,'Vendor cannot replace release artifact');
+ verify((await call(`/api/admin/documents/${doc}/standardize`,{content:{title:'Urban Procures RFQ',summary:'Fixture specifications',rows:[{description:'Fixture item',quantity:'2',unit:'nos'}],warnings:[]}},adminToken,'PUT')).status===200,'Admin corrected standardized artifact saved');
+ verify((await call(`/api/admin/documents/${doc}/release`,{identityReviewConfirmed:true},adminToken)).status===409,'Generated copy must actually be opened');
+ verify((await call(`/api/documents/${doc}/standardized/view`,null,adminToken)).status===200,'Admin opens regenerated PDF');
  verify((await call(`/api/admin/documents/${doc}/release`,{identityReviewConfirmed:true},adminToken)).status===200,'Admin approves sanitized document');verify((await call(`/api/documents/${doc}/view`,null,v.token)).status===200,'eligible Vendor views reviewed R2');
  const updatedRfq=(await (await call('/api/contractor/rfqs',null,c.token)).json()).data.find(r=>r.id===id);
  const q={items:[{rfqItemId:updatedRfq.items[0].id,unitRateAed:5000}],leadTimeDays:2,validityDays:30,paymentTerms:'Fixture'};

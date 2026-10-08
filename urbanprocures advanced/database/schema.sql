@@ -497,3 +497,13 @@ CREATE UNIQUE INDEX one_vendor_quote_per_rfq ON vendor_quotes(rfq_id,vendor_id) 
 -- Public business names require explicit consent; no existing profile is opted in.
 ALTER TABLE contractors ADD COLUMN directory_visible INTEGER NOT NULL DEFAULT 0 CHECK(directory_visible IN (0,1));
 ALTER TABLE vendors ADD COLUMN directory_visible INTEGER NOT NULL DEFAULT 0 CHECK(directory_visible IN (0,1));
+
+-- Originals remain immutable/private. Derived artifacts require a new, explicit review.
+ALTER TABLE rfq_documents ADD COLUMN standardization_status TEXT NOT NULL DEFAULT 'pending';
+ALTER TABLE rfq_documents ADD COLUMN standardization_error TEXT;
+ALTER TABLE rfq_documents ADD COLUMN standardized_content_json TEXT;
+ALTER TABLE rfq_documents ADD COLUMN standardized_r2_key TEXT;
+ALTER TABLE rfq_documents ADD COLUMN standardized_file_type TEXT;
+ALTER TABLE rfq_documents ADD COLUMN standardized_size_bytes INTEGER;
+ALTER TABLE rfq_documents ADD COLUMN standardized_sha256 TEXT;
+ALTER TABLE rfq_documents ADD COLUMN standardized_at TEXT;

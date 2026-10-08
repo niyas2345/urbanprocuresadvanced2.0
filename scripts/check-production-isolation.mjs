@@ -6,7 +6,8 @@ const cutover=process.argv.includes('--cutover');
 const values=Object.fromEntries([...config.matchAll(/^([A-Za-z_]+)\s*=\s*"([^"]+)"/gm)].map(m=>[m[1],m[2]]));
 for(const [key,value] of Object.entries({name:'urbanprocures-advanced-production-20261007',account_id:'dcb411ece67dfdfb730635133ed31825',ENVIRONMENT:'advanced-production',PLATFORM_DOMAIN:'urbanprocures.com',database_name:'urbanprocures-advanced-production-20261007-db',bucket_name:'urbanprocures-advanced-production-20261007-documents',main:'index.ts',EMAIL_DELIVERY_ENABLED:cutover?'true':'false'}))assert.equal(values[key],value,key);
 assert.equal(values.PUBLIC_APP_ORIGIN,cutover?'https://urbanprocures.com':'https://urbanprocures-advanced-production-20261007.abdeenniyas23.workers.dev');
-assert.deepEqual([...config.matchAll(/^binding\s*=\s*"([^"]+)"/gm)].map(m=>m[1]).sort(),['ASSETS','DB','DOCUMENTS_BUCKET']);
+assert.deepEqual([...config.matchAll(/^binding\s*=\s*"([^"]+)"/gm)].map(m=>m[1]).sort(),['AI','ASSETS','DB','DOCUMENTS_BUCKET']);
+assert.ok(/^\[ai\]\s*\nbinding\s*=\s*"AI"\s*$/m.test(config),'Only the authorized document-processing AI binding');
 assert.ok(!/^\s*\[env\./m.test(config),'No alternate environment bindings');
 if(!cutover)assert.ok(!/^\s*(routes?|zone_id)\s*=/m.test(config),'Live cutover requires separate acceptance');
 if(cutover){

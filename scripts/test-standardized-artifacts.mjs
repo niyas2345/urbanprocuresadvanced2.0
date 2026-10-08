@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {extractText,getDocumentProxy} from 'unpdf';
+import {zipSync,strToU8} from 'fflate';
+import {extractSource,canonicalContent,renderStandardized} from '../urbanprocures advanced/workers/standardizedDocuments.ts';
+const source={title:'Original Seller LLC offer',summary:'Original Seller LLC contact secret@example.invalid +971501234567',rows:[{description:'Supply and install two doors',quantity:'2',unit:'nos',rate:'1250',amount:'2500'}],commercialTerms:'Total AED 2500; 30 days validity',warnings:[],sensitiveStrings:['Original Seller LLC']};
+let checks=0;const verify=(ok,label)=>{assert.ok(ok,label);checks++;};
+const content=canonicalContent(source,{company:'Original Seller LLC'});verify(!JSON.stringify(content).includes('Original Seller LLC'),'Known source identity removed from canonical data');verify(!JSON.stringify(content).includes('secret@example.invalid'),'Emails removed');verify(!JSON.stringify(content).includes('971501234567'),'Phone removed');
+const artifact=await renderStandardized(content,'UP-TEST',true);verify(artifact.type==='application/pdf','English canonical quotation generated as new PDF');
+const pdf=await getDocumentProxy(new Uint8Array(artifact.bytes));const extracted=await extractText(pdf,{mergePages:true});verify(extracted.text.includes('URBAN PROCURES'),'Generated artifact has platform branding');verify(!extracted.text.includes('Original Seller LLC'),'Generated PDF has no source letterhead/company');verify(extracted.text.includes('1250')&&extracted.text.includes('2500')&&extracted.text.includes('Qty: 2'),'Exact extracted commercial values retained');
+verify((await extractSource(artifact.bytes,'application/pdf')).includes('STANDARD QUOTATION'),'Actual PDF text extraction works');
+const workbook=zipSync({'xl/sharedStrings.xml':strToU8('<sst><si><t>Door</t></si><si><t>nos</t></si></sst>'),'xl/worksheets/sheet1.xml':strToU8('<worksheet><row><c t="s"><v>0</v></c><c t="s"><v>1</v></c><c><v>2</v></c><c><v>1250</v></c></row></worksheet>')});verify((await extractSource(workbook,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')).includes('Door | nos | 2 | 1250'),'Excel shared strings and numeric cells extracted faithfully');
+const unicode=await renderStandardized({...content,title:'أبواب خشبية'},'UP-TEST',false);verify(unicode.type==='text/html'&&new TextDecoder().decode(unicode.bytes).includes('أبواب خشبية'),'Unicode content retained in safe platform HTML fallback');
+const hostile=await renderStandardized({...content,title:'<script>alert(1)</script>أ'},'UP-TEST',false);verify(!new TextDecoder().decode(hostile.bytes).includes('<script>'),'HTML output escapes source markup');
+console.log(JSON.stringify({artifactChecksPassed:checks,realAIProviderInvoked:false,sourceIdentityAndCommercialValuesVerified:true}));

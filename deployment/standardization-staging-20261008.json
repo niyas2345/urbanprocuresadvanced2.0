@@ -1,0 +1,58 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "runId": "51b30986ff91",
+  "checks": [
+    "Genuine staging QA Admin login",
+    "contractor fixture registered with private license",
+    "vendor fixture registered with private license",
+    "RFQ with identity-bearing BOQ saved",
+    "Original RFQ bytes blocked before processing/review",
+    "Real Workers AI generates new RFQ artifact awaiting review",
+    "Release rejected until Admin actually opens standardized copy",
+    "Admin opens actual generated RFQ copy",
+    "Generated PDF branding replaces source company and contacts",
+    "RFQ technical description, quantity and fire rating retained",
+    "Only inspected platform copy approved",
+    "Vendor downloads exact approved derivative, never original",
+    "Download filename contains only platform reference",
+    "Quotation letterhead uploaded privately: 201 undefined",
+    "Contractor cannot download original vendor letterhead before award",
+    "Real Workers AI generates separate quotation artifact",
+    "Quotation rebuilt without Vendor company or contacts",
+    "Quotation rates, totals and validity retained",
+    "Contractor receives exact reviewed standardized quotation",
+    "Vendor cannot replace counterpart artifact",
+    "Unconfirmed replacement rejected",
+    "Admin saves separate sanitized drawing copy",
+    "Replacement revokes previous release immediately",
+    "Previous preview cannot approve a replacement",
+    "Visible Admin preview/download opens exact replacement bytes",
+    "Vendor receives approved drawing replacement with geometry bytes unchanged",
+    "Contractor original remains intact and private",
+    "Actual Excel and image attachments accepted",
+    "Excel real provider retains technical values without source company",
+    "Image OCR real provider retains technical values without source company",
+    "Portal statistics use actual verified businesses and open RFQs",
+    "contractor portal home renders real activity totals",
+    "vendor portal home renders real activity totals"
+  ],
+  "temporaryUserIds": [
+    "c70a4bb4-07aa-49f7-b66d-e01d32812fdf",
+    "eeb1b93f-f771-4d4e-9ada-53a835087a2b"
+  ],
+  "rfqIds": [
+    "a15c2cc5-25b3-4421-b9f3-33a1d9abc24f",
+    "8bc602f3-3c9e-4bee-87a0-3021831a8587"
+  ],
+  "documentIds": [
+    "1e667150-cf36-446f-b7b9-64eaca2fa680",
+    "2f327084-a99c-410c-9eeb-7bac39345ed8",
+    "b0193614-1d16-4fdb-9e0d-c5674af9e6e7",
+    "1fbb57c1-e237-4709-832b-d29983c94d58"
+  ],
+  "realAIInvoked": true,
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "status": "passed",
+  "completedAt": "2026-10-08T21:18:19.446Z"
+}

@@ -83,6 +83,7 @@ export interface RFQItem {
 }
 
 export interface DocumentMetadata {
+  standardized?: boolean;
   uploaderUserId?: string; // Admin-only metadata; omitted from other roles.
   id: string;
   rfqId?: string;
@@ -99,6 +100,7 @@ export interface DocumentMetadata {
 }
 
 export interface RFQ {
+  pendingDocumentCount?: number;
   quotesCount?:number;
   manpowerPersons?:number;
   manpowerHoursPerPersonPerDay?:number;

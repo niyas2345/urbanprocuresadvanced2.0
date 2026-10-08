@@ -1,3 +1,4 @@
+import {PortalHome} from '../components/PortalHome.tsx';
 import {TradeLicenseInput,type LicenseFile} from '../components/TradeLicenseInput.tsx';
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
@@ -18,7 +19,7 @@ interface ContractorPageProps {
 
 export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) => {
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'create_rfq' | 'rfq_detail'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'home' | 'dashboard' | 'create_rfq' | 'rfq_detail'>('home');
   const [statusFilter, setStatusFilter] = useState<'all' | 'under_evaluation' | 'draft' | 'awarded'>('all');
   const [selectedRfqId, setSelectedRfqId] = useState<string>('');
   const [inspectDoc, setInspectDoc] = useState<any | null>(null);
@@ -338,6 +339,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
           <div className="flex items-center gap-3">
             {isContractorLoggedIn ? (
               <>
+                <button className="px-4 py-2 rounded bg-white/10 text-white text-xs font-bold" onClick={()=>setActiveTab('home')}>Portal Home</button>
                 <button
                   onClick={startNewRfq} disabled={isSubmittingRfq}
                   className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2.5 rounded-[5px] text-xs flex items-center gap-1.5 transition-all shadow-sm active:translate-y-0.5"
@@ -553,6 +555,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
         ) : (
           <>
             {/* VIEW 1: DASHBOARD LIST OF RFQs */}
+            {activeTab === 'home'&&<PortalHome role="contractor" onDashboard={()=>setActiveTab('dashboard')}/>}
             {activeTab === 'dashboard' && (
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

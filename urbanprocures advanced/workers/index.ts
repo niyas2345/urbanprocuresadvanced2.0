@@ -1,3 +1,4 @@
+import {processPendingDocuments,standardizationRoute} from './standardizedDocuments.ts';
 // Urban Procures Advanced
 // PARTIAL Cloudflare Worker entry point; see WORK_MODE_EXECUTION.md.
 // Bindings: env.DB (Cloudflare D1), env.DOCUMENTS_BUCKET (Cloudflare R2), env.SESSIONS_KV (Cloudflare KV)
@@ -15,6 +16,7 @@ import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
+  AI?: Ai;
   EMAIL_DELIVERY_ENABLED?: string;
   ZOHO_CLIENT_ID?: string;
   ZOHO_CLIENT_SECRET?: string;
@@ -34,6 +36,7 @@ export interface Env {
 
 export default {
   async scheduled(_controller:ScheduledController,env:Env,ctx:ExecutionContext):Promise<void>{
+    if(env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));
     if(['advanced-staging','advanced-production'].includes(env.ENVIRONMENT)&&env.EMAIL_DELIVERY_ENABLED==='true'){
       ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));
     }
@@ -76,13 +79,14 @@ export default {
           if(rejected)return rejected;
         }
       }
+      const standardized=await standardizationRoute(request.clone(),env,await actorFor(request,env));if(standardized)return standardized;
       const operations=await operationsRoute(request.clone(),env,await actorFor(request,env));
-      if(operations){if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return operations;}
+      if(operations){if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return operations;}
       // 1. PUBLIC GET A QUOTE (No account required)
       const awardResponse=await awardRoute(request,env,await actorFor(request,env));
       if(awardResponse){if(awardResponse.ok&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return awardResponse;}
       const procurementResponse=await procurementRoute(request,env,await actorFor(request,env));
-      if(procurementResponse){if(procurementResponse.ok&&['POST','PUT'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return procurementResponse;}
+      if(procurementResponse){if(procurementResponse.ok&&method==='POST'&&env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));if(procurementResponse.ok&&['POST','PUT'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return procurementResponse;}
       const publicResponse=await publicQuoteRoute(request,env);
       if(publicResponse)return publicResponse;
 

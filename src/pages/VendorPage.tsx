@@ -1,3 +1,4 @@
+import {PortalHome} from '../components/PortalHome.tsx';
 import {TradeLicenseInput,type LicenseFile} from '../components/TradeLicenseInput.tsx';
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
@@ -17,7 +18,7 @@ interface VendorPageProps {
 
 export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   const { showToast } = useToast();
-  const [activeTab, setActiveTab] = useState<'rfqs' | 'my_quotes' | 'profile'>('rfqs');
+  const [activeTab, setActiveTab] = useState<'home' | 'rfqs' | 'my_quotes' | 'profile'>('home');
   const [categoryFilter, setCategoryFilter] = useState<'matching' | 'all'>('all');
   const [selectedRfq, setSelectedRfq] = useState<RFQ | null>(null);
   const [inspectDoc, setInspectDoc] = useState<any | null>(null);
@@ -352,9 +353,11 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
           </div>
         ) : (
           <>
+            {activeTab==='home'&&<PortalHome role="vendor" onDashboard={()=>setActiveTab('rfqs')}/>}
             {/* Navigation Tabs */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e1e7e4] pb-4 mb-6">
               <div className="flex items-center gap-2">
+                <button className="px-4 py-2 rounded font-bold text-xs" onClick={()=>{setSelectedRfq(null);setActiveTab('home');}}>Portal Home</button>
                 <button
                   onClick={() => {
                     setSelectedRfq(null);
@@ -503,7 +506,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                             </div>
                             <div>
                               <span className="text-[#a8b8b8] block mb-0.5 text-[11px]">Drawings & Specs</span>
-                              <span className="font-semibold text-[#123540]">{rfq.documents.length} Files Attached</span>
+                              <span className="font-semibold text-[#123540]">{rfq.documents.length} Reviewed Documents</span>
                             </div>
                             <div>
                               <span className="text-[#a8b8b8] block mb-0.5 text-[11px]">Identity Protection</span>
@@ -548,6 +551,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
+                      {!!selectedRfq.pendingDocumentCount&&<p className="text-sm text-[#63797b] max-w-md">{selectedRfq.pendingDocumentCount} document(s) are being prepared for confidential sharing. Full BOQ/specifications will appear here after Admin review. Please wait for the complete documents before pricing.</p>}
                       {selectedRfq.documents.map((doc) => (
                         <button
                           key={doc.id}

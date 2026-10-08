@@ -57,3 +57,9 @@ head_sampling_rate = 1.0
 enabled = true
 persist = true
 head_sampling_rate = 1.0
+
+[ai]
+binding = "AI"
+
+[limits]
+cpu_ms = 30000

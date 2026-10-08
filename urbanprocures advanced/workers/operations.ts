@@ -11,7 +11,7 @@ export {decodeDocument} from './documentValidation.ts';
 const fail=(error:string,status=400)=>Response.json({success:false,error},{status});
 const ok=(data:unknown,status=200)=>Response.json({success:true,data},{status});
 const camel=(row:any)=>Object.fromEntries(Object.entries(row).map(([key,value])=>[key.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()),value]));
-export function documentDto(row:any,admin=false) { const result=camel(row); if(!admin){delete result.r2ObjectKey;delete result.uploaderUserId;}return result; }
+export function documentDto(row:any,admin=false) { const result=camel(row); if(!admin){delete result.r2ObjectKey;delete result.uploaderUserId;delete result.standardizedR2Key;delete result.standardizedContentJson;}return result; }
 function audit(env:Env,actor:Actor,action:string,type:string,id:string,payload:unknown={}) {
  return env.DB.prepare('INSERT INTO audit_logs (id,actor_user_id,actor_role,action_type,resource_type,resource_id,payload_json,timestamp) VALUES (?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),actor.id,actor.role,action,type,id,JSON.stringify(payload),new Date().toISOString());
 }
@@ -100,9 +100,10 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
   try{await env.DOCUMENTS_BUCKET.put(upload.key,upload.parsed.bytes,{httpMetadata:{contentType:upload.parsed.type}});await env.DB.batch([upload.statement,audit(env,actor,'DOCUMENT_UPLOAD','document',upload.id)]);}catch{await env.DOCUMENTS_BUCKET.delete(upload.key);return fail('DOCUMENT_PERSISTENCE_FAILED',500);}
   const doc=documentDto(await env.DB.prepare('SELECT * FROM rfq_documents WHERE id=?').bind(upload.id).first(),actor.role==='admin');return Response.json({success:true,document:doc},{status:201});
  }
- const docAccess=path.match(/^\/api\/documents\/([^/]+)\/(view|download)$/);
+ const docAccess=path.match(/^\/api\/documents\/([^/]+)\/(standardized\/)?(view|download)$/);
  if(docAccess&&method==='GET') {
   const doc=await env.DB.prepare('SELECT * FROM rfq_documents WHERE id=?').bind(docAccess[1]).first<any>();if(!doc)return fail('DOCUMENT_NOT_FOUND',404);
+  const standardPreview=!!docAccess[2];let useStandard=standardPreview;
   let permitted=actor.role==='admin'||doc.uploader_user_id===actor.id;
   if(actor.role!=='admin'){const denied=await termsGate(request,env,actor,actor.role);if(denied)return denied;}
   if(!permitted&&doc.quotation_id&&actor.role==='contractor'){const profile=await organizationFor(env,actor);permitted=!!await env.DB.prepare("SELECT q.id FROM vendor_quotes q JOIN rfqs r ON r.id=q.rfq_id WHERE q.id=? AND r.contractor_id=? AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL AND r.deleted_at IS NULL AND r.status NOT IN ('draft','cancelled') AND (?=1 OR EXISTS(SELECT 1 FROM awards a WHERE a.quotation_id=q.id))").bind(doc.quotation_id,profile?.id??'',doc.vendor_access_approved).first();}
@@ -118,12 +119,15 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
    const awarded=doc.quotation_id&&actor.role==='contractor'
     ?await env.DB.prepare('SELECT id FROM awards WHERE quotation_id=? AND contractor_id=?').bind(doc.quotation_id,profile?.id??'').first()
     :doc.rfq_id&&actor.role==='vendor'?await env.DB.prepare('SELECT id FROM awards WHERE rfq_id=? AND vendor_id=?').bind(doc.rfq_id,profile?.id??'').first():null;
-   if(!awarded)permitted=false;
+   if(!awarded){useStandard=true;permitted=doc.standardization_status==='approved'&&!!doc.standardized_r2_key;}
+
   }
   if(!permitted)return fail('DOCUMENT_NOT_AVAILABLE',404);
-  const object=await env.DOCUMENTS_BUCKET.get(doc.r2_object_key);if(!object)return fail('DOCUMENT_PAYLOAD_UNAVAILABLE',404);
-  await audit(env,actor,'DOCUMENT_ACCESS','document',doc.id).run();
-  return new Response(object.body,{headers:{'Content-Type':doc.file_type,'Content-Disposition':`${docAccess[2]==='download'?'attachment':'inline'}; filename="${doc.file_name.replace(/[\r\n"\\]/g,'_')}"`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'"}});
+  if(useStandard&&!doc.standardized_r2_key)return fail('STANDARD_DOCUMENT_NOT_READY',409);
+  if(standardPreview&&actor.role!=='admin'&&doc.uploader_user_id!==actor.id&&doc.standardization_status!=='approved')return fail('STANDARD_DOCUMENT_NOT_READY',409);
+  const object=await env.DOCUMENTS_BUCKET.get(useStandard?doc.standardized_r2_key:doc.r2_object_key);if(!object)return fail('DOCUMENT_PAYLOAD_UNAVAILABLE',404);
+  await audit(env,actor,useStandard?'STANDARD_DOCUMENT_ACCESS':'DOCUMENT_ACCESS','document',doc.id).run();
+  return new Response(object.body,{headers:{'Content-Type':useStandard?doc.standardized_file_type:doc.file_type,'Content-Disposition':`${docAccess[3]==='download'?'attachment':'inline'}; filename="${useStandard?'Urban-Procures-'+doc.id.slice(0,8)+(doc.standardized_file_type==='application/pdf'?'.pdf':doc.standardized_file_type==='image/png'?'.png':doc.standardized_file_type==='image/jpeg'?'.jpg':'.html'):doc.file_name.replace(/[\r\n"\\]/g,'_')}"`,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Security-Policy':"sandbox; default-src 'none'; style-src 'unsafe-inline'"}});
  }
  if(actor.role!=='admin')return null;
  if(path==='/api/admin/email/workflow-test'&&method==='POST'){
@@ -186,7 +190,10 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
  if(approval&&method==='POST') {
   if(body.identityReviewConfirmed!==true)return fail('IDENTITY_REVIEW_REQUIRED',409);
   const doc=await env.DB.prepare("SELECT d.id FROM rfq_documents d JOIN rfqs r ON r.id=d.rfq_id LEFT JOIN vendor_quotes q ON q.id=d.quotation_id WHERE d.id=? AND r.deleted_at IS NULL AND r.status NOT IN ('draft','cancelled') AND (d.quotation_id IS NULL OR (q.withdrawn_at IS NULL AND q.deleted_at IS NULL)) AND d.document_purpose!='trade_license'").bind(approval[1]).first();if(!doc)return fail('DOCUMENT_NOT_FOUND',404);
-  const results=await env.DB.batch([env.DB.prepare(`UPDATE rfq_documents SET vendor_access_approved=1 WHERE id=? AND EXISTS(SELECT 1 FROM rfqs r WHERE r.id=rfq_documents.rfq_id AND r.deleted_at IS NULL AND r.status NOT IN ('draft','cancelled')) AND (quotation_id IS NULL OR EXISTS(SELECT 1 FROM vendor_quotes q WHERE q.id=quotation_id AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL))`).bind(approval[1]),audit(env,actor,'DOCUMENT_IDENTITY_REVIEW','document',approval[1])]);return results[0].meta.changes?ok({id:approval[1]}):fail('DOCUMENT_NOT_AVAILABLE',409);
+  const ready=await env.DB.prepare("SELECT standardized_at,standardized_r2_key,standardization_status FROM rfq_documents WHERE id=?").bind(approval[1]).first<any>();
+  if(!ready?.standardized_r2_key||!['review_required','approved'].includes(ready.standardization_status))return fail('STANDARD_DOCUMENT_REVIEW_REQUIRED',409);
+  if(!await env.DB.prepare("SELECT id FROM audit_logs WHERE actor_user_id=? AND resource_id=? AND action_type='STANDARD_DOCUMENT_ACCESS' AND timestamp>=?").bind(actor.id,approval[1],ready.standardized_at).first())return fail('OPEN_STANDARD_DOCUMENT_BEFORE_APPROVAL',409);
+  const results=await env.DB.batch([env.DB.prepare(`UPDATE rfq_documents SET vendor_access_approved=1,standardization_status='approved' WHERE id=? AND EXISTS(SELECT 1 FROM rfqs r WHERE r.id=rfq_documents.rfq_id AND r.deleted_at IS NULL AND r.status NOT IN ('draft','cancelled')) AND (quotation_id IS NULL OR EXISTS(SELECT 1 FROM vendor_quotes q WHERE q.id=quotation_id AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL))`).bind(approval[1]),audit(env,actor,'DOCUMENT_IDENTITY_REVIEW','document',approval[1])]);return results[0].meta.changes?ok({id:approval[1]}):fail('DOCUMENT_NOT_AVAILABLE',409);
  }
  const user=path.match(/^\/api\/admin\/users\/([^/]+)\/status$/);
  if(user&&method==='PATCH') {

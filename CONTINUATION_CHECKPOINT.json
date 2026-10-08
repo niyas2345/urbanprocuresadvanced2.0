@@ -273,5 +273,42 @@
     "realLicenseApprovalActionVisible": true,
     "realAccountApprovedAutomatically": false,
     "stagingAccountsQuarantined": 9
+  },
+  "DOCUMENT_STANDARDIZATION": {
+    "status": "staging-verified-production-release-in-progress",
+    "updatedAt": "2026-10-08T21:20:23.195535+00:00",
+    "liveOriginalDocumentGuard": true,
+    "productionVersion": "d5233364-cc6f-4dd8-8289-af57af90bc6f",
+    "stagingVersion": "61e94c77-78b2-4b92-8549-d3c86f5c4591",
+    "stagingMigration": "0015_standardized_documents.sql",
+    "productionMigrationApplied": false,
+    "implemented": [
+      "AI PDF/XLSX extraction into separate private Urban Procures artifacts",
+      "Cleaned detailed source text retained alongside structured items",
+      "Admin actual derivative-preview audit gate before release",
+      "Separate identity-safe drawing replacement upload with renewed review",
+      "Vendor pending-document notice",
+      "Contractor and Vendor portal homes with actual activity counts"
+    ],
+    "passedChecks": {
+      "typechecks": true,
+      "build": true,
+      "offlineDatabase": 110,
+      "localDocumentGuard": 41,
+      "localArtifactChecks": 11,
+      "operations": 103,
+      "auth": 23,
+      "wranglerMigrations": 136
+    },
+    "remaining": [
+      "Full actual staging RFQ and quotation test",
+      "Admin replacement negative and release workflow test",
+      "Production backup/preflight, migration and deployment",
+      "Review real generated document copies before release; never auto-approve",
+      "Staging fixture quarantine and final source pin"
+    ],
+    "blocker": null,
+    "nextAction": "Apply production migration 0015 after verified backup, deploy checked source with existing bindings preserved, verify live release and data preservation.",
+    "stagingChecksPassed": 33
   }
 }

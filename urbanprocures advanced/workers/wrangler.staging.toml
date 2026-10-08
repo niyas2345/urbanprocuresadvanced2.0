@@ -33,3 +33,9 @@ run_worker_first = true
 # Bounded outbox draining; dispatch remains inert while delivery is disabled.
 [triggers]
 crons = ["*/5 * * * *"]
+
+[ai]
+binding = "AI"
+
+[limits]
+cpu_ms = 30000
