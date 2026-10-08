@@ -143,6 +143,7 @@ export interface QuotationItem {
 
 export interface Quotation {
   pricingMode?: 'itemized'|'total'|'file';
+  documents?:DocumentMetadata[];
   id: string;
   referenceCode: string;
   rfqId: string;

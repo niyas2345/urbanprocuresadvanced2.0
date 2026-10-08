@@ -20,7 +20,7 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   const isPdf = document.fileType?.includes('pdf') || document.fileName.toLowerCase().endsWith('.pdf');
   const isDwg = document.fileType?.includes('acad') || document.fileName.toLowerCase().endsWith('.dwg') || document.fileName.toLowerCase().endsWith('.dxf');
   const isSheet = document.fileType?.includes('spreadsheet') || document.fileName.toLowerCase().endsWith('.xlsx') || document.fileName.toLowerCase().endsWith('.xls') || document.fileName.toLowerCase().endsWith('.csv');
-  const isImage = document.fileType?.includes('image') || document.fileName.match(/\.(jpg|jpeg|png|webp|svg)$/i);
+  const isImage = !isDwg&&!isSheet&&(document.fileType?.includes('image') || document.fileName.match(/\.(jpg|jpeg|png|webp|svg)$/i));
 
   const formatBytes = (bytes: number) => {
     if (!bytes) return '0 B';

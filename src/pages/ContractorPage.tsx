@@ -882,6 +882,10 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                             </div>
                           </div>
 
+                          <div className="flex flex-wrap gap-2 mb-4">
+                            {(quote.documents??[]).map(doc=><button key={doc.id} type="button" onClick={()=>setInspectDoc(doc)} className="text-xs px-3 py-2 rounded border border-[#bccbca] hover:bg-[#f7f6f2]">{doc.fileName}</button>)}
+                            {quote.pricingMode==='file'&&!(quote.documents??[]).length&&<p className="text-xs text-[#63797b]">Quotation file is awaiting identity review before release.</p>}
+                          </div>
                           {/* Payment Terms & Notes */}
                           <div className="space-y-2 text-xs text-[#63797b] mb-6">
                             <div>
