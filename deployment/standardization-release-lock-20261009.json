@@ -1,0 +1,18 @@
+{
+  "sourceCommit": "b6ed9e42dd377598e65454e67f5b6fe1fec44387",
+  "worker": "urbanprocures-advanced-production-20261007",
+  "workerVersion": "142650a7-340c-4839-b370-5bc706a2aae3",
+  "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
+  "bucket": "urbanprocures-advanced-production-20261007-documents",
+  "sourceArchive": "/workspace/artifacts/urbanprocures-standardization-source-20261009.tar.gz",
+  "sourceArchiveSha256": "4cf8806b1a1be6816df41501b1fe776313cd98fff761a7ad275da7bdec396322",
+  "deployedWorkerArchive": "/workspace/artifacts/urbanprocures-standardization-worker-20261009.multipart",
+  "deployedWorkerSha256": "6bad30a74b596a562f4c6dc777a0ec1f966cb4071db9350ec5d7094d493833f8",
+  "domains": [
+    "https://urbanprocures.com",
+    "https://www.urbanprocures.com"
+  ],
+  "databaseMigration": "0015_standardized_documents.sql",
+  "secretsIncluded": false,
+  "legacyFallback": false
+}

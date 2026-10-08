@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "reviewedAt": "2026-10-08T21:35:14.692Z",
+  "manuallyReviewedCopiesReleased": [
+    {
+      "id": "d7a1730a-0c85-4d2e-b1c5-d4e344ea1fb7",
+      "kind": "full-boq-67-rows",
+      "originalBytesUnchanged": true
+    },
+    {
+      "id": "255badfb-f6dc-4bfa-b727-bf0bca4cd162",
+      "kind": "supplement-41-rows",
+      "originalBytesUnchanged": true
+    },
+    {
+      "id": "93634aaf-04e4-4bfa-89d5-1d91fab6637f",
+      "kind": "illustrative-reference-description",
+      "originalBytesUnchanged": true
+    }
+  ],
+  "accountsApprovedAutomatically": false,
+  "outboundMessagesSent": false,
+  "illustrationIsDescriptionOnly": true,
+  "originalSourceHashesVerified": true
+}

@@ -275,13 +275,13 @@
     "stagingAccountsQuarantined": 9
   },
   "DOCUMENT_STANDARDIZATION": {
-    "status": "staging-verified-production-release-in-progress",
-    "updatedAt": "2026-10-08T21:20:23.195535+00:00",
+    "status": "live-verified",
+    "updatedAt": "2026-10-08T21:49:38.984520+00:00",
     "liveOriginalDocumentGuard": true,
-    "productionVersion": "d5233364-cc6f-4dd8-8289-af57af90bc6f",
-    "stagingVersion": "61e94c77-78b2-4b92-8549-d3c86f5c4591",
+    "productionVersion": "142650a7-340c-4839-b370-5bc706a2aae3",
+    "stagingVersion": "f18222fb-fd64-4729-b771-31c309629008",
     "stagingMigration": "0015_standardized_documents.sql",
-    "productionMigrationApplied": false,
+    "productionMigrationApplied": true,
     "implemented": [
       "AI PDF/XLSX extraction into separate private Urban Procures artifacts",
       "Cleaned detailed source text retained alongside structured items",
@@ -300,15 +300,22 @@
       "auth": 23,
       "wranglerMigrations": 136
     },
-    "remaining": [
-      "Full actual staging RFQ and quotation test",
-      "Admin replacement negative and release workflow test",
-      "Production backup/preflight, migration and deployment",
-      "Review real generated document copies before release; never auto-approve",
-      "Staging fixture quarantine and final source pin"
-    ],
+    "remaining": [],
     "blocker": null,
-    "nextAction": "Apply production migration 0015 after verified backup, deploy checked source with existing bindings preserved, verify live release and data preservation.",
-    "stagingChecksPassed": 33
+    "nextAction": "No deployment work pending. Future uploads are generated privately and require Admin source/derivative review before sharing. CAD or geometry-dependent documents require a reviewed safe replacement; no automatic geometry reconstruction is claimed.",
+    "stagingChecksPassed": 35,
+    "sourceCommit": "b6ed9e42dd377598e65454e67f5b6fe1fec44387",
+    "liveChecksPassed": 42,
+    "existingBusinessRecordsPreserved": true,
+    "reviewedCurrentRfqCopiesReleased": 3,
+    "currentFullBoqRows": 67,
+    "sourceFileHashesVerified": true,
+    "temporaryStagingAccountsQuarantined": 23,
+    "fixtureMailSuppressed": true,
+    "limitations": [
+      "AI extraction requires Admin fidelity and identity review.",
+      "Current restaurant illustration is shared as a design-reference description, not a measured drawing.",
+      "Unsupported CAD/uncertain scans remain private until a safe replacement is reviewed."
+    ]
   }
 }
