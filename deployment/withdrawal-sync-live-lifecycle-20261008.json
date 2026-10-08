@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "checksPassed": 6,
+  "results": {
+    "authenticated": true,
+    "endpoints": true,
+    "activeRfqs": true,
+    "activeDocuments": true,
+    "historyPreserved": true,
+    "revisionAndNotices": true
+  },
+  "businessRowsModified": false,
+  "testEmailsSent": false,
+  "checkedAt": "2026-10-08T09:34:21.152Z"
+}

@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Withdrawal synchronization staging acceptance: 123 deployed feature checks and 20 multi-session browser checks passed. Live preflight and private database backup restoration passed.",
+  "LAST_COMPLETED_TASK": "Live withdrawal synchronization: recalled/removed RFQs and quotations leave active Admin/Contractor/Vendor views automatically; Admin notices and private history preserved; all local/staging/live acceptance checks passed.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -47,9 +47,7 @@
     "scripts/check-rfq-live-release.mjs",
     "deployment/RFQ-DOCUMENT-RELEASE-20261008.md"
   ],
-  "FILES_STILL_REQUIRING_WORK": [
-    "Production release after final staging API gate"
-  ],
+  "FILES_STILL_REQUIRING_WORK": [],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
     "configuration_isolation": true,
@@ -83,7 +81,14 @@
     "production owner mail inbox receipt": true,
     "production preview fixture cleanup and immutable guard restoration": true,
     "actual live-domain checks": 50,
-    "legacy retirement remote inventory verification": true
+    "legacy retirement remote inventory verification": true,
+    "withdrawal local feature checks": 122,
+    "withdrawal staging feature checks": 123,
+    "withdrawal multi-session staging browser checks": 20,
+    "withdrawal offline database preservation checks": 104,
+    "withdrawal Wrangler migration statements": 126,
+    "withdrawal live release checks": 14,
+    "withdrawal live lifecycle read checks": 6
   },
   "TESTS_FAILED": [],
   "TESTS_BLOCKED": {},
@@ -93,7 +98,7 @@
   "KNOWN_FAILED_REQUIREMENTS": [],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Wait for final staging API check; verify and preserve live business rows; deploy withdrawal fix to existing Advanced production Worker only; verify both domains and quarantine staging fixtures.",
+  "NEXT_EXACT_ACTION": "Owner can reload existing tabs once to load the new release. Future recalls/removals update server eligibility immediately and visible dashboards automatically every five seconds. Preserve historical data and existing Advanced resources.",
   "PRODUCTION_RESOURCES_TOUCHED": "Advanced live on both approved .com domains; legacy resources explicitly retired by owner authorization.",
   "Production Pages modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
   "Production Workers modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
@@ -110,7 +115,7 @@
   "local_baseline_tree_verified": "03ab917be2347da976a4797d81d781f3e9805fad",
   "TYPECHECK_ERRORS": [],
   "bundled_sqlite_modified": false,
-  "latest_checkpoint_date": "2026-10-07 UTC",
+  "latest_checkpoint_date": "2026-10-08 UTC",
   "FINAL_CLICKWRAP_HANDOFF": {
     "report": "TERMS_IMPLEMENTATION_REPORT.md",
     "vendor_version": "2026.2",
@@ -125,11 +130,11 @@
     "url": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
     "database_id": "eb82db72-864e-4835-b230-3903f77706f2",
     "bucket": "urbanprocures-advanced-staging-20261005-documents",
-    "migrations_applied": 11,
+    "migrations_applied": 13,
     "deployed": true,
     "existing_resources_modified": false,
-    "deployment_version": "8bce49b3-de2f-454f-85ba-1310fbe68007",
-    "source_commit": "5622a88353cc7289d19573a5dffe9a43bb13f65a",
+    "deployment_version": "a0821051-d40c-431c-b0cd-d37a17004177",
+    "source_commit": "10b90aa5e896ede3dad52660e6c68bd694775c98",
     "http_smoke_status": 200,
     "qa_api_browser_checks_passed": 137,
     "qa_procurement_browser_checks_passed": 14,
@@ -165,10 +170,10 @@
     "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
     "bucketCreated": true,
     "ownerAdminBootstrapped": true,
-    "migrationsApplied": 11,
+    "migrationsApplied": 13,
     "qaDataCopied": false,
-    "deploymentVersion": "66e88b27-9257-45c1-b2f8-417d7cb842d7",
-    "sourceCommit": "5622a88353cc7289d19573a5dffe9a43bb13f65a",
+    "deploymentVersion": "5579ba02-c847-4c16-b4e4-9fc310bb054e",
+    "sourceCommit": "7b9012e37c11544f9455ed1a0d375f0f243dea4f",
     "missingOAuthSecrets": [],
     "oauthAuthenticationVerified": true,
     "persistentLogsEnabled": true,
@@ -204,17 +209,23 @@
     "temporaryStagingAccountsQuarantined": 14
   },
   "WITHDRAWAL_SYNCHRONIZATION": {
-    "status": "staging-passed-ready-for-production",
-    "sourceCommit": "10b90aa",
+    "status": "live-verified",
+    "sourceCommit": "7b9012e37c11544f9455ed1a0d375f0f243dea4f",
     "migrations": [
       "0012_withdrawal_visibility.sql",
       "0013_active_quotation_uniqueness.sql"
     ],
     "localFeatureChecksPassed": 122,
     "stagingMultiSessionBrowserChecksPassed": 20,
-    "productionModified": false,
+    "productionModified": true,
     "stagingFeatureChecksPassed": 123,
     "offlineDatabaseChecksPassed": 104,
-    "wranglerMigrationStatementsChecked": 126
+    "wranglerMigrationStatementsChecked": 126,
+    "productionVersion": "5579ba02-c847-4c16-b4e4-9fc310bb054e",
+    "existingBusinessRecordsPreserved": true,
+    "liveReleaseChecksPassed": 14,
+    "liveLifecycleReadChecksPassed": 6,
+    "temporaryStagingAccountsSuspended": 13,
+    "fixtureMailSuppressed": true
   }
 }

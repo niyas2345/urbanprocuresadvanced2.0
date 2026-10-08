@@ -1,0 +1,24 @@
+{
+  "phase": "after-release",
+  "checks": [
+    "https://urbanprocures.com HTTPS homepage",
+    "https://urbanprocures.com approved homepage",
+    "https://urbanprocures.com exact release frontend artifact",
+    "https://urbanprocures.com three published Terms endpoints",
+    "https://urbanprocures.com developer pages remain unavailable",
+    "https://urbanprocures.com live public document formats",
+    "https://www.urbanprocures.com HTTPS homepage",
+    "https://www.urbanprocures.com approved homepage",
+    "https://www.urbanprocures.com exact release frontend artifact",
+    "https://www.urbanprocures.com three published Terms endpoints",
+    "https://www.urbanprocures.com developer pages remain unavailable",
+    "https://www.urbanprocures.com live public document formats",
+    "Existing production owner password authenticates",
+    "Live Admin reads existing business records"
+  ],
+  "failures": [],
+  "businessRowsModified": false,
+  "testEmailsSent": false,
+  "status": "passed",
+  "checkedAt": "2026-10-08T09:32:33.538Z"
+}
