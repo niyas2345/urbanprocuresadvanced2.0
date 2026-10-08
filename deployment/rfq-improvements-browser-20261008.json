@@ -1,0 +1,51 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "runId": "1e76a9d9add4",
+  "checks": [
+    "Staging QA administrator authenticated",
+    "contractor isolated browser fixture",
+    "vendor isolated browser fixture",
+    "Vendor fixture license",
+    "Vendor fixture reviewed",
+    "contractor browser login",
+    "vendor browser login",
+    "Public BOQ file selectable",
+    "Public file chooser includes Excel and CAD",
+    "New form clears previous project",
+    "itemized browser RFQ persists",
+    "Browser recall control works",
+    "Browser recalled draft resubmits",
+    "Browser fixture RFQ reviewed",
+    "itemized browser quotation saves",
+    "New form clears previous project",
+    "total browser RFQ persists",
+    "Browser fixture RFQ reviewed",
+    "total browser quotation saves",
+    "New form clears previous project",
+    "Uploaded BOQ avoids manual item entry",
+    "file browser RFQ persists",
+    "BOQ document reviewed for Vendor release",
+    "Browser fixture RFQ reviewed",
+    "file browser quotation saves",
+    "Browser quote attachment review",
+    "Comparison explains uploaded quotation total",
+    "Authenticated PDF preview receives private blob",
+    "Browser downloads exact quotation PDF bytes",
+    "Browser owner removal works",
+    "Removed post disappears from dashboard"
+  ],
+  "temporaryUserIds": [
+    "3ff94d2f-2556-4ad4-b243-81f9dceba415",
+    "315b8fee-a00b-40e6-b24f-3b0d437c4388"
+  ],
+  "rfqIds": [
+    "f0c2fffa-3010-465f-83e2-0ade2f1f855a",
+    "b10ae306-e22c-4193-aa45-3b6f891a3a0c",
+    "d79aadba-9e18-4d0a-a847-f49fc1d22e8b"
+  ],
+  "failures": [],
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "status": "passed",
+  "completedAt": "2026-10-08T07:59:39.496Z"
+}

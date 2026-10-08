@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Removed Admin from the main header navigation only. Footer Admin and top-right portal dropdown retained and verified on both actual domains. Type checks and build passed. Production deployment a4e60b13-3305-436a-9ac3-c6fdf661767c.",
+  "LAST_COMPLETED_TASK": "Live RFQ recall/removal, idempotent submission, optional PDF/Excel/CAD/image documents across all three portals, attached BOQ packages and itemized/total/file quotation modes. Deployed after staging QA; both domains, existing owner login, preserved business records and runtime bindings verified.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -37,7 +37,15 @@
     "scripts/test-zoho-oauth.ts",
     "scripts/test-deployed-staging.mjs",
     "scripts/test-deployed-browser.mjs",
-    "scripts/configure-staging-zoho.mjs"
+    "scripts/configure-staging-zoho.mjs",
+    "src/components/DocumentAttachments.tsx",
+    "urbanprocures advanced/shared/documentFormats.ts",
+    "urbanprocures advanced/workers/documentValidation.ts",
+    "urbanprocures advanced/database/migrations/0011_rfq_submission_controls.sql",
+    "scripts/test-rfq-improvements.mjs",
+    "scripts/test-rfq-improvements-browser.mjs",
+    "scripts/check-rfq-live-release.mjs",
+    "deployment/RFQ-DOCUMENT-RELEASE-20261008.md"
   ],
   "FILES_STILL_REQUIRING_WORK": [],
   "TESTS_PASSED": {
@@ -115,11 +123,11 @@
     "url": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
     "database_id": "eb82db72-864e-4835-b230-3903f77706f2",
     "bucket": "urbanprocures-advanced-staging-20261005-documents",
-    "migrations_applied": 10,
+    "migrations_applied": 11,
     "deployed": true,
     "existing_resources_modified": false,
-    "deployment_version": "1783f55d-cc96-4869-827d-f3e7488da9f2",
-    "source_commit": "4ec462ff60a1048f337ad4c9ff4c38dc62acc6c1",
+    "deployment_version": "8bce49b3-de2f-454f-85ba-1310fbe68007",
+    "source_commit": "5622a88353cc7289d19573a5dffe9a43bb13f65a",
     "http_smoke_status": 200,
     "qa_api_browser_checks_passed": 137,
     "qa_procurement_browser_checks_passed": 14,
@@ -138,7 +146,8 @@
     "code_rollback_verified": true,
     "owner_outbox_inbox_receipt_confirmed": true,
     "qa_fixture_accounts_suspended": 17,
-    "qa_fixture_sessions_revoked": true
+    "qa_fixture_sessions_revoked": true,
+    "owner_admin_password_note": "Owner staging password was not reset. Temporary isolated QA Admin used for this release; now suspended. Current production owner password authenticated successfully."
   },
   "OUTBOUND_SCOPE": "Approved owner-only mail tests; production password-reset test received in inbox. No customer or QA-address emails sent.",
   "NEW_PRODUCTION_PREVIEW": {
@@ -154,10 +163,10 @@
     "databaseId": "3412487b-954b-4f21-92d3-20d85d30dc11",
     "bucketCreated": true,
     "ownerAdminBootstrapped": true,
-    "migrationsApplied": 10,
+    "migrationsApplied": 11,
     "qaDataCopied": false,
-    "deploymentVersion": "a4e60b13-3305-436a-9ac3-c6fdf661767c",
-    "sourceCommit": "2aa86ba04347000fcc90b76c8f7a48cfef1fc7dc",
+    "deploymentVersion": "66e88b27-9257-45c1-b2f8-417d7cb842d7",
+    "sourceCommit": "5622a88353cc7289d19573a5dffe9a43bb13f65a",
     "missingOAuthSecrets": [],
     "oauthAuthenticationVerified": true,
     "persistentLogsEnabled": true,
@@ -171,5 +180,25 @@
     "ownerLoginAfterPasswordUpdateVerified": true,
     "legacyFallbackAvailable": false
   },
-  "release_local_commit": "b1137c551638d6aa4cb082ec1148be4865094c18"
+  "release_local_commit": "b1137c551638d6aa4cb082ec1148be4865094c18",
+  "RFQ_DOCUMENT_IMPROVEMENTS": {
+    "status": "live-verified",
+    "sourceCommit": "5622a88353cc7289d19573a5dffe9a43bb13f65a",
+    "migration": "0011_rfq_submission_controls.sql",
+    "stagingMigrationApplied": true,
+    "productionMigrationApplied": true,
+    "localFeatureChecksPassed": 98,
+    "localRegressionOperationsChecksPassed": 98,
+    "localTermsChecksPassed": 96,
+    "offlineDatabaseChecksPassed": 96,
+    "stagingApiChecksPassed": 84,
+    "stagingBrowserChecksPassed": 31,
+    "productionReadOnlyPreflightChecksPassed": 10,
+    "existingProductionBusinessRecordsModified": false,
+    "nextAction": "Await owner feedback. Existing unawarded duplicate RFQs can now be removed by their owning Contractor; do not remove them automatically.",
+    "productionVersion": "66e88b27-9257-45c1-b2f8-417d7cb842d7",
+    "productionReadOnlyReleaseChecksPassed": 14,
+    "existingProductionBusinessRecordsPreserved": true,
+    "temporaryStagingAccountsQuarantined": 14
+  }
 }

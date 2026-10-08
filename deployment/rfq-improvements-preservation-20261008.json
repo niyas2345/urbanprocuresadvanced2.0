@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-08T08:22:18.898618+00:00",
+  "existingBusinessRecordsPreserved": true,
+  "businessRowCounts": {
+    "rfqs": 3,
+    "rfq_items": 3,
+    "vendor_quotes": 0,
+    "quote_items": 0,
+    "awards": 0,
+    "service_charges": 0,
+    "rfq_documents": 9,
+    "terms_acceptance_evidence": 1
+  },
+  "foreignKeysValid": true,
+  "migrationsApplied": 11,
+  "oauthSecretBindingsPreserved": true,
+  "mailEnabled": true,
+  "logsAndTracesPersisted": true,
+  "advancedBindingsAndRoutesPreserved": true,
+  "backupSha256": "d01d0951872c3cf4eed8961f5918e4a79a89bfd8e1a6224de1bd6d3d13a9f546",
+  "deployedVersion": "66e88b27-9257-45c1-b2f8-417d7cb842d7",
+  "sourceCommit": "5622a88"
+}

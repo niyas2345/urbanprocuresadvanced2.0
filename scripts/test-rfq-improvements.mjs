@@ -56,8 +56,9 @@ try{
  verify((await call('/api/documents/upload',{...pdf,documentPurpose:'trade_license'},v.token)).status===201,'Vendor license uploaded');verify((await call(`/api/admin/vendors/${v.vendor.id}/verification`,{status:'verified'},adminToken,'PATCH')).status===200,'Vendor verification reviewed');
  for(const mode of ['itemized','total','file']){
   const rfq=await create();verify((await call(`/api/admin/rfqs/${rfq.id}/publish`,{identityReviewConfirmed:true},adminToken)).status===200,'RFQ reviewed and published');
+  for(const value of [0,-100,'1234.56',null,1e15])verify((await call(`/api/vendor/rfqs/${rfq.id}/quote`,{pricingMode:'total',totalAmountAed:value,items:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA'},v.token)).status===400,'Invalid package total rejected');
   if(mode==='file')verify((await call(`/api/vendor/rfqs/${rfq.id}/quote`,{pricingMode:'file',totalAmountAed:100,items:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA'},v.token)).status===400,'File quotation requires actual attachment');
-  const payload={pricingMode:mode,totalAmountAed:1234.56,items:mode==='itemized'?[{rfqItemId:rfq.items[0].id,unitRateAed:617.28}]:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA',attachments:mode==='file'?[attachment(formats[1])]:[]};
+  const payload={pricingMode:mode,totalAmountAed:mode==='itemized'?999999:1234.56,items:mode==='itemized'?[{rfqItemId:rfq.items[0].id,unitRateAed:617.28}]:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA',attachments:mode==='file'?[attachment(formats[1])]:[]};
   const quote=await call(`/api/vendor/rfqs/${rfq.id}/quote`,payload,v.token);verify(quote.status===201,mode+' quotation persists');verify(quote.body.data.totalAmountAed===1234.56,mode+' total correct');
   const listing=(await call(`/api/contractor/rfqs/${rfq.id}/quotations`,null,c.token)).body.data;verify(listing[0].pricingMode===mode&&listing[0].items.length===(mode==='itemized'?1:0),mode+' comparison has truthful pricing method');
   if(mode==='file'){verify(listing[0].documents.length===0,'Unreviewed quotation identity not exposed');const own=(await call('/api/vendor/my-quotes',null,v.token)).body.data.find(q=>q.id===quote.body.data.id);const doc=own.documents[0];verify((await call(`/api/admin/documents/${doc.id}/release`,{identityReviewConfirmed:true},adminToken)).status===200,'Quotation identity review');verify((await call(`/api/documents/${doc.id}/download`,null,c.token)).status===200,'Contractor downloads reviewed quotation');}
@@ -67,8 +68,8 @@ try{
   verify((await call(`/api/contractor/rfqs/${rfq.id}`,null,c.token,'DELETE')).status===409,'Awarded RFQ cannot remove');
  }
  const cancelled=await create();await call(`/api/admin/rfqs/${cancelled.id}/publish`,{identityReviewConfirmed:true},adminToken);verify((await call(`/api/contractor/rfqs/${cancelled.id}/status`,{status:'cancelled'},c.token,'PATCH')).status===200,'Published RFQ can cancel');verify(!(await call('/api/vendor/rfqs',null,v.token)).body.data.some(r=>r.id===cancelled.id),'Cancelled RFQ removed from discovery');verify((await call(`/api/vendor/rfqs/${cancelled.id}/quote`,{pricingMode:'total',totalAmountAed:100,leadTimeDays:2,validityDays:30,paymentTerms:'QA'},v.token)).status===403,'Cancelled RFQ rejects new quote');
- report.completedAt=new Date().toISOString();console.log(JSON.stringify({checksPassed:report.checks.length,staging,productionModified:false,outboundMessagesSent:false}));
-}finally{
+ report.status='passed';report.completedAt=new Date().toISOString();console.log(JSON.stringify({checksPassed:report.checks.length,staging,productionModified:false,outboundMessagesSent:false}));
+}catch(error){report.status='failed';report.failure=error.message;throw error;}finally{
  if(staging&&adminToken)for(const id of report.temporaryUserIds)await call(`/api/admin/users/${id}/status`,{status:'suspended'},adminToken,'PATCH');
  if(staging)await writeFile('deployment/rfq-improvements-staging-20261008.json',JSON.stringify(report,null,2)+'\n');
  if(browser)await browser.close();if(mf)await mf.dispose();
