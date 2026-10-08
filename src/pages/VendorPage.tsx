@@ -1,3 +1,4 @@
+import {TradeLicenseInput,type LicenseFile} from '../components/TradeLicenseInput.tsx';
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
 import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
@@ -31,6 +32,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
 
   // Vendor Registration State
   const [regCompany, setRegCompany] = useState('');
+  const [regLicenseFile,setRegLicenseFile]=useState<LicenseFile|null>(null),[regLicenseBusy,setRegLicenseBusy]=useState(false),[regDirectory,setRegDirectory]=useState(false);
   const [regLicense, setRegLicense] = useState('');
   const [regCategories, setRegCategories] = useState<string[]>(['Joinery & Carpentry']);
   const [regEmirates, setRegEmirates] = useState<string[]>(['Dubai']);
@@ -65,13 +67,15 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
     if(!session.authenticated || session.user.role!=='vendor'){setCurrentUser(null);setVendor(null);return;}
     setCurrentUser(session.user);setVendor(session.vendor);setHasAcceptedTerms(session.termsAccepted===true);
     setDataError('');
-    if(session.termsAccepted)try{const matching=await api.vendor.getMatchingRfqs();setEligibleRfqs(matching);setSelectedRfq(previous=>previous?matching.find((r:RFQ)=>r.id===previous.id)??null:null);setMyQuotations(await api.vendor.getMyQuotes());}catch(err:any){setDataError(err.message);}
+    if(session.termsAccepted&&session.vendor?.verificationStatus!=='verified'){setEligibleRfqs([]);setMyQuotations([]);return;}
+    if(session.termsAccepted)try{const matching=await api.vendor.getMatchingRfqs('all');setEligibleRfqs(matching);setSelectedRfq(previous=>previous?matching.find((r:RFQ)=>r.id===previous.id)??null:null);setMyQuotations(await api.vendor.getMyQuotes());}catch(err:any){setDataError(err.message);}
   };
   useEffect(()=>{refreshVendor().catch(err=>setDataError(err.message));},[]);
   const isVendorLoggedIn=currentUser?.role==='vendor';
   useDashboardRefresh(refreshVendor,isVendorLoggedIn&&hasAcceptedTerms);
   const withdrawQuote=async(id:string,action:'recall'|'remove')=>{if(!window.confirm(action==='recall'?'Recall this quotation? It will be withdrawn from comparison.':'Remove this quotation? Its audit history will be retained.'))return;try{await api.vendor.withdrawQuote(id,action);await refreshVendor();showToast('Quotation withdrawn. Admin and Contractor views will update.','success');}catch(e:any){showToast(e.message,'error');}};
-  const matchingRfqs=eligibleRfqs;
+  useEffect(()=>{setSelectedRfq(null);},[categoryFilter]);
+  const matchingRfqs=categoryFilter==='all'?eligibleRfqs:eligibleRfqs.filter(r=>vendor?.tradeCategories.includes(r.category));
 
   // Calculate total quote amount from item rates
   const calculateTotal = (rfq: RFQ) => {
@@ -89,9 +93,10 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   };
   const handleRegisterSubmit=async(e:React.FormEvent)=>{
     e.preventDefault();setRegError(null);
+    if(!regLicenseFile||regLicenseBusy){setRegError('Upload your trade license document before registering.');return;}
     if(!regAccepted||!regTerms){setRegError('Explicit acceptance of current Vendor Terms is required.');return;}
     try{
-      await api.auth.registerVendor({companyName:regCompany.trim(),tradeLicenseNumber:regLicense.trim(),tradeCategories:regCategories,emiratesServiced:regEmirates,emirate:regEmirates[0],address:`${regEmirates[0]}, UAE`,contactPerson:regContact.trim(),contactPhone:regPhone.trim(),email:regEmail.trim(),password:regPassword,acceptTerms:regAccepted,termsVersionId:regTerms.id});
+      await api.auth.registerVendor({tradeLicenseDocument:regLicenseFile,listBusinessPublicly:regDirectory,companyName:regCompany.trim(),tradeLicenseNumber:regLicense.trim(),tradeCategories:regCategories,emiratesServiced:regEmirates,emirate:regEmirates[0],address:`${regEmirates[0]}, UAE`,contactPerson:regContact.trim(),contactPhone:regPhone.trim(),email:regEmail.trim(),password:regPassword,acceptTerms:regAccepted,termsVersionId:regTerms.id});
       await refreshVendor();setActiveTab('rfqs');showToast('Vendor registration recorded. Verification is pending.','success');
     }catch(err:any){setRegError(err.message);}
   };
@@ -111,6 +116,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#123540] pb-16 font-['DM_Sans']">
       {currentUser?<AccountDocuments/>:<PasswordRecovery/>}
+      {isVendorLoggedIn&&vendor?.verificationStatus!=='verified'&&<aside className="p-4 bg-[#fff5eb] border text-sm"><strong>Business verification pending</strong><p>Upload your trade license above. Admin must review and verify your business before you can open tender documents or submit quotations. Approved RFQ summaries are available on the homepage.</p><button className="underline" onClick={()=>onNavigate('/')}>View published RFQ summaries</button></aside>}
       {dataError && <p role="alert" className="p-4 bg-white border border-[#e1e7e4] text-red-700 text-xs">{dataError}</p>}
       {/* Header Banner (Approved Design) */}
       <div className="bg-[#123f47] text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-[#0e3037]">
@@ -241,6 +247,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
               </form>
             ) : (
               <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs">
+                <TradeLicenseInput onChange={setRegLicenseFile} onBusy={setRegLicenseBusy}/><label className="block"><input type="checkbox" checked={regDirectory} onChange={e=>setRegDirectory(e.target.checked)}/> List my company name and trade/emirate on the homepage after Admin verification (optional). Contact details and license files stay private.</label>
                 {regError && (
                   <div className="p-3 rounded bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
@@ -340,7 +347,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                 <TermsClickwrap role="vendor" checked={regAccepted} onChange={setRegAccepted} onDocument={setRegTerms}/>
                 <button
                   type="submit"
-                  disabled={!regAccepted || !regTerms}
+                  disabled={!regAccepted || !regTerms || regLicenseBusy || !regLicenseFile}
                   className="w-full bg-[#123540] hover:bg-[#082631] text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-all shadow-sm active:translate-y-0.5"
                 >
                   ACCEPT TERMS & COMPLETE REGISTRATION
@@ -473,6 +480,8 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                               )}
 
                               <button
+                                disabled={!vendor?.tradeCategories.includes(rfq.category)}
+                                title={!vendor?.tradeCategories.includes(rfq.category)?'Bidding is limited to your registered trade categories.':undefined}
                                 onClick={() => {
                                   if (!hasAcceptedTerms) {
                                     setTermsModalOpen(true);
@@ -482,7 +491,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                                 }}
                                 className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2 rounded-[5px] text-xs flex items-center gap-1.5 transition-colors shadow-sm active:translate-y-0.5"
                               >
-                                <span>{isWon ? 'View Award Details' : 'Review & Submit Quote'}</span>
+                                <span>{isWon ? 'View Award Details' : vendor?.tradeCategories.includes(rfq.category)?'Review & Submit Quote':'Outside my trade categories'}</span>
                                 <ChevronRight className="w-4 h-4" />
                               </button>
                             </div>

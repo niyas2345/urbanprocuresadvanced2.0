@@ -39,6 +39,8 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
 }
 
 export const api = {
+  discovery:async()=>{const res=await request('/public/discovery');return res.data;},
+  directory:(visible:boolean)=>request('/account/directory',{method:'PATCH',body:JSON.stringify({visible})}),
   terms: {
     get: (role: 'vendor' | 'contractor' | 'get_a_quote', viewed=false) => request(`/terms?role=${role}${viewed?'&viewed=true':''}`),
     status: () => request('/terms/status'),
@@ -124,8 +126,8 @@ export const api = {
   // Vendor
   vendor: {
     withdrawQuote:(id:string,action:'recall'|'remove')=>request(`/vendor/quotations/${id}/${action}`,{method:'POST',body:'{}'}),
-    getMatchingRfqs: async () => {
-      const res = await request('/vendor/rfqs');
+    getMatchingRfqs: async (scope:'matching'|'all'='matching') => {
+      const res = await request('/vendor/rfqs?scope='+scope);
       return res.data;
     },
     submitQuote: async (rfqId: string, data: any) => {

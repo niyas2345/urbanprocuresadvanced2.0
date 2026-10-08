@@ -83,6 +83,7 @@ export interface RFQItem {
 }
 
 export interface DocumentMetadata {
+  uploaderUserId?: string; // Admin-only metadata; omitted from other roles.
   id: string;
   rfqId?: string;
   quotationId?: string;

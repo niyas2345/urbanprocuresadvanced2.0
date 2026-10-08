@@ -6,6 +6,7 @@ import { isIsolatedAdvancedRequest } from './isolation.ts';
 import { authRoute, actorFor } from './auth.ts';
 import { termsRoute, termsGate } from './terms.ts';
 import { awardRoute } from './award.ts';
+import {publicDiscoveryRoute} from './publicDiscovery.ts';
 import { publicQuoteRoute } from './publicQuote.ts';
 import { procurementRoute } from './procurement.ts';
 import { operationsRoute } from './operations.ts';
@@ -64,6 +65,7 @@ export default {
       if(!permitted)return Response.json({success:false,error:'REQUEST_ORIGIN_REJECTED'},{status:403});
     }
     try {
+      const discovery=await publicDiscoveryRoute(request,env);if(discovery)return discovery;
       const termsResponse=await termsRoute(request,env,await actorFor(request,env));
       if(termsResponse)return termsResponse;
       const authentication = await authRoute(request, env);

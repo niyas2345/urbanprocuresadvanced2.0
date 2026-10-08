@@ -1,4 +1,6 @@
 // Worker-native authentication. Published owner-approved Terms are a prerequisite.
+import {storedUpload} from './operations.ts';
+import {decodeDocument} from './documentValidation.ts';
 import {rateAllowed,recoveryRoute} from './recovery.ts';
 import type { Env } from './index.ts';
 import { publishedTerms, acceptanceFor, organizationFor, evidenceStatement, auditStatement } from './terms.ts';
@@ -30,7 +32,7 @@ export async function actorFor(request: Request, env: Env): Promise<Actor | null
 export const currentAcceptance = acceptanceFor;
 function profileDto(p:any) {
   if(!p)return null;
-  return {...p,userId:p.user_id,organizationId:p.organization_id,companyName:p.company_name,tradeLicenseNumber:p.trade_license_number,contactPerson:p.contact_person,contactPhone:p.contact_phone,verificationStatus:p.verification_status,tradeCategories:p.trade_categories?JSON.parse(p.trade_categories):undefined,emiratesServiced:p.emirates_serviced?JSON.parse(p.emirates_serviced):undefined};
+  return {...p,userId:p.user_id,organizationId:p.organization_id,companyName:p.company_name,tradeLicenseNumber:p.trade_license_number,contactPerson:p.contact_person,contactPhone:p.contact_phone,directoryVisible:p.directory_visible===1,verificationStatus:p.verification_status,tradeCategories:p.trade_categories?JSON.parse(p.trade_categories):undefined,emiratesServiced:p.emirates_serviced?JSON.parse(p.emirates_serviced):undefined};
 }
 async function session(env: Env, actor: Actor) {
   const token = randomToken(); const now = new Date().toISOString();
@@ -45,7 +47,7 @@ function text(body: Record<string, unknown>, name: string, max = 250) {
 }
 async function bodyFor(request: Request): Promise<Record<string, unknown>> {
   const raw = await request.text();
-  if (raw.length > 20000) throw new Error('Request too large');
+  if (raw.length > (new URL(request.url).pathname.startsWith('/api/auth/register-')?15000000:20000)) throw new Error('Request too large');
   const body = JSON.parse(raw);
   if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('Invalid request');
   return body;
@@ -120,11 +122,19 @@ export async function authRoute(request: Request, env: Env): Promise<Response | 
       if (![categories,emirates].every(a => Array.isArray(a) && a.length > 0 && a.length <= 30 && a.every(v => typeof v === 'string' && v.length > 0 && v.length <= 100))) throw new Error('Trade categories and serviced emirates are required');
       statements.push(env.DB.prepare('INSERT INTO vendors (id,user_id,organization_id,company_name,trade_license_number,trade_categories,emirates_serviced,verification_status,contact_person,contact_phone,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)').bind(profile,id,org,company,license,JSON.stringify(categories),JSON.stringify(emirates),'pending',contact,phone,now));
     }
+    if(body.listBusinessPublicly!==undefined&&typeof body.listBusinessPublicly!=='boolean')return json({success:false,error:'INVALID_DIRECTORY_CONSENT'},400);
+    statements.push(env.DB.prepare(`UPDATE ${role==='vendor'?'vendors':'contractors'} SET directory_visible=? WHERE id=?`).bind(body.listBusinessPublicly===true?1:0,profile));
+    let licenseUpload;
+    if(body.tradeLicenseDocument!==undefined){
+      const file={...(body.tradeLicenseDocument as object),documentPurpose:'trade_license'};let parsed;
+      try{parsed=decodeDocument(file);if(!['application/pdf','image/png','image/jpeg'].includes(parsed.type))throw Error();licenseUpload=await storedUpload(env,actor,file,null,null,parsed);}catch{return json({success:false,error:'INVALID_TRADE_LICENSE_DOCUMENT'},400);}
+      statements.push(licenseUpload.statement);
+    }
     const acceptanceAudit=crypto.randomUUID();
     statements.push(evidenceStatement(env,request,actor,org,terms,acceptanceAudit));
     statements.push(auditStatement(env,actor,role==='vendor'?'VENDOR_TERMS_ACCEPTED':'CONTRACTOR_TERMS_ACCEPTED',terms,org,acceptanceAudit));
-    statements.push(env.DB.prepare('INSERT INTO audit_logs (id,actor_user_id,actor_role,action_type,resource_type,resource_id,payload_json,ip_address,timestamp) VALUES (?,?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),id,role,'ACCOUNT_REGISTERED','user',id,JSON.stringify({termsVersionId:terms.id}),request.headers.get('CF-Connecting-IP'),now));
-    await env.DB.batch(statements);
+    statements.push(env.DB.prepare('INSERT INTO audit_logs (id,actor_user_id,actor_role,action_type,resource_type,resource_id,payload_json,ip_address,timestamp) VALUES (?,?,?,?,?,?,?,?,?)').bind(crypto.randomUUID(),id,role,'ACCOUNT_REGISTERED','user',id,JSON.stringify({termsVersionId:terms.id,directoryConsent:body.listBusinessPublicly===true,tradeLicenseAttached:!!licenseUpload}),request.headers.get('CF-Connecting-IP'),now));
+    try{if(licenseUpload)await env.DOCUMENTS_BUCKET.put(licenseUpload.key,licenseUpload.parsed.bytes,{httpMetadata:{contentType:licenseUpload.parsed.type}});await env.DB.batch(statements);}catch(error){if(licenseUpload)await env.DOCUMENTS_BUCKET.delete(licenseUpload.key);throw error;}
     const token=await session(env,actor);
     const account=await env.DB.prepare(`SELECT * FROM ${role==='vendor'?'vendors':'contractors'} WHERE user_id=?`).bind(id).first();
     return new Response(JSON.stringify({success:true,token,user:actor,[role]:profileDto(account),termsAccepted:true}),{status:201,headers:{'Content-Type':'application/json','Set-Cookie':sessionCookie(request,token),'Cache-Control':'no-store'}});

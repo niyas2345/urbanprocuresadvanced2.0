@@ -394,7 +394,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
           <div className="space-y-4">
             <h2 className="text-xl sm:text-2xl font-extrabold text-[#123540] font-['Manrope']">
               User Accounts & Status Controls
-            </h2><div className="space-y-3">{contractors.map(c=><div key={c.id} className="bg-white border rounded p-3 text-xs"><strong>{c.companyName}</strong> · License {c.tradeLicenseNumber} · {c.verifiedAt?'Verified':'Pending review'}<button className="underline ml-3" onClick={()=>action(()=>api.admin.verifyContractor(c.id),'Contractor verified after document review.')}>Verify after document review</button></div>)}</div>
+            </h2><div className="space-y-3">{contractors.map(c=><div key={c.id} className="bg-white border rounded p-3 text-xs"><strong>{c.companyName}</strong> · License {c.tradeLicenseNumber} · {c.verifiedAt?'Verified':'Pending review'}{documents.filter(d=>d.uploaderUserId===c.userId&&d.documentPurpose==='trade_license').map(d=><button key={d.id} className="underline ml-3" onClick={()=>setInspectDoc(d)}>Review license: {d.fileName}</button>)}{!documents.some(d=>d.uploaderUserId===c.userId&&d.documentPurpose==='trade_license')&&<span className="ml-3 text-red-700">Trade license document not uploaded</span>}<button disabled={!documents.some(d=>d.uploaderUserId===c.userId&&d.documentPurpose==='trade_license')||!!c.verifiedAt} className="underline ml-3 disabled:opacity-50" onClick={()=>{if(window.confirm('Confirm you opened and reviewed this company’s trade license and verified the details.'))action(()=>api.admin.verifyContractor(c.id),'Contractor verified after document review.');}}>Verify after document review</button></div>)}</div>
 
             <div className="bg-white border border-[#e1e7e4] rounded-[6px] overflow-hidden shadow-sm">
               <table className="w-full text-xs text-left">
@@ -470,7 +470,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                       <td className="py-3 px-4 text-[#63797b]">{v.tradeCategories.join(', ')}</td>
                       <td className="py-3 px-4">
                         <span className="text-white bg-[#123f47] px-2 py-0.5 rounded font-mono font-bold uppercase text-[10px]">
-                          {v.verificationStatus}<button className="block underline mt-2" onClick={()=>action(()=>api.admin.verifyVendor(v.id,'verified'),'Vendor verified after trade-license review.')}>Verify after document review</button>
+                          {v.verificationStatus}{documents.filter(d=>d.uploaderUserId===v.userId&&d.documentPurpose==='trade_license').map(d=><button key={d.id} className="block underline mt-2" onClick={()=>setInspectDoc(d)}>Review license: {d.fileName}</button>)}{!documents.some(d=>d.uploaderUserId===v.userId&&d.documentPurpose==='trade_license')&&<span className="block mt-2 text-red-700">Trade license document not uploaded</span>}<button disabled={!documents.some(d=>d.uploaderUserId===v.userId&&d.documentPurpose==='trade_license')||v.verificationStatus==='verified'} className="block underline mt-2 disabled:opacity-50" onClick={()=>{if(window.confirm('Confirm you opened and reviewed this company’s trade license and verified the details.'))action(()=>api.admin.verifyVendor(v.id,'verified'),'Vendor verified after trade-license review.');}}>Verify after document review</button>
                         </span>
                       </td>
                       <td className="py-3 px-4">

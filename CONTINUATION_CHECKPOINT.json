@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Live withdrawal synchronization: recalled/removed RFQs and quotations leave active Admin/Contractor/Vendor views automatically; Admin notices and private history preserved; all local/staging/live acceptance checks passed.",
+  "LAST_COMPLETED_TASK": "Trade license registration upload, contextual Admin review, real All Open RFQs filter, masked public RFQ summaries and consent-based verified business directory implemented locally.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -47,7 +47,10 @@
     "scripts/check-rfq-live-release.mjs",
     "deployment/RFQ-DOCUMENT-RELEASE-20261008.md"
   ],
-  "FILES_STILL_REQUIRING_WORK": [],
+  "FILES_STILL_REQUIRING_WORK": [
+    "Deployed staging API/browser onboarding and discovery gates",
+    "Backup and live release only after staging gates"
+  ],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
     "configuration_isolation": true,
@@ -98,7 +101,7 @@
   "KNOWN_FAILED_REQUIREMENTS": [],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Owner can reload existing tabs once to load the new release. Future recalls/removals update server eligibility immediately and visible dashboards automatically every five seconds. Preserve historical data and existing Advanced resources.",
+  "NEXT_EXACT_ACTION": "Deploy current candidate to existing Advanced staging resources; test genuine registration upload and Admin review plus Vendor/homepage discovery; preserve production pending staging acceptance.",
   "PRODUCTION_RESOURCES_TOUCHED": "Advanced live on both approved .com domains; legacy resources explicitly retired by owner authorization.",
   "Production Pages modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
   "Production Workers modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
@@ -227,5 +230,13 @@
     "liveLifecycleReadChecksPassed": 6,
     "temporaryStagingAccountsSuspended": 13,
     "fixtureMailSuppressed": true
+  },
+  "ONBOARDING_DISCOVERY": {
+    "status": "staging-validation",
+    "localFeatureChecksPassed": 35,
+    "localOperationsRegressionChecksPassed": 98,
+    "offlineDatabaseChecksPassed": 107,
+    "productionModified": false,
+    "migration": "0014_business_directory.sql"
   }
 }

@@ -1,4 +1,6 @@
-import React from 'react';
+import React,{useState} from 'react';
+import {api} from '../services/api.ts';
+import {useDashboardRefresh} from '../hooks/useDashboardRefresh.ts';
 import { ArrowUpRight } from 'lucide-react';
 
 interface HomePageProps {
@@ -6,6 +8,9 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
+  const [discovery,setDiscovery]=useState<any>(null),[discoveryError,setDiscoveryError]=useState('');
+  const refresh=async()=>{try{setDiscovery(await api.discovery());setDiscoveryError('');}catch{setDiscoveryError('Listings are temporarily unavailable. Please try again shortly.');}};
+  React.useEffect(()=>{refresh();},[]);useDashboardRefresh(refresh,true);
   return (
     <div className="bg-[#f7f6f2] text-[#123540] min-h-screen">
       {/* HERO SECTION — Matching live Urban Procures website */}
@@ -271,6 +276,10 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
             <ArrowUpRight className="w-4 h-4" />
           </button>
         </div>
+      </section>
+      <section className="max-w-[1240px] mx-auto px-4 sm:px-6 py-12 space-y-8">
+        <div><h2 className="text-2xl font-extrabold font-['Manrope']">Published RFQ opportunities</h2><p className="text-sm text-[#63797b]">Admin-approved opportunities. Sign in as a verified Vendor to review details and quote within your trade categories.</p>{discoveryError&&<p role="status">{discoveryError}</p>}<div className="grid md:grid-cols-3 gap-4 mt-4">{discovery?.rfqs.map((rfq:any)=><article key={rfq.referenceCode} className="bg-white border rounded p-5"><small>{rfq.referenceCode} · {rfq.category} · {rfq.emirate}</small><h3 className="font-bold mt-2">{rfq.title}</h3><p className="text-sm">Deadline: {new Date(rfq.submissionDeadline).toLocaleDateString()}</p><button className="text-[#eb6a32] underline mt-3" onClick={()=>onNavigate('/vendor')}>Sign in to view and quote</button></article>)}</div>{discovery&&discovery.rfqs.length===0&&<p className="mt-4">No open approved RFQs currently. New opportunities will appear here after Admin review.</p>}</div>
+        <div><h2 className="text-2xl font-extrabold font-['Manrope']">Verified business community</h2><p className="text-sm text-[#63797b]">Businesses verified by Admin that have chosen a public listing.</p><div className="grid md:grid-cols-2 gap-6 mt-4">{(['contractors','vendors'] as const).map(role=><div key={role}><h3 className="font-bold text-lg capitalize">{role}</h3>{discovery?.[role].map((business:any,i:number)=><article key={i} className="bg-white border rounded p-4 mt-3"><strong>{business.companyName}</strong><p className="text-sm">{business.emirate??business.emirates.join(', ')}{business.categories&&' · '+business.categories.join(', ')}</p><small>Admin verified</small></article>)}{discovery&&discovery[role].length===0&&<p className="mt-3 text-sm">Public listings will appear as verified businesses opt in.</p>}<button className="text-[#eb6a32] underline mt-4" onClick={()=>onNavigate('/'+(role==='vendors'?'vendor':'contractor'))}>Join as a {role==='vendors'?'Vendor':'Contractor'}</button></div>)}</div></div>
       </section>
     </div>
   );

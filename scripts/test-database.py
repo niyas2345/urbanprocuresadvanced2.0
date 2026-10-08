@@ -53,6 +53,7 @@ apply(legacy, (DBDIR / 'migrations' / '0010_admin_email_events.sql').read_text()
 apply(legacy, (DBDIR / 'migrations' / '0011_rfq_submission_controls.sql').read_text())
 apply(legacy, (DBDIR / 'migrations' / '0012_withdrawal_visibility.sql').read_text())
 apply(legacy, (DBDIR / 'migrations' / '0013_active_quotation_uniqueness.sql').read_text())
+apply(legacy, (DBDIR / 'migrations' / '0014_business_directory.sql').read_text())
 for table, names in columns(reference).items():
     verify(names <= columns(legacy).get(table, set()), 'Legacy upgrade missing columns in ' + table)
 verify(legacy.execute("SELECT password_hash,status FROM users WHERE id='legacy-vendor'").fetchone() == ('retained-hash','pending'), 'Unsalted legacy credentials must be preserved but inactive')
@@ -77,6 +78,7 @@ apply(snapshot, (DBDIR / 'migrations' / '0010_admin_email_events.sql').read_text
 apply(snapshot, (DBDIR / 'migrations' / '0011_rfq_submission_controls.sql').read_text())
 apply(snapshot, (DBDIR / 'migrations' / '0012_withdrawal_visibility.sql').read_text())
 apply(snapshot, (DBDIR / 'migrations' / '0013_active_quotation_uniqueness.sql').read_text())
+apply(snapshot, (DBDIR / 'migrations' / '0014_business_directory.sql').read_text())
 for table, count in old_counts.items():
     verify(snapshot.execute('SELECT count(*) FROM "' + table + '"').fetchone()[0] == count, 'Snapshot row count changed: ' + table)
 verify(columns(snapshot) == columns(reference), 'Snapshot upgrade must match canonical columns')

@@ -46,7 +46,7 @@ export async function procurementRoute(request:Request,env:Env,actor:Actor|null)
   const categories=JSON.parse(vendor.trade_categories) as string[];
   if(path==='/api/vendor/rfqs' && request.method==='GET') {
     const rows=await env.DB.prepare("SELECT * FROM rfqs WHERE deleted_at IS NULL AND status IN ('reviewed_published','receiving_quotations') AND submission_deadline>? ORDER BY created_at DESC").bind(new Date().toISOString()).all<any>();
-    const matching=rows.results.filter(r=>categories.includes(r.category));
+    const matching=new URL(request.url).searchParams.get('scope')==='all'?rows.results:rows.results.filter(r=>categories.includes(r.category));
     return Response.json({success:true,data:await Promise.all(matching.map(r=>rfqDto(env,r,true)))});
   }
   if(path==='/api/vendor/my-quotes' && request.method==='GET') {

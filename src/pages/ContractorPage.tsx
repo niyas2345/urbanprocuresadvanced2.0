@@ -1,3 +1,4 @@
+import {TradeLicenseInput,type LicenseFile} from '../components/TradeLicenseInput.tsx';
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
 import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
@@ -49,6 +50,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
 
   // Registration Form State
   const [regCompany, setRegCompany] = useState('');
+  const [regLicenseFile,setRegLicenseFile]=useState<LicenseFile|null>(null),[regLicenseBusy,setRegLicenseBusy]=useState(false),[regDirectory,setRegDirectory]=useState(false);
   const [regLicense, setRegLicense] = useState('');
   const [regEmirate, setRegEmirate] = useState('Dubai');
   const [regAddress, setRegAddress] = useState('');
@@ -169,6 +171,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError(null);
+    if(!regLicenseFile||regLicenseBusy){setRegError('Upload your trade license document before registering.');return;}
     if(!regAccepted || !regTerms){setRegError('Explicit acceptance of current Contractor Terms is required.');return;}
     if (!regCompany.trim() || !regLicense.trim() || !regEmail.trim() || !regPhone.trim() || !regContact.trim()) {
       setRegError('Please fill in all required company registration details.');
@@ -178,6 +181,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     setIsLoading(true);
     try {
       const res = await api.auth.registerContractor({
+        tradeLicenseDocument:regLicenseFile,listBusinessPublicly:regDirectory,
         companyName: regCompany.trim(),
         tradeLicenseNumber: regLicense.trim(),
         emirate: regEmirate,
@@ -194,7 +198,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
       setContractor(session.contractor);
       setSessionTerms(session.termsAccepted===true);
       setActiveTab('dashboard');
-      showToast(`Contractor organization "${regCompany}" successfully registered in D1!`, 'success', 'Account Created');
+      showToast(`Contractor organization "${regCompany}" registered. Trade license verification is pending.`, 'success', 'Account Created');
       await loadRfqs();
     } catch (err: any) {
       setRegError(err.message || 'Registration failed.');
@@ -441,6 +445,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
               </form>
             ) : (
               <form onSubmit={handleRegisterSubmit} className="space-y-4 text-xs">
+                <TradeLicenseInput onChange={setRegLicenseFile} onBusy={setRegLicenseBusy}/><label className="block"><input type="checkbox" checked={regDirectory} onChange={e=>setRegDirectory(e.target.checked)}/> List my company name and trade/emirate on the homepage after Admin verification (optional). Contact details and license files stay private.</label>
                 {regError && (
                   <div className="p-3 rounded bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
@@ -537,7 +542,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                 <TermsClickwrap role="contractor" checked={regAccepted} onChange={setRegAccepted} onDocument={setRegTerms}/>
                 <button
                   type="submit"
-                  disabled={!regAccepted || !regTerms || isLoading}
+                  disabled={!regAccepted || !regTerms || isLoading || regLicenseBusy || !regLicenseFile}
                   className="w-full disabled:opacity-50 bg-[#123540] hover:bg-[#082631] text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-all shadow-sm active:translate-y-0.5"
                 >
                   ACCEPT TERMS & COMPLETE REGISTRATION

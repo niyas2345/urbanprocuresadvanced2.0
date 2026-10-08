@@ -22,10 +22,15 @@ export async function storedUpload(env:Env,actor:Actor,file:any,rfqId:string|nul
 }
 export async function operationsRoute(request:Request,env:Env,actor:Actor|null):Promise<Response|null> {
  const path=new URL(request.url).pathname,method=request.method;
- if(!path.startsWith('/api/admin/') && !path.startsWith('/api/documents/') && !(path.startsWith('/api/contractor/rfqs')&&method!=='GET'))return null;
+ if(!path.startsWith('/api/account/') && !path.startsWith('/api/admin/') && !path.startsWith('/api/documents/') && !(path.startsWith('/api/contractor/rfqs')&&method!=='GET'))return null;
  if(!actor)return fail('AUTHENTICATION_REQUIRED',401);
  if(path.startsWith('/api/admin/') && actor.role!=='admin')return fail('ADMIN_REQUIRED',403);
  let body:any={};if(['POST','PUT','PATCH'].includes(method)){try{const raw=await request.text();if(raw.length>30000000)return fail('REQUEST_TOO_LARGE',413);body=JSON.parse(raw);if(!body||typeof body!=='object'||Array.isArray(body))return fail('INVALID_REQUEST');}catch{return fail('INVALID_REQUEST');}}
+ if(path==='/api/account/directory'&&method==='PATCH'){
+  if(!['contractor','vendor'].includes(actor.role))return fail('BUSINESS_ACCOUNT_REQUIRED',403);
+  if(typeof body.visible!=='boolean')return fail('INVALID_DIRECTORY_CONSENT');
+  const table=actor.role==='vendor'?'vendors':'contractors';await env.DB.batch([env.DB.prepare(`UPDATE ${table} SET directory_visible=? WHERE user_id=?`).bind(body.visible?1:0,actor.id),audit(env,actor,'DIRECTORY_CONSENT','user',actor.id,{visible:body.visible})]);return ok({visible:body.visible});
+ }
  const editMatch=path.match(/^\/api\/contractor\/rfqs\/([^/]+)$/);
  if((path==='/api/contractor/rfqs'&&method==='POST')||(editMatch&&method==='PUT')) {
   if(actor.role!=='contractor')return fail('CONTRACTOR_REQUIRED',403);
