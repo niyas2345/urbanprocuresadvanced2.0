@@ -1,3 +1,4 @@
+import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import React, { useState } from 'react';
 import { TermsClickwrap, type TermsDocument } from '../components/TermsClickwrap.tsx';
 import { api } from '../services/api.ts';
@@ -23,7 +24,8 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
   const [description, setDescription] = useState('');
   const [budgetBracket, setBudgetBracket] = useState('AED 20,000 - 50,000');
   const [siteVisitRequested, setSiteVisitRequested] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<{ file: File; dataUrl?: string } | null>(null);
+  const [attachments,setAttachments]=useState<Attachment[]>([]);
+  const [filesBusy,setFilesBusy]=useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   const [consent,setConsent]=useState(false);
@@ -33,23 +35,9 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
   const [submittedRequest, setSubmittedRequest] = useState<PublicQuoteRequest | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedFile({
-          file,
-          dataUrl: reader.result as string,
-        });
-        showToast(`Document "${file.name}" attached successfully`, 'info');
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(isSubmitting||filesBusy)return;
     setFormError(null);
     if(!consent || !consentTerms){setFormError('Please affirmatively accept the Get a Quote Terms and Privacy Notice.');return;}
 
@@ -60,18 +48,6 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
 
     setIsSubmitting(true);
     try {
-      const attachments = selectedFile
-        ? [
-            {
-              fileName: selectedFile.file.name,
-              fileType: selectedFile.file.type || 'application/pdf',
-              fileSizeBytes: selectedFile.file.size,
-              documentPurpose: 'drawing' as const,
-              dataUrl: selectedFile.dataUrl,
-            },
-          ]
-        : [];
-
       const res = await api.quotes.createPublic({
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
@@ -169,7 +145,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
               onClick={() => {
                 setSubmittedRequest(null);
                 setDescription('');
-                setSelectedFile(null);
+                setAttachments([]);
               }}
               className="bg-[#123540] hover:bg-[#082631] text-white font-bold py-3 px-6 rounded-[5px] text-xs transition-colors"
             >
@@ -377,52 +353,7 @@ export const GetAQuotePage: React.FC<GetAQuotePageProps> = ({ onNavigate }) => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#123540] mb-1">
-                  Upload Photos or Layout Drawings (Optional)
-                </label>
-                <div className="border border-dashed border-[#bccbca] hover:border-[#eb6a32] rounded-[5px] p-4 text-center cursor-pointer transition-colors bg-[#f7f6f2]">
-                  <input
-                    type="file"
-                    id="quote-file"
-                    className="hidden"
-                    accept="image/png,image/jpeg,.pdf"
-                    onChange={handleFileChange}
-                  />
-                  {selectedFile ? (
-                    <div className="flex items-center justify-between p-2 bg-white rounded border border-[#e1e7e4]">
-                      <div className="flex items-center gap-2 text-left truncate">
-                        <Upload className="w-4 h-4 text-[#eb6a32] shrink-0" />
-                        <div className="truncate">
-                          <span className="text-xs font-bold text-[#123540] block truncate">
-                            {selectedFile.file.name}
-                          </span>
-                          <span className="text-[11px] text-[#63797b]">
-                            {(selectedFile.file.size / 1024).toFixed(1)} KB · Ready to upload
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setSelectedFile(null);
-                        }}
-                        className="p-1 text-[#63797b] hover:text-[#b91c1c] hover:bg-[#f7f6f2] rounded transition-colors"
-                        title="Remove file"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ) : (
-                    <label htmlFor="quote-file" className="cursor-pointer block">
-                      <Upload className="w-5 h-5 text-[#63797b] mx-auto mb-1" />
-                      <span className="text-xs text-[#63797b] block font-medium">
-                        Click to upload photos, architectural sketches or drawings (Max 25MB)
-                      </span>
-                    </label>
-                  )}
-                </div>
+                <DocumentAttachments id="quote-file" files={attachments} onChange={setAttachments} onBusy={setFilesBusy} disabled={isSubmitting||filesBusy}/>
               </div>
             </div>
           </div>

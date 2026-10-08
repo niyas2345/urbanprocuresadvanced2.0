@@ -98,6 +98,10 @@ export interface DocumentMetadata {
 }
 
 export interface RFQ {
+  quotesCount?:number;
+  manpowerPersons?:number;
+  manpowerHoursPerPersonPerDay?:number;
+  manpowerDays?:number;
   id: string;
   referenceCode: string;
   contractorId: string;
@@ -138,6 +142,7 @@ export interface QuotationItem {
 }
 
 export interface Quotation {
+  pricingMode?: 'itemized'|'total'|'file';
   id: string;
   referenceCode: string;
   rfqId: string;

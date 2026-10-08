@@ -1,6 +1,7 @@
+import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
 import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api.ts';
 import { TermsClickwrap, TermsReacceptance, type TermsDocument } from '../components/TermsClickwrap.tsx';
 import { RFQ, Quotation, VendorProfile, User } from '../types/index.ts';
@@ -53,7 +54,9 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   const [quotePaymentTerms, setQuotePaymentTerms] = useState('');
   const [quoteNotes, setQuoteNotes] = useState('');
   const [itemRates, setItemRates] = useState<Record<string, number>>({});
-  const [quoteAttachment, setQuoteAttachment] = useState<File | null>(null);
+  const [quoteAttachments,setQuoteAttachments]=useState<Attachment[]>([]);
+  const [filesBusy,setFilesBusy]=useState(false),[pricingMode,setPricingMode]=useState<'itemized'|'total'|'file'>('itemized'),[packageTotal,setPackageTotal]=useState('');
+  const quoteLock=useRef(false);
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
 
   const refreshVendor=async()=>{
@@ -69,6 +72,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
 
   // Calculate total quote amount from item rates
   const calculateTotal = (rfq: RFQ) => {
+    if(pricingMode!=='itemized')return Number(packageTotal)||0;
     return rfq.items.reduce((sum, item) => {
       const rate = itemRates[item.id] || 0;
       return sum + rate * item.quantity;
@@ -90,14 +94,14 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   };
 
   const handleQuotationSubmit=async(e:React.FormEvent)=>{
-    e.preventDefault();setQuoteError(null);if(!selectedRfq||!vendor)return;
+    e.preventDefault();if(quoteLock.current||filesBusy)return;setQuoteError(null);if(!selectedRfq||!vendor)return;
     if(!hasAcceptedTerms){setTermsModalOpen(true);return;}
-    setIsSubmittingQuote(true);
+    quoteLock.current=true;setIsSubmittingQuote(true);
     try{
-      const attachments=quoteAttachment?[{fileName:quoteAttachment.name,fileType:quoteAttachment.type,documentPurpose:'other',dataUrl:await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result as string);reader.onerror=()=>reject(Error('File could not be read'));reader.readAsDataURL(quoteAttachment);})}]:[];
-      await api.vendor.submitQuote(selectedRfq.id,{attachments,leadTimeDays:Number(quoteLeadTime),validityDays:Number(quoteValidity),paymentTerms:quotePaymentTerms,notes:quoteNotes,items:selectedRfq.items.map(item=>({rfqItemId:item.id,unitRateAed:itemRates[item.id]||0}))});
+      const attachments=quoteAttachments;
+      await api.vendor.submitQuote(selectedRfq.id,{attachments,pricingMode,totalAmountAed:Number(packageTotal),leadTimeDays:Number(quoteLeadTime),validityDays:Number(quoteValidity),paymentTerms:quotePaymentTerms,notes:quoteNotes,items:selectedRfq.items.map(item=>({rfqItemId:item.id,unitRateAed:itemRates[item.id]||0}))});
       await refreshVendor();setSelectedRfq(null);setActiveTab('my_quotes');showToast('Quotation saved.','success');
-    }catch(err:any){setQuoteError(err.message);}finally{setIsSubmittingQuote(false);}
+    }catch(err:any){setQuoteError(err.message);}finally{quoteLock.current=false;setIsSubmittingQuote(false);}
   };
   if(isVendorLoggedIn && (!hasAcceptedTerms||termsModalOpen))return <TermsReacceptance role="vendor" onAccepted={()=>{setTermsModalOpen(false);refreshVendor();}}/>;
 
@@ -471,7 +475,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                                     setTermsModalOpen(true);
                                     return;
                                   }
-                                  setSelectedRfq(rfq);
+                                  setSelectedRfq(rfq);setPricingMode('itemized');setPackageTotal('');setQuoteAttachments([]);setItemRates({});setQuoteError(null);
                                 }}
                                 className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2 rounded-[5px] text-xs flex items-center gap-1.5 transition-colors shadow-sm active:translate-y-0.5"
                               >
@@ -586,7 +590,9 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
 
                 {/* Quotation Submission Form */}
                 <form onSubmit={handleQuotationSubmit} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 sm:p-8 shadow-[0_9px_25px_rgba(25,60,65,0.05)] space-y-6">
-                  <div>
+                  <label className="block text-xs font-semibold">Quotation method<select aria-label="Quotation method" value={pricingMode} onChange={e=>setPricingMode(e.target.value as typeof pricingMode)} className="block border border-[#bccbca] p-2 mt-2 rounded"><option value="itemized">Item-by-item pricing</option><option value="total">Total package amount</option><option value="file">Upload quotation file with total</option></select></label>
+                  {pricingMode!=='itemized'&&<label className="block text-xs font-semibold">Total quotation amount (AED)<input aria-label="Total quotation amount (AED)" type="number" required min="0.01" step="0.01" value={packageTotal} onChange={e=>setPackageTotal(e.target.value)} className="block border border-[#bccbca] p-2 mt-2 rounded"/></label>}
+                  {pricingMode==='itemized'&&<div>
                     <h3 className="text-base font-extrabold text-[#123540] font-['Manrope'] mb-1">
                       Itemized Quotation Pricing (Bill of Quantities)
                     </h3>
@@ -656,8 +662,10 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                         </tfoot>
                       </table>
                     </div>
-                  </div>
+                  </div>}
 
+                  <DocumentAttachments files={quoteAttachments} onChange={setQuoteAttachments} onBusy={setFilesBusy} disabled={isSubmittingQuote||filesBusy} label={pricingMode==='file'?'Quotation file (required)':'Quotation and supporting files (optional)'}/>
+                  <p className="text-xs text-[#63797b]">Quotation attachments are reviewed for identity protection before they are released to the contractor.</p>
                   {/* Commercial Terms */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div>
@@ -729,10 +737,10 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                     </button>
                     <button
                       type="submit"
-                      disabled={isSubmittingQuote}
+                      disabled={isSubmittingQuote||filesBusy}
                       className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-6 py-2.5 rounded-[5px] text-xs shadow-sm transition-all active:translate-y-0.5"
                     >
-                      {isSubmittingQuote ? 'Submitting...' : 'Submit Itemized Quotation'}
+                      {isSubmittingQuote ? 'Submitting...' : pricingMode==='itemized'?'Submit Itemized Quotation':pricingMode==='file'?'Submit Quotation File':'Submit Total Quotation'}
                     </button>
                   </div>
                 </form>

@@ -1,6 +1,7 @@
+import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
 import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { TermsClickwrap, TermsReacceptance, type TermsDocument } from '../components/TermsClickwrap.tsx';
 import { api } from '../services/api.ts';
 import { RFQ, Quotation, ContractorProfile, User } from '../types/index.ts';
@@ -67,7 +68,11 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
   const [newScope, setNewScope] = useState('');
   const [boqItems, setBoqItems] = useState([{description:'',quantity:1,unit:'nos',specifications:''}]);
   const [manpowerPersons,setManpowerPersons]=useState(''),[manpowerHours,setManpowerHours]=useState(''),[manpowerDays,setManpowerDays]=useState('1');
-  const [attachedFiles, setAttachedFiles] = useState<{ name: string; type: string; size: number; dataUrl?: string }[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<Attachment[]>([]);
+  const [boqMode,setBoqMode]=useState<'itemized'|'file'>('itemized');
+  const [filesBusy,setFilesBusy]=useState(false),[isSubmittingRfq,setIsSubmittingRfq]=useState(false),[rfqActionBusy,setRfqActionBusy]=useState(false);
+  const submitLock=useRef(false),creationKey=useRef(crypto.randomUUID());
+  const startNewRfq=()=>{if(submitLock.current)return;creationKey.current=crypto.randomUUID();setEditingRfqId(null);setNewTitle('');setNewProject('');setNewScope('');setNewDeadline('');setNewBudget('');setNewTargetCompletion('');setBoqMode('itemized');setBoqItems([{description:'',quantity:1,unit:'nos',specifications:''}]);setAttachedFiles([]);setRfqError(null);setActiveTab('create_rfq');};
 
   // Load RFQs from Real D1 Backend
   const loadRfqs = useCallback(async () => {
@@ -207,38 +212,29 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     setBoqItems(boqItems.filter((_, idx) => idx !== index));
   };
 
-  // File Upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.onload = () => {
-        setAttachedFiles([
-          ...attachedFiles,
-          {
-            name: file.name,
-            type: file.type || 'application/pdf',
-            size: file.size,
-            dataUrl: reader.result as string,
-          },
-        ]);
-        showToast(`Document "${file.name}" attached successfully`, 'info');
-      };
-      reader.readAsDataURL(file);
-    }
+  const changeRfq=async(rfq:RFQ,action:'recall'|'cancel'|'remove')=>{
+    if(rfqActionBusy)return;
+    if(!window.confirm(action==='recall'?'Recall this submitted RFQ to draft for editing?':action==='remove'?'Remove this RFQ from your dashboard and stop new quotations? Its audit history will be retained.':'Cancel this RFQ and stop new quotations?'))return;
+    setRfqActionBusy(true);
+    try{if(action==='remove')await api.contractor.removeRfq(rfq.id);else await api.contractor.changeStatus(rfq.id,action==='recall'?'draft':'cancelled');await loadRfqs();setActiveTab('dashboard');showToast('RFQ '+(action==='recall'?'recalled to draft':action==='remove'?'removed':'cancelled')+'.','success');}
+    catch(err:any){showToast(err.message||'RFQ could not be changed.','error');}finally{setRfqActionBusy(false);}
   };
 
   // Submit RFQ
   const handleCreateRfqSubmit = async (e: React.FormEvent, isDraft: boolean = false) => {
     e.preventDefault();
+    if(submitLock.current||filesBusy)return;
     setRfqError(null);
     if (!newTitle.trim() || !newProject.trim() || !newScope.trim()) {
       setRfqError('Please fill in title, project name, and scope description.');
       return;
     }
 
+    if(boqMode==='file'&&!attachedFiles.some(f=>f.documentPurpose==='boq')&&!rfqs.find(r=>r.id===editingRfqId)?.documents?.some(d=>d.documentPurpose==='boq')){setRfqError('Attach your BOQ and select BOQ as its purpose.');return;}
+    submitLock.current=true;setIsSubmittingRfq(true);
     try {
       const data = {
+        creationKey:creationKey.current,boqMode,
         title: newTitle.trim(),
         category: newCategory,
         projectName: newProject.trim(),
@@ -257,14 +253,9 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
           unit: item.unit,
           specifications: item.specifications,
         })),
-        documents: attachedFiles.map((f) => ({
-          fileName: f.name,
-          fileType: f.type,
-          fileSizeBytes: f.size,
-          documentPurpose: 'drawing' as const,
-          dataUrl: f.dataUrl,
-        })),
+        documents: attachedFiles,
       };
+      if(editingRfqId){for(const f of attachedFiles)await api.documents.upload({...f,data:f.dataUrl,rfqId:editingRfqId});setAttachedFiles([]);}
       const created=editingRfqId?await api.contractor.updateRfq(editingRfqId,{...data,documents:[]}):await api.contractor.createRfq(data);setEditingRfqId(null);
 
       await loadRfqs();
@@ -278,7 +269,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     } catch (err: any) {
       setRfqError(err.message || 'Failed to create RFQ');
       showToast(err.message || 'Failed to create RFQ', 'error');
-    }
+    } finally {submitLock.current=false;setIsSubmittingRfq(false);}
   };
 
   // Confirm Award
@@ -342,7 +333,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
             {isContractorLoggedIn ? (
               <>
                 <button
-                  onClick={() => {setEditingRfqId(null);setActiveTab('create_rfq');}}
+                  onClick={startNewRfq} disabled={isSubmittingRfq}
                   className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2.5 rounded-[5px] text-xs flex items-center gap-1.5 transition-all shadow-sm active:translate-y-0.5"
                 >
                   <Plus className="w-4 h-4" />
@@ -640,7 +631,10 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                                 {rfq.status.replace('_', ' ')}
                               </span>
 
-                              {rfq.status==='draft'&&<button className="text-xs underline" onClick={()=>{setEditingRfqId(rfq.id);setNewTitle(rfq.title);setNewCategory(rfq.category);setNewProject(rfq.projectName);setNewEmirate(rfq.locationEmirate);setNewDeadline(rfq.submissionDeadline.slice(0,10));setNewScope(rfq.scopeDescription);setNewBudget(String(rfq.estimatedBudgetAed??''));setBoqItems(rfq.items.map(i=>({description:i.description,quantity:i.quantity,unit:i.unit,specifications:i.specifications??''})));setAttachedFiles([]);setActiveTab('create_rfq');}}>Edit Draft</button>}
+                              {rfq.status==='submitted'&&!(rfq.quotesCount??0)&&<button disabled={rfqActionBusy} type="button" className="text-xs underline" onClick={()=>changeRfq(rfq,'recall')}>Recall to Draft</button>}
+                              {!['awarded','closed','cancelled'].includes(rfq.status)&&<button disabled={rfqActionBusy} type="button" className="text-xs underline" onClick={()=>changeRfq(rfq,'cancel')}>Cancel RFQ</button>}
+                              {!['awarded','closed'].includes(rfq.status)&&<button disabled={rfqActionBusy} type="button" className="text-xs underline text-red-700" onClick={()=>changeRfq(rfq,'remove')}>Remove RFQ</button>}
+                              {rfq.status==='draft'&&<button className="text-xs underline" onClick={()=>{setBoqMode('itemized');setManpowerPersons(String(rfq.manpowerPersons??''));setManpowerHours(String(rfq.manpowerHoursPerPersonPerDay??''));setManpowerDays(String(rfq.manpowerDays??1));setEditingRfqId(rfq.id);setNewTitle(rfq.title);setNewCategory(rfq.category);setNewProject(rfq.projectName);setNewEmirate(rfq.locationEmirate);setNewDeadline(rfq.submissionDeadline.slice(0,10));setNewScope(rfq.scopeDescription);setNewBudget(String(rfq.estimatedBudgetAed??''));setBoqItems(rfq.items.map(i=>({description:i.description,quantity:i.quantity,unit:i.unit,specifications:i.specifications??''})));setAttachedFiles([]);setActiveTab('create_rfq');}}>Edit Draft</button>}
                               <button
                                 onClick={() => {
                                   setSelectedRfqId(rfq.id);
@@ -875,7 +869,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
 
                           {/* Line items pricing breakdown */}
                           <div className="mb-4 p-3 bg-[#f7f6f2] rounded border border-[#e1e7e4] text-xs">
-                            <span className="font-bold text-[#123540] block mb-2 font-['Manrope']">Itemized Unit Rates:</span>
+                            <span className="font-bold text-[#123540] block mb-2 font-['Manrope']">{quote.pricingMode==='total'?'Total package quotation':quote.pricingMode==='file'?'Uploaded quotation — package total':'Itemized Unit Rates:'}</span>
                             <div className="space-y-1 text-[11px]">
                               {quote.items.map((item, idx) => (
                                 <div key={item.id} className="flex justify-between text-[#63797b]">
@@ -1084,8 +1078,10 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                     </div>
                   </div>
 
+                  <label className="block text-sm font-semibold">BOQ method<select aria-label="BOQ method" value={boqMode} onChange={e=>setBoqMode(e.target.value as 'itemized'|'file')} className="block border border-[#bccbca] p-2 mt-2 rounded"><option value="itemized">Enter line items</option><option value="file">Upload BOQ — price as a complete package</option></select></label>
+                  {boqMode==='file'&&<p className="text-xs">Attach the PDF or Excel BOQ below and choose BOQ as its purpose. Vendors can enter a total or attach their quotation with a total. Documents are not automatically converted into rows.</p>}
                   {/* Bill of Quantities Items Builder */}
-                  <div>
+                  {boqMode==='itemized'&&<div>
                     <div className="flex items-center justify-between pb-2 border-b border-[#e1e7e4] mb-4">
                       <h3 className="text-sm font-bold text-[#123540] uppercase tracking-wider font-['Manrope']">
                         2. Bill of Quantities (BoQ Line Items)
@@ -1178,42 +1174,15 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </div>}
 
                   {/* Drawings & Document Attachments */}
                   <div>
                     <h3 className="text-sm font-bold text-[#123540] uppercase tracking-wider pb-2 border-b border-[#e1e7e4] mb-3 font-['Manrope']">
                       3. Technical Drawings & Specification Files
                     </h3>
-                    <div className="border border-dashed border-[#bccbca] hover:border-[#eb6a32] rounded-[5px] p-6 text-center cursor-pointer transition-colors bg-[#f7f6f2]">
-                      <input
-                        type="file"
-                        id="rfq-files"
-                        accept="application/pdf,image/png,image/jpeg"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                      />
-                      <label htmlFor="rfq-files" className="cursor-pointer block">
-                        <FileText className="w-6 h-6 text-[#63797b] mx-auto mb-2" />
-                        <span className="text-xs font-bold text-[#123540] block">
-                          Click to attach architectural drawings, BoQ sheets, or specifications
-                        </span>
-                        <span className="text-[11px] text-[#63797b] block mt-0.5">
-                          Supported formats: PDF, PNG, JPEG (Max 3MB each, 3 files)
-                        </span>
-                      </label>
-                    </div>
-
-                    {attachedFiles.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                        {attachedFiles.map((f, i) => (
-                          <span key={i} className="bg-white border border-[#e1e7e4] px-3 py-1 rounded-[4px] font-semibold text-[#123540] flex items-center gap-1.5 shadow-sm">
-                            <FileText className="w-3.5 h-3.5 text-[#eb6a32]" />
-                            {f.name} ({(f.size / 1024).toFixed(0)} KB)
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                    <DocumentAttachments id="rfq-files" files={attachedFiles} onChange={setAttachedFiles} onBusy={setFilesBusy} disabled={isSubmittingRfq}/>
+                    {editingRfqId&&<p className="text-xs mt-2">Previously uploaded documents remain attached to this draft.</p>}
                   </div>
 
                   {rfqError && (
@@ -1234,13 +1203,13 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
                     </button>
                     <button
                       type="button"
-                      onClick={(e) => handleCreateRfqSubmit(e, true)}
+                      disabled={isSubmittingRfq||filesBusy} onClick={(e) => handleCreateRfqSubmit(e, true)}
                       className="px-5 py-2.5 rounded-[5px] border border-[#123540] text-xs font-bold text-[#123540] hover:bg-white"
                     >
                       Save as Draft
                     </button>
                     <button
-                      type="submit"
+                      type="submit" disabled={isSubmittingRfq||filesBusy}
                       className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-6 py-2.5 rounded-[5px] text-xs shadow-sm transition-all"
                     >
                       Submit RFQ for Review

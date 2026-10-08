@@ -94,6 +94,8 @@ export const api = {
 
   // Contractor
   contractor: {
+    changeStatus:async(id:string,status:string)=>request(`/contractor/rfqs/${id}/status`,{method:'PATCH',body:JSON.stringify({status})}),
+    removeRfq:async(id:string)=>request(`/contractor/rfqs/${id}`,{method:'DELETE'}),
     getRfqs: async () => {
       const res = await request('/contractor/rfqs');
       return res.data;

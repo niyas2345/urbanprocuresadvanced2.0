@@ -17,9 +17,9 @@ export const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ docume
   useEffect(()=>{let url='',cancelled=false;setPreview('');setError('');if(document?.id){fetch(`/api/documents/${document.id}/view`,{headers:{Authorization:'Bearer '+(getAuthToken()||'')}}).then(async res=>{if(!res.ok)throw Error('Document access failed');url=URL.createObjectURL(await res.blob());if(!cancelled)setPreview(url);else URL.revokeObjectURL(url);}).catch(err=>{if(!cancelled)setError(err.message);});}else if(document?.dataUrl)setPreview(document.dataUrl);return()=>{cancelled=true;if(url)URL.revokeObjectURL(url);};},[document?.id]);
   if (!document) return null;
 
-  const isPdf = document.fileType?.includes('pdf') || document.fileName.endsWith('.pdf');
-  const isDwg = document.fileType?.includes('acad') || document.fileName.endsWith('.dwg') || document.fileName.endsWith('.dxf');
-  const isSheet = document.fileType?.includes('spreadsheet') || document.fileName.endsWith('.xlsx') || document.fileName.endsWith('.xls') || document.fileName.endsWith('.csv');
+  const isPdf = document.fileType?.includes('pdf') || document.fileName.toLowerCase().endsWith('.pdf');
+  const isDwg = document.fileType?.includes('acad') || document.fileName.toLowerCase().endsWith('.dwg') || document.fileName.toLowerCase().endsWith('.dxf');
+  const isSheet = document.fileType?.includes('spreadsheet') || document.fileName.toLowerCase().endsWith('.xlsx') || document.fileName.toLowerCase().endsWith('.xls') || document.fileName.toLowerCase().endsWith('.csv');
   const isImage = document.fileType?.includes('image') || document.fileName.match(/\.(jpg|jpeg|png|webp|svg)$/i);
 
   const formatBytes = (bytes: number) => {
