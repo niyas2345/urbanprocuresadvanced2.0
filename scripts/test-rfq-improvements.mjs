@@ -63,7 +63,7 @@ try{
   const listing=(await call(`/api/contractor/rfqs/${rfq.id}/quotations`,null,c.token)).body.data;verify(listing[0].pricingMode===mode&&listing[0].items.length===(mode==='itemized'?1:0),mode+' comparison has truthful pricing method');
   if(mode==='file'){verify(listing[0].documents.length===0,'Unreviewed quotation identity not exposed');const own=(await call('/api/vendor/my-quotes',null,v.token)).body.data.find(q=>q.id===quote.body.data.id);const doc=own.documents[0];verify((await call(`/api/admin/documents/${doc.id}/release`,{identityReviewConfirmed:true},adminToken)).status===200,'Quotation identity review');verify((await call(`/api/documents/${doc.id}/download`,null,c.token)).status===200,'Contractor downloads reviewed quotation');}
   verify((await call(`/api/contractor/rfqs/${rfq.id}/status`,{status:'draft'},c.token,'PATCH')).status===409,'Published quoted RFQ cannot recall');
-  const award=await call(`/api/contractor/rfqs/${rfq.id}/award`,{quotationId:quote.body.data.id},c.token);verify(award.status===200,mode+' award works');
+  const award=await call(`/api/contractor/rfqs/${rfq.id}/award`,{quotationId:quote.body.data.id},c.token);verify(award.status===200,mode+' award works');verify((await call(`/api/vendor/quotations/${quote.body.data.id}/recall`,{},v.token)).status===409,'Awarded quotation cannot recall');
   const own=(await call('/api/vendor/my-quotes',null,v.token)).body.data.find(q=>q.id===quote.body.data.id);verify(own.serviceCharge.total_charge_aed===500,mode+' minimum Service Charge applies');
   verify((await call(`/api/contractor/rfqs/${rfq.id}`,null,c.token,'DELETE')).status===409,'Awarded RFQ cannot remove');
  }
@@ -83,6 +83,10 @@ try{
  verify((await call('/api/admin/documents/history',null,adminToken)).body.data.some(d=>d.id===quoteDoc),'Withdrawn quotation document preserved in Admin history');
  verify((await call(`/api/vendor/quotations/${quoteId}/remove`,{},v.token)).status===200,'Vendor removes recalled quotation');
  verify(!(await call('/api/vendor/my-quotes',null,v.token)).body.data.some(q=>q.id===quoteId),'Removed quotation hidden from Vendor active dashboard');
+ const replacementPayload={pricingMode:'total',totalAmountAed:2100,items:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA'};
+ const replacement=await call(`/api/vendor/rfqs/${withdrawalRfq.id}/quote`,replacementPayload,v.token);
+ verify(replacement.status===201&&replacement.body.data.id!==quoteId,'Vendor can submit replacement after recall/removal; history preserved');
+ verify((await call(`/api/vendor/rfqs/${withdrawalRfq.id}/quote`,replacementPayload,v.token)).status===409,'Second active quotation remains blocked');
  verify((await call(`/api/contractor/rfqs/${withdrawalRfq.id}`,null,c.token,'DELETE')).status===200,'Contractor removes published RFQ');
  verify(!(await call('/api/admin/rfqs',null,adminToken)).body.data.some(r=>r.id===withdrawalRfq.id),'Removed RFQ absent from Admin active list');
  verify(!(await call('/api/admin/documents',null,adminToken)).body.data.some(d=>d.rfqId===withdrawalRfq.id),'Removed RFQ documents absent from Admin active inspector');
@@ -94,6 +98,6 @@ try{
  report.status='passed';report.completedAt=new Date().toISOString();console.log(JSON.stringify({checksPassed:report.checks.length,staging,productionModified:false,outboundMessagesSent:false}));
 }catch(error){report.status='failed';report.failure=error.message;throw error;}finally{
  if(staging&&adminToken)for(const id of report.temporaryUserIds)await call(`/api/admin/users/${id}/status`,{status:'suspended'},adminToken,'PATCH');
- if(staging)await writeFile('deployment/rfq-improvements-staging-20261008.json',JSON.stringify(report,null,2)+'\n');
+ if(staging)await writeFile(process.env.STAGING_TEST_REPORT??'deployment/rfq-improvements-staging-20261008.json',JSON.stringify(report,null,2)+'\n');
  if(browser)await browser.close();if(mf)await mf.dispose();
 }

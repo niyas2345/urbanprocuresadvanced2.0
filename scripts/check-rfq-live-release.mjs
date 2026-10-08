@@ -3,6 +3,8 @@ import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {chromium} from 'playwright-core';
 const before=process.argv.includes('--before-release');
+const reportPrefix=process.argv.includes('--report-prefix')?process.argv[process.argv.indexOf('--report-prefix')+1]:'rfq-improvements';
+if(!/^[a-z-]+$/.test(reportPrefix))throw Error('Invalid report prefix');
 const report={phase:before?'before-release':'after-release',checks:[],failures:[],businessRowsModified:false,testEmailsSent:false};
 const verify=(value,label)=>{assert.ok(value,label);report.checks.push(label);};
 const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY}});
@@ -24,4 +26,4 @@ try{
  },{email:process.env.ADMIN_BOOTSTRAP_EMAIL,password:process.env.ADMIN_INITIAL_PASSWORD});
  verify(check.admin&&check.loginStatus===200,'Existing production owner password authenticates');verify(check.results.every(r=>r.status===200&&r.success),'Live Admin reads existing business records');report.status='passed';
 }catch(error){report.status='failed';report.failures.push(error.message);process.exitCode=1;}
-finally{await browser.close();report.checkedAt=new Date().toISOString();await writeFile('deployment/rfq-improvements-live-'+(before?'preflight':'release')+'-20261008.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({phase:report.phase,status:report.status,checksPassed:report.checks.length,failures:report.failures,businessRowsModified:false,testEmailsSent:false}));}
+finally{await browser.close();report.checkedAt=new Date().toISOString();await writeFile('deployment/'+reportPrefix+'-live-'+(before?'preflight':'release')+'-20261008.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({phase:report.phase,status:report.status,checksPassed:report.checks.length,failures:report.failures,businessRowsModified:false,testEmailsSent:false}));}

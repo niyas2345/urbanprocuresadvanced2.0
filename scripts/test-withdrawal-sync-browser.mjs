@@ -1,0 +1,47 @@
+import assert from 'node:assert/strict';
+import {randomBytes} from 'node:crypto';
+import {writeFile} from 'node:fs/promises';
+import {chromium} from 'playwright-core';
+import {stagingAdminCredentials} from './staging-admin-credentials.mjs';
+const origin='https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev';
+const runId=randomBytes(6).toString('hex'),password=randomBytes(24).toString('base64url');
+const report={origin,runId,checks:[],temporaryUserIds:[],rfqIds:[],failures:[],productionModified:false,outboundMessagesSent:false};
+const verify=(condition,label)=>{assert.ok(condition,label);report.checks.push(label);};
+const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox'],proxy:{server:process.env.HTTPS_PROXY||process.env.HTTP_PROXY}});
+const apiPage=await browser.newPage();await apiPage.goto(origin);
+const call=(path,body,token,method=body?'POST':'GET')=>apiPage.evaluate(async({path,body,token,method})=>{const response=await fetch(path,{method,credentials:'omit',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},...(body?{body:JSON.stringify(body)}:{})});return {status:response.status,body:await response.json()};},{path,body,token,method});
+let adminToken;
+const login=async(role,email,loginPassword)=>{const ctx=await browser.newContext(),page=await ctx.newPage();page.on('dialog',d=>d.accept());await page.goto(origin+'/'+role);await page.locator('form input[type=email]').fill(email);await page.locator('form input[type=password]').fill(loginPassword);await page.locator('form button').filter({hasText:/Sign In|Login/}).last().click();await page.getByRole('button',{name:role==='admin'?'Refresh Records':role==='contractor'?/^Dashboard \(/:/Discover RFQ Tenders/}).waitFor();verify(true,role+' genuine browser login');return page;};
+try{
+ const admin=await stagingAdminCredentials();const auth=await call('/api/auth/login',{email:admin.adminEmail,password:admin.adminPassword});verify(auth.status===200,'Staging administrator authenticated');adminToken=auth.body.token;
+ const register=async(role)=>{const terms=(await call('/api/terms?role='+role)).body.data;const email='qa-lifecycle-'+runId+'-'+role+'@example.invalid';const result=await call('/api/auth/register-'+role,{companyName:'QA lifecycle organization '+runId,tradeLicenseNumber:'QA-'+runId,emirate:'Dubai',address:'QA',contactPerson:'QA',contactPhone:'+971500000001',email,password,tradeCategories:['Joinery & Carpentry'],emiratesServiced:['Dubai'],acceptTerms:true,termsVersionId:terms.id});verify(result.status===201,role+' isolated registration');report.temporaryUserIds.push(result.body.user.id);return {...result.body,email};};
+ const c=await register('contractor'),v=await register('vendor');
+ const fileName='lifecycle-rfq-'+runId+'.pdf',quoteName='lifecycle-quotation-'+runId+'.pdf';
+ const attachment=name=>({fileName:name,fileType:'application/pdf',dataUrl:'data:application/pdf;base64,'+Buffer.from('%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF').toString('base64'),documentPurpose:'boq'});
+ await call('/api/documents/upload',{...attachment('license-'+runId+'.pdf'),documentPurpose:'trade_license'},v.token);
+ verify((await call(`/api/admin/vendors/${v.vendor.id}/verification`,{status:'verified'},adminToken,'PATCH')).status===200,'Vendor genuinely verified for isolated QA');
+ const title='QA lifecycle '+runId;const created=await call('/api/contractor/rfqs',{title,category:'Joinery & Carpentry',projectName:'QA',locationEmirate:'Dubai',scopeDescription:'Sanitized QA',submissionDeadline:'2099-01-01',status:'submitted',items:[{description:'Door',quantity:2,unit:'nos'}],documents:[attachment(fileName)]},c.token);verify(created.status===201,'Submitted RFQ with private document');const rfq=created.body.data;report.rfqIds.push(rfq.id);
+ const adminPage=await login('admin',admin.adminEmail,admin.adminPassword),contractor=await login('contractor',c.email,password),vendor=await login('vendor',v.email,password);
+ await adminPage.getByText(fileName,{exact:true}).waitFor();
+ const card=contractor.locator('div').filter({has:contractor.getByText(title,{exact:true})}).filter({has:contractor.getByRole('button',{name:'Recall to Draft',exact:true})}).last();
+ await card.getByRole('button',{name:'Recall to Draft',exact:true}).click();await adminPage.getByText(fileName,{exact:true}).waitFor({state:'hidden',timeout:12000});verify(true,'Open Admin inspector removes recalled RFQ file without refresh');
+ await adminPage.getByText(rfq.referenceCode+' recalled to draft by Contractor.',{exact:false}).waitFor({timeout:12000});verify(true,'Open Admin console receives recall notification');
+ verify((await call(`/api/contractor/rfqs/${rfq.id}/status`,{status:'submitted'},c.token,'PATCH')).status===200,'Recalled RFQ resubmitted');
+ await call(`/api/admin/documents/${rfq.documents[0].id}/release`,{identityReviewConfirmed:true},adminToken);
+ await call(`/api/admin/rfqs/${rfq.id}/publish`,{identityReviewConfirmed:true},adminToken);
+ await vendor.getByText(title,{exact:true}).waitFor({timeout:12000});verify(true,'Open Vendor discovery sees newly published RFQ without reload');
+ const quotation=await call(`/api/vendor/rfqs/${rfq.id}/quote`,{pricingMode:'file',totalAmountAed:2000,items:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA',attachments:[attachment(quoteName)]},v.token);verify(quotation.status===201,'Quotation with document created');
+ await adminPage.getByText(quoteName,{exact:true}).waitFor({timeout:12000});
+ await vendor.getByRole('button',{name:'My Quotations',exact:true}).click();await vendor.getByRole('button',{name:'Recall quotation',exact:true}).waitFor({timeout:12000});
+ await contractor.getByRole('button',{name:'Review & Compare Bids',exact:true}).click();await contractor.getByText('Uploaded quotation — package total',{exact:true}).waitFor({timeout:12000});
+ await vendor.getByRole('button',{name:'Recall quotation',exact:true}).click();await contractor.getByText('Uploaded quotation — package total',{exact:true}).waitFor({state:'hidden',timeout:12000});verify(true,'Open Contractor comparison removes recalled quotation automatically');
+ await adminPage.getByText(quoteName,{exact:true}).waitFor({state:'hidden',timeout:12000});verify(true,'Open Admin inspector removes recalled quotation attachment automatically');
+ await vendor.getByRole('button',{name:'Remove quotation',exact:true}).click();await vendor.getByText(quotation.body.data.referenceCode,{exact:true}).waitFor({state:'hidden',timeout:12000});verify(true,'Vendor removal control hides recalled quotation');
+ await vendor.getByRole('button',{name:/Discover RFQ Tenders/}).click();await vendor.getByText(title,{exact:true}).waitFor();
+ await contractor.getByRole('button',{name:/^Dashboard \(/}).click();await contractor.getByRole('button',{name:'Remove RFQ',exact:true}).click();
+ await vendor.getByText(title,{exact:true}).waitFor({state:'hidden',timeout:12000});verify(true,'Open Vendor discovery removes withdrawn published RFQ without reload');
+ await adminPage.getByText(fileName,{exact:true}).waitFor({state:'hidden',timeout:12000});verify(true,'Open Admin inspector removes published RFQ files automatically');
+ await adminPage.getByLabel('Show history (includes recalled/removed records)').check();await adminPage.getByText(fileName,{exact:true}).waitFor();await adminPage.getByText(quoteName,{exact:true}).waitFor();verify(true,'History preserves withdrawn documents');verify(await adminPage.getByRole('button',{name:'Approve identity-safe release',exact:true}).count()===0,'History has no stale release actions');
+ report.status='passed';
+}catch(error){report.status='failed';report.failures.push(error.message);process.exitCode=1;}
+finally{if(adminToken)for(const id of report.temporaryUserIds)await call(`/api/admin/users/${id}/status`,{status:'suspended'},adminToken,'PATCH');report.completedAt=new Date().toISOString();await browser.close();await writeFile('deployment/withdrawal-sync-browser-20261008.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({status:report.status,checksPassed:report.checks.length,failures:report.failures,productionModified:false}));}

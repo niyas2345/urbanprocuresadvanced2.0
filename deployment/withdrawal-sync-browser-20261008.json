@@ -1,0 +1,38 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "runId": "6d898333f240",
+  "checks": [
+    "Staging administrator authenticated",
+    "contractor isolated registration",
+    "vendor isolated registration",
+    "Vendor genuinely verified for isolated QA",
+    "Submitted RFQ with private document",
+    "admin genuine browser login",
+    "contractor genuine browser login",
+    "vendor genuine browser login",
+    "Open Admin inspector removes recalled RFQ file without refresh",
+    "Open Admin console receives recall notification",
+    "Recalled RFQ resubmitted",
+    "Open Vendor discovery sees newly published RFQ without reload",
+    "Quotation with document created",
+    "Open Contractor comparison removes recalled quotation automatically",
+    "Open Admin inspector removes recalled quotation attachment automatically",
+    "Vendor removal control hides recalled quotation",
+    "Open Vendor discovery removes withdrawn published RFQ without reload",
+    "Open Admin inspector removes published RFQ files automatically",
+    "History preserves withdrawn documents",
+    "History has no stale release actions"
+  ],
+  "temporaryUserIds": [
+    "64d1c699-ae0e-4f85-bb01-22c994afe328",
+    "43c811b0-ab3c-4ab1-bff0-7032cd4be3c8"
+  ],
+  "rfqIds": [
+    "1a2be9ec-edd3-4f02-b9ef-c46629461920"
+  ],
+  "failures": [],
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "status": "passed",
+  "completedAt": "2026-10-08T09:06:16.860Z"
+}

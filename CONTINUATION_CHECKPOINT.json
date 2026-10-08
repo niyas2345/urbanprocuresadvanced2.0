@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Live RFQ recall/removal, idempotent submission, optional PDF/Excel/CAD/image documents across all three portals, attached BOQ packages and itemized/total/file quotation modes. Deployed after staging QA; both domains, existing owner login, preserved business records and runtime bindings verified.",
+  "LAST_COMPLETED_TASK": "Withdrawal synchronization staging acceptance: 123 deployed feature checks and 20 multi-session browser checks passed. Live preflight and private database backup restoration passed.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -47,7 +47,9 @@
     "scripts/check-rfq-live-release.mjs",
     "deployment/RFQ-DOCUMENT-RELEASE-20261008.md"
   ],
-  "FILES_STILL_REQUIRING_WORK": [],
+  "FILES_STILL_REQUIRING_WORK": [
+    "Production release after final staging API gate"
+  ],
   "TESTS_PASSED": {
     "repository_origin_boundary": true,
     "configuration_isolation": true,
@@ -91,7 +93,7 @@
   "KNOWN_FAILED_REQUIREMENTS": [],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Production launch and requested legacy retirement complete. Preserve the pinned Advanced release and secret bindings. Future fixes must use Advanced versions only; no legacy fallback exists.",
+  "NEXT_EXACT_ACTION": "Wait for final staging API check; verify and preserve live business rows; deploy withdrawal fix to existing Advanced production Worker only; verify both domains and quarantine staging fixtures.",
   "PRODUCTION_RESOURCES_TOUCHED": "Advanced live on both approved .com domains; legacy resources explicitly retired by owner authorization.",
   "Production Pages modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
   "Production Workers modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
@@ -200,5 +202,19 @@
     "productionReadOnlyReleaseChecksPassed": 14,
     "existingProductionBusinessRecordsPreserved": true,
     "temporaryStagingAccountsQuarantined": 14
+  },
+  "WITHDRAWAL_SYNCHRONIZATION": {
+    "status": "staging-passed-ready-for-production",
+    "sourceCommit": "10b90aa",
+    "migrations": [
+      "0012_withdrawal_visibility.sql",
+      "0013_active_quotation_uniqueness.sql"
+    ],
+    "localFeatureChecksPassed": 122,
+    "stagingMultiSessionBrowserChecksPassed": 20,
+    "productionModified": false,
+    "stagingFeatureChecksPassed": 123,
+    "offlineDatabaseChecksPassed": 104,
+    "wranglerMigrationStatementsChecked": 126
   }
 }
