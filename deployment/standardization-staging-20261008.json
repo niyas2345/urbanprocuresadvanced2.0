@@ -1,6 +1,6 @@
 {
   "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
-  "runId": "51b30986ff91",
+  "runId": "b7ce277c9ae0",
   "checks": [
     "Genuine staging QA Admin login",
     "contractor fixture registered with private license",
@@ -13,6 +13,8 @@
     "Generated PDF branding replaces source company and contacts",
     "RFQ technical description, quantity and fire rating retained",
     "Only inspected platform copy approved",
+    "Unreviewed customer identity omitted from Vendor title and overview",
+    "Public RFQ headings disclose no raw customer title",
     "Vendor downloads exact approved derivative, never original",
     "Download filename contains only platform reference",
     "Quotation letterhead uploaded privately: 201 undefined",
@@ -37,22 +39,22 @@
     "vendor portal home renders real activity totals"
   ],
   "temporaryUserIds": [
-    "c70a4bb4-07aa-49f7-b66d-e01d32812fdf",
-    "eeb1b93f-f771-4d4e-9ada-53a835087a2b"
+    "b66eb2a1-d359-48df-9a53-8ef8b6e6e0c8",
+    "315f8aea-0798-4b81-a72e-203f741eeacf"
   ],
   "rfqIds": [
-    "a15c2cc5-25b3-4421-b9f3-33a1d9abc24f",
-    "8bc602f3-3c9e-4bee-87a0-3021831a8587"
+    "5625e8bb-d8b0-4bc0-8039-b546e53fba8b",
+    "275e9a0d-29de-43f2-a74d-220a9a1ab646"
   ],
   "documentIds": [
-    "1e667150-cf36-446f-b7b9-64eaca2fa680",
-    "2f327084-a99c-410c-9eeb-7bac39345ed8",
-    "b0193614-1d16-4fdb-9e0d-c5674af9e6e7",
-    "1fbb57c1-e237-4709-832b-d29983c94d58"
+    "d315c7a2-3395-4593-bd87-12a98141a059",
+    "0c2827c2-a73b-4ba1-84fa-7b614279ce7f",
+    "08dcc9d1-5575-46b0-b29c-065d180e92eb",
+    "2e517ccd-5787-4828-b29b-212ea03f353e"
   ],
   "realAIInvoked": true,
   "productionModified": false,
   "outboundMessagesSent": false,
   "status": "passed",
-  "completedAt": "2026-10-08T21:18:19.446Z"
+  "completedAt": "2026-10-08T21:41:22.629Z"
 }
