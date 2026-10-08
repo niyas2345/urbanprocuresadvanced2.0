@@ -130,7 +130,7 @@ export interface RFQ {
   };
 }
 
-export type QuotationStatus = 'submitted' | 'under_review' | 'shortlisted' | 'awarded' | 'declined';
+export type QuotationStatus = 'withdrawn' | 'submitted' | 'under_review' | 'shortlisted' | 'awarded' | 'declined';
 
 export interface QuotationItem {
   id: string;

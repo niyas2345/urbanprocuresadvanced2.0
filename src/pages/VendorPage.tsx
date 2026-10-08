@@ -1,6 +1,7 @@
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
 import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
+import {useDashboardRefresh} from '../hooks/useDashboardRefresh.ts';
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api.ts';
 import { TermsClickwrap, TermsReacceptance, type TermsDocument } from '../components/TermsClickwrap.tsx';
@@ -63,11 +64,13 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
     const session=await api.auth.me();
     if(!session.authenticated || session.user.role!=='vendor'){setCurrentUser(null);setVendor(null);return;}
     setCurrentUser(session.user);setVendor(session.vendor);setHasAcceptedTerms(session.termsAccepted===true);
-    setDataError('');setEligibleRfqs([]);setMyQuotations([]);
-    if(session.termsAccepted)try{setEligibleRfqs(await api.vendor.getMatchingRfqs());setMyQuotations(await api.vendor.getMyQuotes());}catch(err:any){setDataError(err.message);}
+    setDataError('');
+    if(session.termsAccepted)try{const matching=await api.vendor.getMatchingRfqs();setEligibleRfqs(matching);setSelectedRfq(previous=>previous?matching.find((r:RFQ)=>r.id===previous.id)??null:null);setMyQuotations(await api.vendor.getMyQuotes());}catch(err:any){setDataError(err.message);}
   };
   useEffect(()=>{refreshVendor().catch(err=>setDataError(err.message));},[]);
   const isVendorLoggedIn=currentUser?.role==='vendor';
+  useDashboardRefresh(refreshVendor,isVendorLoggedIn&&hasAcceptedTerms);
+  const withdrawQuote=async(id:string,action:'recall'|'remove')=>{if(!window.confirm(action==='recall'?'Recall this quotation? It will be withdrawn from comparison.':'Remove this quotation? Its audit history will be retained.'))return;try{await api.vendor.withdrawQuote(id,action);await refreshVendor();showToast('Quotation withdrawn. Admin and Contractor views will update.','success');}catch(e:any){showToast(e.message,'error');}};
   const matchingRfqs=eligibleRfqs;
 
   // Calculate total quote amount from item rates
@@ -801,6 +804,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                             </div>
                           </div>
 
+                          {!isAwarded&&rfq&&!['awarded','closed'].includes(rfq.status)&&<div className="flex gap-4 pt-3"><span>{quote.status==='withdrawn'?'Recalled / withdrawn':quote.status}</span>{quote.status!=='withdrawn'&&<button onClick={()=>withdrawQuote(quote.id,'recall')} className="underline">Recall quotation</button>}<button onClick={()=>withdrawQuote(quote.id,'remove')} className="underline">Remove quotation</button></div>}
                           {/* POST-AWARD UNMASKED CONTRACTOR CONTACT CARD */}
                           {isAwarded && contractor && (
                             <div className="my-4 p-4 rounded-[6px] bg-[#eef6f5] border border-[#123f47]/30 text-xs space-y-2">

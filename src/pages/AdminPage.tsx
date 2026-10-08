@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import {useDashboardRefresh} from '../hooks/useDashboardRefresh.ts';
+import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api.ts';
 import { AdminTermsPanel } from '../components/AdminTermsPanel.tsx';
 import { RFQ, PublicQuoteRequest, DocumentMetadata, AuditEvent, InvitationRecord, User } from '../types/index.ts';
@@ -27,11 +28,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
   const [rfqs,setRfqs]=useState<RFQ[]>([]),[publicQuotes,setPublicQuotes]=useState<PublicQuoteRequest[]>([]),[contractors,setContractors]=useState<any[]>([]),[vendors,setVendors]=useState<any[]>([]),[users,setUsers]=useState<User[]>([]),[documents,setDocuments]=useState<DocumentMetadata[]>([]),[auditEvents,setAuditEvents]=useState<AuditEvent[]>([]),[invitations,setInvitations]=useState<InvitationRecord[]>([]);
   const [authorized,setAuthorized]=useState(false),[error,setError]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[charges,setCharges]=useState<any[]>([]),[awards,setAwards]=useState<any[]>([]),[quotations,setQuotations]=useState<any[]>([]);
+  const [showHistory,setShowHistory]=useState(false),[notices,setNotices]=useState<any[]>([]);
   const load=async()=>{try{const session=await api.auth.me();if(!session.authenticated||session.user.role!=='admin'){setAuthorized(false);return;}
-    const data=await Promise.all([api.admin.getRfqs(),api.admin.getPublicQuotes(),api.admin.getContractors(),api.admin.getVendors(),api.admin.getUsers(),api.admin.getDocuments(),api.admin.getAuditLogs(),api.admin.getInvitations(),api.admin.getServiceCharges(),api.admin.getAwards(),api.admin.getQuotations()]);
-    setRfqs(data[0]);setPublicQuotes(data[1]);setContractors(data[2]);setVendors(data[3]);setUsers(data[4]);setDocuments(data[5]);setAuditEvents(data[6]);setInvitations(data[7]);setCharges(data[8]);setAwards(data[9]);setQuotations(data[10]);setAuthorized(true);setError('');
+    const data=await Promise.all([(showHistory?api.admin.getRfqHistory():api.admin.getRfqs()),api.admin.getPublicQuotes(),api.admin.getContractors(),api.admin.getVendors(),api.admin.getUsers(),(showHistory?api.admin.getDocumentHistory():api.admin.getDocuments()),api.admin.getAuditLogs(),api.admin.getInvitations(),api.admin.getServiceCharges(),api.admin.getAwards(),api.admin.getQuotations(showHistory),api.admin.getNotifications()]);
+    setNotices(data[11]);setRfqs(data[0]);setPublicQuotes(data[1]);setContractors(data[2]);setVendors(data[3]);setUsers(data[4]);setDocuments(data[5]);setAuditEvents(data[6]);setInvitations(data[7]);setCharges(data[8]);setAwards(data[9]);setQuotations(data[10]);setAuthorized(true);setError('');
   }catch(err:any){setError(err.message);}};
-  useEffect(()=>{load();},[activeSection]);
+  useEffect(()=>{load();},[activeSection,showHistory]);
+  const revisionRef=useRef<number|null>(null);
+  useDashboardRefresh(async()=>{const revision=await api.admin.getRevision();if(revisionRef.current!==revision){await load();revisionRef.current=revision;}},authorized);
   const action=async(task:()=>Promise<any>,message:string)=>{try{await task();await load();showToast(message,'success');}catch(err:any){showToast(err.message,'error');}};
   const handleApproveRfq=(id:string)=>{if(window.confirm('Confirm that all RFQ text and BoQ have been reviewed and contain no protected identity or contact information.'))action(()=>api.admin.publishRfq(id),'RFQ approved and published.');};
   const handleSendInvite=(e:React.FormEvent)=>{e.preventDefault();showToast('Zoho Mail delivery is not configured. No invitation was sent.','error');};
@@ -41,6 +45,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#123540] pb-16 font-['DM_Sans']">
+      {notices.length>0&&<aside className="p-4 border-b bg-[#fff5eb]" aria-label="Withdrawal notifications"><strong>Recent withdrawal notices</strong>{notices.slice(0,5).map(n=><p key={n.id}>{n.message} <small>{new Date(n.createdAt).toLocaleString()}</small></p>)}</aside>}
       {/* Top Banner (Approved Design) */}
       <div className="bg-[#123f47] text-white py-8 px-4 sm:px-6 lg:px-8 border-b border-[#0e3037]">
         <div className="max-w-[1240px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -168,7 +173,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
           </button>
         </div>
 
-<div className="flex gap-4 mb-4 text-xs"><button className="underline" onClick={load}>Refresh Records</button><button className="underline" onClick={async()=>{await api.auth.logout();setAuthorized(false);setPassword('');}}>Sign Out</button>{error&&<p role="alert">{error}</p>}</div>
+<div className="flex gap-4 mb-4 text-xs"><button className="underline" onClick={load}>Refresh Records</button> <label className="ml-4"><input type="checkbox" checked={showHistory} onChange={e=>setShowHistory(e.target.checked)}/> Show history (includes recalled/removed records)</label> <small className="ml-4">Updates automatically every 5 seconds.</small><button className="underline" onClick={async()=>{await api.auth.logout();setAuthorized(false);setPassword('');}}>Sign Out</button>{error&&<p role="alert">{error}</p>}</div>
         {/* SECTION 1: DOCUMENT INSPECTOR (Solves the legacy bug where admin could only see counters) */}
         <button onClick={()=>setActiveSection('terms')} className="mb-5 px-4 py-2 bg-[#123f47] text-white text-xs font-bold rounded-[5px]">Terms Acceptance Evidence</button>
         {activeSection === 'terms' && <AdminTermsPanel/>}
@@ -237,7 +242,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                             <Eye className="w-3.5 h-3.5 text-[#eb6a32]" />
                             <span>Open & Review</span>
                           </button>
-                          {doc.rfqId&&doc.documentPurpose!=='trade_license'&&<button className="block underline text-xs mt-2" onClick={()=>{if(window.confirm('Confirm this document contains no protected identity or contact information.'))action(()=>api.admin.releaseDocument(doc.id),'Document released to eligible Vendors.');}}>Approve identity-safe release</button>}
+                          {!showHistory&&doc.rfqId&&doc.documentPurpose!=='trade_license'&&<button className="block underline text-xs mt-2" onClick={()=>{if(window.confirm('Confirm this document contains no protected identity or contact information.'))action(()=>api.admin.releaseDocument(doc.id),'Document released to eligible Vendors.');}}>Approve identity-safe release</button>}
                         </td>
                       </tr>
                     ))}

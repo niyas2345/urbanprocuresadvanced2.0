@@ -1,6 +1,7 @@
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
 import {AccountDocuments} from '../components/AccountDocuments.tsx';
 import {PasswordRecovery} from '../components/PasswordRecovery.tsx';
+import {useDashboardRefresh} from '../hooks/useDashboardRefresh.ts';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { TermsClickwrap, TermsReacceptance, type TermsDocument } from '../components/TermsClickwrap.tsx';
 import { api } from '../services/api.ts';
@@ -99,6 +100,7 @@ export const ContractorPage: React.FC<ContractorPageProps> = ({ onNavigate }) =>
     }
   }, []);
 
+  useDashboardRefresh(async()=>{await loadRfqs();if(selectedRfqId)await loadQuotations(selectedRfqId);},!!currentUser&&sessionTerms);
   // Check auth on mount
   useEffect(() => {
     async function checkAuth() {

@@ -34,6 +34,7 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     throw new Error(envelope.error || 'Server request failed');
   }
 
+  if(options.method&&options.method!=='GET')window.dispatchEvent(new Event('urbanprocures:updated'));
   return data as T;
 }
 
@@ -122,6 +123,7 @@ export const api = {
 
   // Vendor
   vendor: {
+    withdrawQuote:(id:string,action:'recall'|'remove')=>request(`/vendor/quotations/${id}/${action}`,{method:'POST',body:'{}'}),
     getMatchingRfqs: async () => {
       const res = await request('/vendor/rfqs');
       return res.data;
@@ -144,6 +146,10 @@ export const api = {
 
   // Admin
   admin: {
+    getRevision:async()=>{const res=await request('/admin/revision');return res.data.revision;},
+    getNotifications:async()=>{const res=await request('/admin/notifications');return res.data;},
+    getDocumentHistory:async()=>{const res=await request('/admin/documents/history');return res.data;},
+    getRfqHistory:async()=>{const res=await request('/admin/rfqs/history');return res.data;},
     getPublicQuotes: async () => {
       const res = await request('/admin/public-quotes');
       return res.data;
@@ -159,7 +165,7 @@ export const api = {
       return res.data;
     },
     getAwards:async()=>{const res=await request('/admin/awards');return res.data;},
-    getQuotations:async()=>{const res=await request('/admin/quotations');return res.data;},
+    getQuotations:async(history=false)=>{const res=await request(history?'/admin/quotations/history':'/admin/quotations');return res.data;},
     verifyContractor:(id:string)=>request(`/admin/contractors/${id}/verification`,{method:'PATCH',body:JSON.stringify({verified:true})}),
     releaseDocument:(id:string)=>request(`/admin/documents/${id}/release`,{method:'POST',body:JSON.stringify({identityReviewConfirmed:true})}),
     verifyVendor: (id:string,status:string) => request(`/admin/vendors/${id}/verification`,{method:'PATCH',body:JSON.stringify({status})}),

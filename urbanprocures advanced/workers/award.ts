@@ -13,7 +13,7 @@ export async function awardRoute(request:Request,env:Env,actor:Actor|null):Promi
   const rfq=await env.DB.prepare('SELECT * FROM rfqs WHERE id=? AND contractor_id=?').bind(match[1],contractor?.id||'').first<any>();
   if(!rfq)return Response.json({success:false,error:'RFQ_NOT_FOUND'},{status:404});
   if(!['receiving_quotations','under_evaluation'].includes(rfq.status))return Response.json({success:false,error:'INVALID_AWARD_STATE'},{status:409});
-  const quote=await env.DB.prepare("SELECT q.*,v.user_id FROM vendor_quotes q JOIN vendors v ON v.id=q.vendor_id JOIN users u ON u.id=v.user_id WHERE q.id=? AND q.rfq_id=? AND q.status IN ('submitted','shortlisted','under_review') AND v.verification_status='verified' AND u.status='active'").bind(body.quotationId,rfq.id).first<any>();
+  const quote=await env.DB.prepare("SELECT q.*,v.user_id FROM vendor_quotes q JOIN vendors v ON v.id=q.vendor_id JOIN users u ON u.id=v.user_id WHERE q.id=? AND q.rfq_id=? AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL AND q.status IN ('submitted','shortlisted','under_review') AND v.verification_status='verified' AND u.status='active'").bind(body.quotationId,rfq.id).first<any>();
   if(!quote)return Response.json({success:false,error:'ELIGIBLE_QUOTATION_REQUIRED'},{status:409});
   if(Date.now()>Date.parse(quote.submitted_at)+quote.validity_days*86400000)return Response.json({success:false,error:'QUOTATION_EXPIRED'},{status:409});
   const vendorActor={id:quote.user_id,email:'',role:'vendor',status:'active'};
@@ -30,8 +30,8 @@ export async function awardRoute(request:Request,env:Env,actor:Actor|null):Promi
       env.DB.prepare(`INSERT INTO awards (id,rfq_id,quotation_id,contractor_id,vendor_id,contract_amount_aed,calculated_service_charge_aed,awarded_at,contact_details_released_at,vendor_terms_acceptance_id,award_type,applicable_charge_rule,contractor_service_charge_aed,vendor_terms_version,manpower_quantity,manpower_unit,manpower_charge_aed,calculated_at,manpower_persons,manpower_hours_per_person_per_day,manpower_days,manpower_rate_aed)
       SELECT ?,r.id,q.id,r.contractor_id,q.vendor_id,q.total_amount_aed,?,?,?,?,?,?,0,?,?,?,?,?,?,?,?,?
       FROM rfqs r JOIN vendor_quotes q ON q.rfq_id=r.id JOIN vendors v ON v.id=q.vendor_id JOIN users u ON u.id=v.user_id
-      WHERE r.id=? AND r.contractor_id=? AND q.id=? AND r.status IN ('receiving_quotations','under_evaluation')
-      AND q.status IN ('submitted','shortlisted','under_review') AND v.verification_status='verified' AND u.status='active'
+      WHERE r.id=? AND r.contractor_id=? AND q.id=? AND r.deleted_at IS NULL AND r.status IN ('receiving_quotations','under_evaluation')
+      AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL AND q.status IN ('submitted','shortlisted','under_review') AND v.verification_status='verified' AND u.status='active'
       AND q.total_amount_aed=? AND r.procurement_type=? AND r.approved_manpower_quantity IS ? AND r.manpower_persons IS ? AND r.manpower_hours_per_person_per_day IS ? AND r.manpower_days IS ?
       AND EXISTS(SELECT 1 FROM terms_acceptance_evidence e JOIN terms_versions t ON t.id=e.terms_version_id
         WHERE e.acceptance_id=? AND e.user_id=u.id AND t.status IN ('published','retired')

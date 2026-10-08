@@ -7,16 +7,16 @@ import { organizationFor, acceptanceFor } from './terms.ts';
 export async function rfqDto(env:Env,rfq:any,forVendor=false) {
   if(forVendor){const identity=await env.DB.prepare('SELECT c.company_name,c.contact_person,c.contact_phone,c.trade_license_number,c.address,u.email FROM contractors c JOIN users u ON u.id=c.user_id WHERE c.id=?').bind(rfq.contractor_id).first<Record<string,unknown>>();rfq={...rfq,title:maskedText(rfq.title,identity),scope_description:maskedText(rfq.scope_description,identity)};
     const rows=await env.DB.prepare('SELECT id,description,specifications FROM rfq_items WHERE rfq_id=?').bind(rfq.id).all<any>();rfq.maskedItems=new Map(rows.results.map(i=>[i.id,{description:maskedText(i.description,identity),specifications:maskedText(i.specifications,identity)}]));}
-  const count=await env.DB.prepare('SELECT count(*) AS count FROM vendor_quotes WHERE rfq_id=?').bind(rfq.id).first<{count:number}>();
+  const count=await env.DB.prepare('SELECT count(*) AS count FROM vendor_quotes WHERE withdrawn_at IS NULL AND deleted_at IS NULL AND rfq_id=?').bind(rfq.id).first<{count:number}>();
   const rows=await env.DB.prepare('SELECT id,item_number,description,quantity,unit,specifications FROM rfq_items WHERE rfq_id=? ORDER BY item_number').bind(rfq.id).all<any>();
   const docs=await env.DB.prepare('SELECT id,file_name,file_type,file_size_bytes,document_purpose,sha256_hash,created_at FROM rfq_documents WHERE rfq_id=? AND quotation_id IS NULL'+(forVendor?' AND vendor_access_approved=1':'')).bind(rfq.id).all<any>();
   const documents=docs.results.map(d=>({id:d.id,fileName:forVendor?`Document ${d.id.slice(0,8)}.${d.file_name.split('.').pop()}`:d.file_name,fileType:d.file_type,fileSizeBytes:d.file_size_bytes,documentPurpose:d.document_purpose,sha256Hash:d.sha256_hash,createdAt:d.created_at}));
-  return {id:rfq.id,quotesCount:forVendor?undefined:count?.count,manpowerPersons:rfq.manpower_persons,manpowerHoursPerPersonPerDay:rfq.manpower_hours_per_person_per_day,manpowerDays:rfq.manpower_days,totalPersonHours:rfq.approved_manpower_quantity,procurementType:rfq.procurement_type,referenceCode:rfq.reference_code,title:rfq.title,category:rfq.category,projectName:forVendor?rfq.reference_code:rfq.project_name,locationEmirate:rfq.location_emirate,submissionDeadline:rfq.submission_deadline,scopeDescription:rfq.scope_description,status:rfq.status,createdAt:rfq.created_at,contractorDisplayName:`Client #${rfq.reference_code}`,items:rows.results.map(item=>({id:item.id,itemNumber:item.item_number,description:rfq.maskedItems?.get(item.id)?.description??item.description,quantity:item.quantity,unit:item.unit,specifications:rfq.maskedItems?.get(item.id)?.specifications??item.specifications})),documents,estimatedBudgetAed:forVendor?undefined:rfq.estimated_budget_aed};
+  return {id:rfq.id,quotesCount:forVendor?undefined:count?.count,manpowerPersons:rfq.manpower_persons,manpowerHoursPerPersonPerDay:rfq.manpower_hours_per_person_per_day,manpowerDays:rfq.manpower_days,totalPersonHours:rfq.approved_manpower_quantity,procurementType:rfq.procurement_type,referenceCode:rfq.reference_code,title:rfq.title,category:rfq.category,projectName:forVendor?rfq.reference_code:rfq.project_name,locationEmirate:rfq.location_emirate,submissionDeadline:rfq.submission_deadline,scopeDescription:rfq.scope_description,removedAt:rfq.deleted_at,status:rfq.status,createdAt:rfq.created_at,contractorDisplayName:`Client #${rfq.reference_code}`,items:rows.results.map(item=>({id:item.id,itemNumber:item.item_number,description:rfq.maskedItems?.get(item.id)?.description??item.description,quantity:item.quantity,unit:item.unit,specifications:rfq.maskedItems?.get(item.id)?.specifications??item.specifications})),documents,estimatedBudgetAed:forVendor?undefined:rfq.estimated_budget_aed};
 }
 async function quoteDto(env:Env,q:any,forVendor:boolean) {
   const items=await env.DB.prepare('SELECT * FROM quote_items WHERE quotation_id=?').bind(q.id).all<any>();
   const documents=await env.DB.prepare('SELECT id,file_name,file_type,file_size_bytes,document_purpose,created_at FROM rfq_documents WHERE quotation_id=?'+(forVendor?'':' AND (vendor_access_approved=1 OR EXISTS(SELECT 1 FROM awards WHERE quotation_id=rfq_documents.quotation_id))')).bind(q.id).all<any>();
-  const result:any={pricingMode:q.pricing_mode,notes:q.notes,documents:documents.results.map(d=>({id:d.id,fileName:forVendor?d.file_name:`Quotation ${d.id.slice(0,8)}.${d.file_name.split('.').pop()}`,fileType:d.file_type,fileSizeBytes:d.file_size_bytes,documentPurpose:d.document_purpose,createdAt:d.created_at})),id:q.id,referenceCode:q.reference_code,rfqId:q.rfq_id,totalAmountAed:q.total_amount_aed,leadTimeDays:q.lead_time_days,validityDays:q.validity_days,paymentTerms:q.payment_terms,status:q.status,submittedAt:q.submitted_at,vendorDisplayName:`Vendor #${q.reference_code}`,items:items.results.map(i=>({id:i.id,rfqItemId:i.rfq_item_id,unitRateAed:i.unit_rate_aed,totalPriceAed:i.total_price_aed}))};
+  const result:any={pricingMode:q.pricing_mode,notes:q.notes,documents:documents.results.map(d=>({id:d.id,fileName:forVendor?d.file_name:`Quotation ${d.id.slice(0,8)}.${d.file_name.split('.').pop()}`,fileType:d.file_type,fileSizeBytes:d.file_size_bytes,documentPurpose:d.document_purpose,createdAt:d.created_at})),id:q.id,referenceCode:q.reference_code,rfqId:q.rfq_id,totalAmountAed:q.total_amount_aed,leadTimeDays:q.lead_time_days,validityDays:q.validity_days,paymentTerms:q.payment_terms,withdrawnAt:q.withdrawn_at,removedAt:q.deleted_at,status:q.withdrawn_at?'withdrawn':q.status,submittedAt:q.submitted_at,vendorDisplayName:`Vendor #${q.reference_code}`,items:items.results.map(i=>({id:i.id,rfqItemId:i.rfq_item_id,unitRateAed:i.unit_rate_aed,totalPriceAed:i.total_price_aed}))};
   const award=await env.DB.prepare('SELECT id FROM awards WHERE rfq_id=? AND quotation_id=?').bind(q.rfq_id,q.id).first();
   if(!forVendor&&!award){const identity=await env.DB.prepare('SELECT v.company_name,v.contact_person,v.contact_phone,v.trade_license_number,u.email FROM vendors v JOIN users u ON u.id=v.user_id WHERE v.id=?').bind(q.vendor_id).first<Record<string,unknown>>();result.paymentTerms=maskedText(result.paymentTerms,identity);result.notes=maskedText(result.notes,identity);}
   if(award) {
@@ -37,7 +37,7 @@ export async function procurementRoute(request:Request,env:Env,actor:Actor|null)
   if(actor.role==='contractor' && match && request.method==='GET') {
     const owned=await env.DB.prepare('SELECT id FROM rfqs WHERE id=? AND contractor_id=?').bind(match[1],profile.id).first();
     if(!owned)return Response.json({success:false,error:'RFQ_NOT_FOUND'},{status:404});
-    const quotes=await env.DB.prepare('SELECT * FROM vendor_quotes WHERE rfq_id=?').bind(match[1]).all();
+    const quotes=await env.DB.prepare('SELECT * FROM vendor_quotes WHERE withdrawn_at IS NULL AND deleted_at IS NULL AND rfq_id=?').bind(match[1]).all();
     return Response.json({success:true,data:await Promise.all(quotes.results.map(q=>quoteDto(env,q,false)))});
   }
   if(actor.role!=='vendor' || !path.startsWith('/api/vendor/'))return null;
@@ -50,13 +50,22 @@ export async function procurementRoute(request:Request,env:Env,actor:Actor|null)
     return Response.json({success:true,data:await Promise.all(matching.map(r=>rfqDto(env,r,true)))});
   }
   if(path==='/api/vendor/my-quotes' && request.method==='GET') {
-    const quotes=await env.DB.prepare('SELECT * FROM vendor_quotes WHERE vendor_id=?').bind(profile.id).all<any>();
+    const quotes=await env.DB.prepare('SELECT * FROM vendor_quotes WHERE deleted_at IS NULL AND vendor_id=?').bind(profile.id).all<any>();
     const data=[];
     for(const q of quotes.results) {
       const rfq=await env.DB.prepare('SELECT * FROM rfqs WHERE id=?').bind(q.rfq_id).first();
       data.push({...await quoteDto(env,q,true),rfq:rfq?await rfqDto(env,rfq,true):null});
     }
     return Response.json({success:true,data});
+  }
+  const withdraw=path.match(/^\/api\/vendor\/quotations\/([^/]+)\/(recall|remove)$/);
+  if(withdraw && request.method==='POST') {
+    const now=new Date().toISOString(),revision=crypto.randomUUID(),removing=withdraw[2]==='remove';
+    const results=await env.DB.batch([
+      env.DB.prepare(`UPDATE vendor_quotes SET status='declined',withdrawn_at=coalesce(withdrawn_at,?),deleted_at=?,revision_nonce=? WHERE id=? AND vendor_id=? AND deleted_at IS NULL AND status<>'awarded' AND NOT EXISTS(SELECT 1 FROM awards WHERE rfq_id=vendor_quotes.rfq_id)`).bind(now,removing?now:null,revision,withdraw[1],profile.id),
+      env.DB.prepare(`INSERT INTO audit_logs(id,actor_user_id,actor_role,action_type,resource_type,resource_id,payload_json,timestamp) SELECT ?,?,'vendor',?,'quotation',id,'{}',? FROM vendor_quotes WHERE id=? AND revision_nonce=?`).bind(crypto.randomUUID(),actor.id,removing?'QUOTATION_REMOVE':'QUOTATION_RECALL',now,withdraw[1],revision)
+    ]);
+    return Response.json(results[0].meta.changes?{success:true,data:{id:withdraw[1],withdrawn:true,removed:removing}}:{success:false,error:'QUOTATION_NOT_WITHDRAWABLE'},{status:results[0].meta.changes?200:409});
   }
   const bid=path.match(/^\/api\/vendor\/rfqs\/([^/]+)\/quote$/);
   if(bid && ['POST','PUT'].includes(request.method)) {

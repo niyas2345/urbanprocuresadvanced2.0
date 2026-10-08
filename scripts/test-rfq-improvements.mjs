@@ -67,6 +67,29 @@ try{
   const own=(await call('/api/vendor/my-quotes',null,v.token)).body.data.find(q=>q.id===quote.body.data.id);verify(own.serviceCharge.total_charge_aed===500,mode+' minimum Service Charge applies');
   verify((await call(`/api/contractor/rfqs/${rfq.id}`,null,c.token,'DELETE')).status===409,'Awarded RFQ cannot remove');
  }
+ const withdrawalRfq=await create({documents:[pdf]});
+ await call(`/api/admin/rfqs/${withdrawalRfq.id}/publish`,{identityReviewConfirmed:true},adminToken);
+ const withdrawal=await call(`/api/vendor/rfqs/${withdrawalRfq.id}/quote`,{pricingMode:'file',totalAmountAed:100,items:[],leadTimeDays:2,validityDays:30,paymentTerms:'QA',attachments:[pdf]},v.token);
+ verify(withdrawal.status===201,'Withdrawal fixture quotation created');const quoteId=withdrawal.body.data.id;
+ const ownQuote=(await call('/api/vendor/my-quotes',null,v.token)).body.data.find(q=>q.id===quoteId),quoteDoc=ownQuote.documents[0].id;
+ await call(`/api/admin/documents/${quoteDoc}/release`,{identityReviewConfirmed:true},adminToken);
+ verify((await call(`/api/vendor/quotations/${quoteId}/recall`,{},c.token)).status>=400,'Contractor cannot recall Vendor quotation');
+ verify((await call(`/api/vendor/quotations/${quoteId}/recall`,{},v.token)).status===200,'Vendor recalls quotation');
+ verify(!(await call(`/api/contractor/rfqs/${withdrawalRfq.id}/quotations`,null,c.token)).body.data.some(q=>q.id===quoteId),'Recalled quotation absent from Contractor comparison');
+ verify((await call(`/api/contractor/rfqs/${withdrawalRfq.id}/award`,{quotationId:quoteId},c.token)).status===409,'Recalled quotation cannot be awarded');
+ verify((await call(`/api/documents/${quoteDoc}/download`,null,c.token)).status===404,'Withdrawn quotation documents no longer released to Contractor');
+ verify(!(await call('/api/admin/documents',null,adminToken)).body.data.some(d=>d.id===quoteDoc),'Withdrawn quotation document absent from active Admin inspector');
+ verify((await call(`/api/admin/documents/${quoteDoc}/release`,{identityReviewConfirmed:true},adminToken)).status===404,'Withdrawn document release rejected');
+ verify((await call('/api/admin/documents/history',null,adminToken)).body.data.some(d=>d.id===quoteDoc),'Withdrawn quotation document preserved in Admin history');
+ verify((await call(`/api/vendor/quotations/${quoteId}/remove`,{},v.token)).status===200,'Vendor removes recalled quotation');
+ verify(!(await call('/api/vendor/my-quotes',null,v.token)).body.data.some(q=>q.id===quoteId),'Removed quotation hidden from Vendor active dashboard');
+ verify((await call(`/api/contractor/rfqs/${withdrawalRfq.id}`,null,c.token,'DELETE')).status===200,'Contractor removes published RFQ');
+ verify(!(await call('/api/admin/rfqs',null,adminToken)).body.data.some(r=>r.id===withdrawalRfq.id),'Removed RFQ absent from Admin active list');
+ verify(!(await call('/api/admin/documents',null,adminToken)).body.data.some(d=>d.rfqId===withdrawalRfq.id),'Removed RFQ documents absent from Admin active inspector');
+ verify((await call('/api/admin/rfqs/history',null,adminToken)).body.data.some(r=>r.id===withdrawalRfq.id),'Removed RFQ retained in Admin history');
+ verify((await call('/api/admin/notifications',null,adminToken)).body.data.some(n=>n.message.includes(withdrawalRfq.referenceCode)),'Admin notified of published RFQ removal');
+ verify(!(await call('/api/vendor/rfqs',null,v.token)).body.data.some(r=>r.id===withdrawalRfq.id),'Removed published RFQ absent from Vendor discovery');
+ verify((await call('/api/admin/documents',null,adminToken)).body.data.every(d=>d.rfqId!==id),'Previously removed duplicate documents excluded from active list');
  const cancelled=await create();await call(`/api/admin/rfqs/${cancelled.id}/publish`,{identityReviewConfirmed:true},adminToken);verify((await call(`/api/contractor/rfqs/${cancelled.id}/status`,{status:'cancelled'},c.token,'PATCH')).status===200,'Published RFQ can cancel');verify(!(await call('/api/vendor/rfqs',null,v.token)).body.data.some(r=>r.id===cancelled.id),'Cancelled RFQ removed from discovery');verify((await call(`/api/vendor/rfqs/${cancelled.id}/quote`,{pricingMode:'total',totalAmountAed:100,leadTimeDays:2,validityDays:30,paymentTerms:'QA'},v.token)).status===403,'Cancelled RFQ rejects new quote');
  report.status='passed';report.completedAt=new Date().toISOString();console.log(JSON.stringify({checksPassed:report.checks.length,staging,productionModified:false,outboundMessagesSent:false}));
 }catch(error){report.status='failed';report.failure=error.message;throw error;}finally{
