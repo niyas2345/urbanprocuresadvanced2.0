@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "Registration license uploads, contextual Admin document review, real RFQ filters and consent-based homepage directory passed local and deployed staging workflows.",
+  "LAST_COMPLETED_TASK": "License registration, contextual Admin review, genuine Vendor RFQ filters and private opt-in public discovery deployed and verified on both live domains.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -232,17 +232,27 @@
     "fixtureMailSuppressed": true
   },
   "ONBOARDING_DISCOVERY": {
-    "status": "production-preflight-passed",
+    "status": "live-verified",
     "localFeatureChecksPassed": 35,
     "localOperationsRegressionChecksPassed": 98,
     "offlineDatabaseChecksPassed": 107,
-    "productionModified": false,
+    "productionModified": true,
     "migration": "0014_business_directory.sql",
     "stagingFeatureChecksPassed": 36,
     "stagingBrowserChecksPassed": 24,
     "localAuthChecksPassed": 23,
     "wranglerMigrationStatementsChecked": 128,
     "productionReadOnlyPreflightChecksPassed": 10,
-    "productionBackupRestoredWithForeignKeys": true
+    "productionBackupRestoredWithForeignKeys": true,
+    "productionMigrationApplied": true,
+    "productionVersion": "37bf0c72-9239-4783-aa76-5359e224fd0d",
+    "sourceCommit": "c71f006765c9b89a430c9ec856959ea000868efa",
+    "liveBaseChecksPassed": 14,
+    "liveFeatureReadChecksPassed": 20,
+    "existingBusinessRecordsPreserved": true,
+    "existingBusinessesNotAutoApproved": true,
+    "temporaryStagingAccountsQuarantined": 7,
+    "fixtureMailSuppressed": true,
+    "nextAction": "Existing businesses must upload genuine license documents and Admin must review and verify them. Directory listing is explicit opt-in. No further deployment work pending for this release."
   }
 }

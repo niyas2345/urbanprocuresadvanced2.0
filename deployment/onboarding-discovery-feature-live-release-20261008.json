@@ -1,0 +1,30 @@
+{
+  "phase": "after-release",
+  "checks": [
+    "https://urbanprocures.com public directory section",
+    "https://urbanprocures.com live public discovery API",
+    "https://urbanprocures.com discovery DTO sections",
+    "https://urbanprocures.com public discovery excludes private fields",
+    "https://urbanprocures.com contractor required registration license field",
+    "https://urbanprocures.com contractor PDF license supported",
+    "https://urbanprocures.com contractor public listing remains opt-in",
+    "https://urbanprocures.com vendor required registration license field",
+    "https://urbanprocures.com vendor PDF license supported",
+    "https://urbanprocures.com vendor public listing remains opt-in",
+    "https://www.urbanprocures.com public directory section",
+    "https://www.urbanprocures.com live public discovery API",
+    "https://www.urbanprocures.com discovery DTO sections",
+    "https://www.urbanprocures.com public discovery excludes private fields",
+    "https://www.urbanprocures.com contractor required registration license field",
+    "https://www.urbanprocures.com contractor PDF license supported",
+    "https://www.urbanprocures.com contractor public listing remains opt-in",
+    "https://www.urbanprocures.com vendor required registration license field",
+    "https://www.urbanprocures.com vendor PDF license supported",
+    "https://www.urbanprocures.com vendor public listing remains opt-in"
+  ],
+  "failures": [],
+  "businessRowsModified": false,
+  "testEmailsSent": false,
+  "status": "passed",
+  "checkedAt": "2026-10-08T11:37:27.386Z"
+}
