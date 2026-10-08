@@ -1,0 +1,51 @@
+{
+  "origin": "https://urbanprocures-advanced-staging-20261005.abdeenniyas23.workers.dev",
+  "runId": "9f3796ffe702",
+  "checks": [
+    "QA Admin login",
+    "contractor registration blocked without license",
+    "contractor public listing consent starts unchecked",
+    "contractor genuine registration form saves license",
+    "Registration category: Technical Services LLC",
+    "Registration category: Maintenance Company",
+    "Registration category: Painting Contracting",
+    "Registration category: Waterproofing & Insulation",
+    "Registration category: Swimming Pool Maintenance",
+    "Registration category: Civil Works",
+    "Registration category: Pumping Works",
+    "Registration category: MEP Works",
+    "vendor registration blocked without license",
+    "vendor public listing consent starts unchecked",
+    "vendor genuine registration form saves license",
+    "Vendor sees plain verification guidance",
+    "Admin browser login",
+    "contractor license privately previewed",
+    "contractor license exact download verified",
+    "contractor verified directly in license viewer",
+    "vendor license privately previewed",
+    "vendor license exact download verified",
+    "vendor verified directly in license viewer",
+    "Open Vendor window observes Admin approval automatically",
+    "contractor approved opted-in directory renders",
+    "vendor approved opted-in directory renders",
+    "Browser discovery RFQ fixture saved",
+    "RFQ approved",
+    "Browser discovery RFQ fixture saved",
+    "RFQ approved",
+    "Matching browser filter excludes other trade",
+    "All Open RFQs browser filter includes other trade",
+    "Approved RFQ homepage card renders"
+  ],
+  "temporaryUserIds": [
+    "4eb38639-ef95-4a37-b29a-11a99a9ddc19",
+    "655a78ba-d166-43e3-90f8-53b7c9c887d4"
+  ],
+  "rfqIds": [
+    "a6fe7846-2114-45e3-bbbf-de82cb5e1ecf",
+    "a53e170b-4f59-4c14-a523-a56f609917a9"
+  ],
+  "productionModified": false,
+  "outboundMessagesSent": false,
+  "status": "passed",
+  "completedAt": "2026-10-08T12:04:58.161Z"
+}

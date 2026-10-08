@@ -8,7 +8,7 @@
     "mismatches": 0
   },
   "phase2_complete": true,
-  "LAST_COMPLETED_TASK": "License registration, contextual Admin review, genuine Vendor RFQ filters and private opt-in public discovery deployed and verified on both live domains.",
+  "LAST_COMPLETED_TASK": "Direct license viewer approval, readable Vendor controls, expanded service categories, all verified-Vendor RFQ access and live pending-state refresh passed staging.",
   "CURRENT_PARTIALLY_MODIFIED_FILE": null,
   "FILES_COMPLETED": [
     "AGENTS.md",
@@ -101,7 +101,7 @@
   "KNOWN_FAILED_REQUIREMENTS": [],
   "GENUINE_CLOUDFLARE_INTEGRATION_TESTS_RUN": 204,
   "MOCKS_REMAINING": "No mockStore in deployed runtime. Provider HTTP doubles remain only in explicitly labelled local OAuth/mail contract tests; real deployed OAuth and owner-only provider acceptance verified.",
-  "NEXT_EXACT_ACTION": "Deploy current candidate to existing Advanced staging resources; test genuine registration upload and Admin review plus Vendor/homepage discovery; preserve production pending staging acceptance.",
+  "NEXT_EXACT_ACTION": "Release verified Vendor access candidate to existing Advanced production Worker, then read-only live and data preservation checks.",
   "PRODUCTION_RESOURCES_TOUCHED": "Advanced live on both approved .com domains; legacy resources explicitly retired by owner authorization.",
   "Production Pages modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
   "Production Workers modified": "YES \u2014 authorized Advanced cutover / legacy retirement",
@@ -254,5 +254,17 @@
     "temporaryStagingAccountsQuarantined": 7,
     "fixtureMailSuppressed": true,
     "nextAction": "Existing businesses must upload genuine license documents and Admin must review and verify them. Directory listing is explicit opt-in. No further deployment work pending for this release."
+  },
+  "VENDOR_ACCESS_CORRECTIONS": {
+    "status": "staging-passed",
+    "sourceCommit": "d2dcdef",
+    "localChecksPassed": {
+      "auth": 23,
+      "operations": 98,
+      "feature": 35
+    },
+    "stagingApiChecksPassed": 36,
+    "stagingBrowserChecksPassed": 33,
+    "productionModified": false
   }
 }

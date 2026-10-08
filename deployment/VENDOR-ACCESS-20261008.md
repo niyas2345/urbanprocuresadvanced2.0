@@ -1,0 +1,7 @@
+# Vendor approval and RFQ access correction
+
+License viewer now shows the uploading company/account and an explicit Approve Vendor or Approve Contractor action with review confirmation. Vendor verification controls are outside the small inline status badge. Separate role accounts do not automatically share licenses or approval. The existing cross-window refresh observes approval without re-login. Copy Key was misleading: it copies document.id, not the R2 key; label/title now correctly say Copy Reference.
+
+Vendor registration adds Technical Services LLC, Maintenance Company, Painting Contracting, Waterproofing & Insulation, Swimming Pool Maintenance, Civil Works, Pumping Works and MEP Works, retaining existing categories. All Open RFQs is the default. All active verified Vendors with current Terms may open approved available RFQs, access only Admin-released identity-safe RFQ attachments and submit quotations across trades. Explicit Matching My Trade remains a convenience filter; Technical Services matches all. Vendor competitors, private licenses, withdrawn/expired/unapproved RFQs and pre-award client identities remain protected. No actual business was auto-approved.
+
+Validation: build/typecheck, 23 authentication checks, 98 operations checks, 35 local feature checks, 36 deployed staging API checks and 33 browser checks passed. Browser checks include all added category options, genuine PDF preview/exact download, actual approval actions and automatic status changes in an already-open Vendor window. No schema migration needed.
