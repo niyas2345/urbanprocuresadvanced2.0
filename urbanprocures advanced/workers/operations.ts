@@ -111,6 +111,15 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
    permitted=vendor?.verification_status==='verified'&&rfq&&['reviewed_published','receiving_quotations'].includes(rfq.status)&&Date.parse(rfq.submission_deadline)>Date.now();
    if(!permitted)permitted=!!await env.DB.prepare('SELECT id FROM awards WHERE rfq_id=? AND vendor_id=?').bind(doc.rfq_id,profile?.id??'').first();
   }
+  // Original documents can contain identities in pixels, metadata and letterheads.
+  // A release checkbox never sanitizes those bytes. Counterpart originals require award.
+  if(permitted&&actor.role!=='admin'&&doc.uploader_user_id!==actor.id){
+   const profile=await organizationFor(env,actor);
+   const awarded=doc.quotation_id&&actor.role==='contractor'
+    ?await env.DB.prepare('SELECT id FROM awards WHERE quotation_id=? AND contractor_id=?').bind(doc.quotation_id,profile?.id??'').first()
+    :doc.rfq_id&&actor.role==='vendor'?await env.DB.prepare('SELECT id FROM awards WHERE rfq_id=? AND vendor_id=?').bind(doc.rfq_id,profile?.id??'').first():null;
+   if(!awarded)permitted=false;
+  }
   if(!permitted)return fail('DOCUMENT_NOT_AVAILABLE',404);
   const object=await env.DOCUMENTS_BUCKET.get(doc.r2_object_key);if(!object)return fail('DOCUMENT_PAYLOAD_UNAVAILABLE',404);
   await audit(env,actor,'DOCUMENT_ACCESS','document',doc.id).run();
