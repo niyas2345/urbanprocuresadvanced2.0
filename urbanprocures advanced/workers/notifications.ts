@@ -18,12 +18,16 @@ export async function dispatchNotifications(env:Env,send=sendZohoMail,onlyEventI
    await env.DB.prepare("UPDATE email_outbox SET status='suppressed',completed_at=? WHERE id=?").bind(new Date().toISOString(),row.id).run();result.suppressed++;continue;
   }
   try {
-   await send(env,{toAddress:event.email,subject:event.subject,content:event.content});
+   const acceptance=await send(env,{toAddress:event.email,subject:event.subject,content:event.content});
+   await env.DB.batch([
+    env.DB.prepare("UPDATE email_outbox SET status='sent',completed_at=?,provider_message_id=?,provider_accepted_at=? WHERE id=? AND status='sending'").bind(new Date().toISOString(),acceptance?.messageId??null,acceptance?.acceptedAt??new Date().toISOString(),row.id),
+    env.DB.prepare("INSERT OR IGNORE INTO email_delivery_evidence(id,message_id,channel,outcome,provider_message_id,evidence,created_at) VALUES(?,?,'transactional','accepted',?,'Zoho API accepted; inbox delivery not verified',?)").bind(crypto.randomUUID(),row.id,acceptance?.messageId??null,new Date().toISOString())
+   ]);
   }catch{
    await env.DB.prepare("UPDATE email_outbox SET status='review_required' WHERE id=? AND status='sending'").bind(row.id).run();result.reviewRequired++;continue;
   }
   // A crash after provider acceptance leaves 'sending' for manual reconciliation.
-  await env.DB.prepare("UPDATE email_outbox SET status='sent',completed_at=? WHERE id=? AND status='sending'").bind(new Date().toISOString(),row.id).run();result.sent++;
+  result.sent++;
  }
  return result;
 }

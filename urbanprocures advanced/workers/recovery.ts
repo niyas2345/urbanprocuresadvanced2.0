@@ -21,7 +21,10 @@ export async function recoveryRoute(request:Request,env:Env):Promise<Response|nu
   const user=await env.DB.prepare("SELECT id,email FROM users WHERE email=? AND status='active'").bind(body.email.trim().toLowerCase()).first<{id:string;email:string}>();
   if(user){const token=Array.from(crypto.getRandomValues(new Uint8Array(32)),b=>b.toString(16).padStart(2,'0')).join(''),digest=await tokenDigest(token),now=new Date().toISOString();
    await env.DB.batch([env.DB.prepare('DELETE FROM password_reset_tokens WHERE user_id=?').bind(user.id),env.DB.prepare('INSERT INTO password_reset_tokens (digest,user_id,expires_at,created_at) VALUES (?,?,?,?)').bind(digest,user.id,new Date(Date.now()+1800000).toISOString(),now)]);
-   try{await sendZohoMail(env,{toAddress:user.email,subject:'Urban Procures password reset',content:`Use this link within 30 minutes to reset your password: ${env.PUBLIC_APP_ORIGIN}/reset-password#${token}`});}catch{await env.DB.prepare('DELETE FROM password_reset_tokens WHERE digest=?').bind(digest).run();return fail('EMAIL_DELIVERY_UNAVAILABLE',503);}
+   try{await sendZohoMail(env,{toAddress:user.email,subject:'Urban Procures password reset',content:`Use this link within 30 minutes to reset your password: ${env.PUBLIC_APP_ORIGIN}/reset-password#${token}`});}catch{
+    await env.DB.batch([env.DB.prepare('DELETE FROM password_reset_tokens WHERE digest=?').bind(digest),env.DB.prepare("INSERT INTO audit_logs(id,actor_user_id,actor_role,action_type,resource_type,resource_id,payload_json,timestamp) VALUES(?,NULL,'system','PASSWORD_RESET_DELIVERY_FAILED','email',?,'{}',?)").bind(crypto.randomUUID(),user.id,new Date().toISOString())]);
+    // Provider failures must not reveal which email addresses have accounts.
+   }
   }
   return Response.json({success:true,data:{message:'If an eligible account exists, reset instructions have been sent.'}});
  }

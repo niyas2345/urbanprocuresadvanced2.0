@@ -10,7 +10,8 @@ const providers:Record<string,string>={
  'https://mail.zoho.ca':'https://accounts.zohocloud.ca'
 };
 export type ZohoConfiguration={clientId:string;clientSecret:string;refreshToken:string;accountId:string;fromAddress:string;mailOrigin:string;accountsOrigin?:string};
-export type MailMessage={toAddress:string;subject:string;content:string};
+export type MailMessage={toAddress:string;subject:string;content:string;replyTo?:string};
+export type MailAcceptance={messageId:string|null;providerStatus:number;acceptedAt:string};
 const safeOAuthCodes=new Set(['invalid_client','invalid_client_secret','invalid_clientid','invalid_code','invalid_grant','invalid_refresh_token','invalid_scope','invalid_request','unauthorized_client','access_denied','temporarily_unavailable']);
 export class ZohoOAuthError extends Error {
  constructor(public readonly providerStatus?:number,public readonly providerCode?:string){super('EMAIL_AUTHENTICATION_UNAVAILABLE');}
@@ -52,7 +53,7 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
   })();
   try{return await inFlight;}finally{inFlight=null;}
  };
- return {async authenticate():Promise<void>{await accessToken();},async send(message:MailMessage):Promise<void> {
+ return {async authenticate():Promise<void>{await accessToken();},async send(message:MailMessage):Promise<MailAcceptance> {
   for(let attempt=0;attempt<2;attempt++){
    const token=await accessToken();
    let response:Response,data:any;
@@ -74,7 +75,8 @@ export function createZohoMailTransport(config:ZohoConfiguration,dependencies:{f
     const status=Number(data?.status?.code);
     throw new ZohoDeliveryError(response.status,safeMailCodes.has(code)?code:'provider_rejected',Number.isInteger(status)&&status>=100&&status<=599?status:undefined);
    }
-   return;
+   const id=data?.data?.messageId;
+   return {messageId:typeof id==='string'||typeof id==='number'?String(id):null,providerStatus:response.status,acceptedAt:new Date(now()).toISOString()};
   }
   throw Error('EMAIL_DELIVERY_UNAVAILABLE');
  }};
@@ -90,7 +92,7 @@ async function transportFor(env:Env) {
  return transport;
 }
 export async function sendZohoMail(env:Env,message:MailMessage) {
- await (await transportFor(env)).send(message);
+ return (await transportFor(env)).send(message);
 }
 export async function verifyZohoAuthentication(env:Env):Promise<void> {
  await (await transportFor(env)).authenticate();

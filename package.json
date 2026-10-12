@@ -24,7 +24,8 @@
     "test:wrangler-migrations": "node scripts/test-wrangler-migrations.mjs",
     "test:zoho-oauth": "tsx scripts/test-zoho-oauth.ts",
     "test:zoho-runtime": "node scripts/test-zoho-runtime.mjs",
-    "test:staging": "node scripts/test-deployed-staging.mjs"
+    "test:staging": "node scripts/test-deployed-staging.mjs",
+    "test:email-automation": "node scripts/test-email-automation.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

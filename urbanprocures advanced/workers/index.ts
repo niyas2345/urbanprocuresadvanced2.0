@@ -12,11 +12,14 @@ import { publicQuoteRoute } from './publicQuote.ts';
 import { procurementRoute } from './procurement.ts';
 import { operationsRoute } from './operations.ts';
 import { dispatchNotifications } from './notifications.ts';
+import {emailAutomationRoute,generateInvitations,dispatchInvitations} from './emailAutomation.ts';
 import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
   AI?: Ai;
+  INVITATION_OUTREACH_ENABLED?: string;
+  EMAIL_AUTOMATION_VALIDATED?: string;
   EMAIL_DELIVERY_ENABLED?: string;
   ZOHO_CLIENT_ID?: string;
   ZOHO_CLIENT_SECRET?: string;
@@ -40,6 +43,7 @@ export default {
     if(['advanced-staging','advanced-production'].includes(env.ENVIRONMENT)&&env.EMAIL_DELIVERY_ENABLED==='true'){
       ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));
     }
+    if(env.INVITATION_OUTREACH_ENABLED==='true')ctx.waitUntil((async()=>{await generateInvitations(env);await dispatchInvitations(env);})().catch(()=>console.error('INVITATION_SCHEDULER_FAILED')));
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (!isIsolatedAdvancedRequest(request, env.ENVIRONMENT, env.PLATFORM_DOMAIN)) {
@@ -68,6 +72,7 @@ export default {
       if(!permitted)return Response.json({success:false,error:'REQUEST_ORIGIN_REJECTED'},{status:403});
     }
     try {
+      const automation=await emailAutomationRoute(request.clone(),env,await actorFor(request,env));if(automation)return automation;
       const discovery=await publicDiscoveryRoute(request,env);if(discovery)return discovery;
       const termsResponse=await termsRoute(request,env,await actorFor(request,env));
       if(termsResponse)return termsResponse;
