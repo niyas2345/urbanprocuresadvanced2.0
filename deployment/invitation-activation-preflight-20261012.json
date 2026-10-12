@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-12T12:15:00Z",
+  "verifiedAt": "2026-10-12T12:23:04.011Z",
   "repository": "niyas2345/urbanprocuresadvanced2.0",
   "pr": 1,
   "implementationHead": "75d646b66690eab1ee4e2be4ed60a84b5745e05f",
@@ -33,7 +33,7 @@
   "zoho": {
     "connectionReadSucceeded": true,
     "accountPlanObserved": "free",
-    "invitesAliasPresent": false,
+    "invitesAliasPresent": true,
     "fallbackAlias": "urbanprocures@urbanprocures.com",
     "fallbackConfirmed": true,
     "outgoingBlocked": false,
@@ -46,7 +46,13 @@
     },
     "providerAcceptanceTest": "Not run; staging owner authentication required",
     "inboxDeliveryTest": "Not run",
-    "aliasCreation": "Rejected by automatic approval review; no mutation"
+    "aliasCreation": "Not required: organization-level inventory and user-specific API confirmed existing Admin-owned alias. Prior absence finding was limited to connected mailbox.",
+    "invitesAliasOwner": "admin@urbanprocures.com",
+    "invitesAliasConfirmed": true,
+    "invitesSendAsRecordPresent": true,
+    "invitesSendAsValidation": "Record enabled; validated=false, validationRequired=true. Actual OAuth sender acceptance untested.",
+    "accountAccess": "Current connection can read Admin user through organization API; direct mailbox account-details query returns Account not exists. Website credentials remain bound to separate urbanprocures mailbox.",
+    "campaignSetup": "Owner approved necessary setup without paid mailbox. Browser login reached OneAuth device approval; waiting for owner."
   },
   "capacity": {
     "requestedDaily": 100,
