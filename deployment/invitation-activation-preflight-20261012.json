@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-12T16:11:27.948Z",
+  "verifiedAt": "2026-10-12T16:36:32.252Z",
   "repository": "niyas2345/urbanprocuresadvanced2.0",
   "pr": 1,
   "implementationHead": "75d646b66690eab1ee4e2be4ed60a84b5745e05f",
@@ -13,7 +13,8 @@
     "invitationRows": 0,
     "automationTablesPresent": false,
     "foreignKeyViolations": 0,
-    "modified": false
+    "modified": false,
+    "browserAuthentication": "Live Admin secure sign-in declined; no authenticated live session established in agent browser. Owner mobile session is separate."
   },
   "staging": {
     "worker": "urbanprocures-advanced-staging-20261005",
@@ -108,11 +109,24 @@
     "verifiedEligible": 0,
     "intakeDeployed": false,
     "sourceApproved": false,
-    "reason": "No eligible recipient source/consent evidence supplied; prospect tables not deployed",
+    "reason": "Public business research register established; no explicit campaign consent or suppression clearance established for these records",
     "campaignListsCreated": true,
     "sampleContactsExcluded": true,
     "formsPublished": false,
-    "intakeCompletion": "Drafts saved; business eligibility fields, confirmed-address flow, published invitation privacy notice, and D1 consent synchronization remain to validate before publishing."
+    "intakeCompletion": "Drafts saved; business eligibility fields, confirmed-address flow, published invitation privacy notice, and D1 consent synchronization remain to validate before publishing.",
+    "research": {
+      "plugin": "Exa",
+      "candidateRecordsReviewed": 99,
+      "publicBusinessRecords": 76,
+      "contractors": 42,
+      "vendorsOrSpecialists": 34,
+      "addressValidation": "Published on linked company/official brand page; inbox activity and delivery unverified",
+      "consent": "Unknown",
+      "suppression": "Not checked",
+      "importedToCampaigns": false,
+      "importedToLiveDatabase": false,
+      "invitationsSent": 0
+    }
   },
   "sourceReview": {
     "intake": "Admin-only source URL, consent/relationship evidence, address-verification attestation, suppression and duplicate checks in PR",
@@ -132,7 +146,8 @@
   ],
   "officialReferences": [
     "https://www.zoho.com/mail/help/usage-policy.html",
-    "https://www.zoho.com/mail/help/adminconsole/rates-and-limits.html"
+    "https://www.zoho.com/mail/help/adminconsole/rates-and-limits.html",
+    "https://www.zoho.com/campaigns/terms.html"
   ],
   "emailDnsChanges": {
     "spf": "Existing Zoho Mail include retained; include:zcsend.net added to the single existing SPF record",
