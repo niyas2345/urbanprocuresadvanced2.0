@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-12T12:23:04.011Z",
+  "verifiedAt": "2026-10-12T12:26:59.607Z",
   "repository": "niyas2345/urbanprocuresadvanced2.0",
   "pr": 1,
   "implementationHead": "75d646b66690eab1ee4e2be4ed60a84b5745e05f",
@@ -52,7 +52,7 @@
     "invitesSendAsRecordPresent": true,
     "invitesSendAsValidation": "Record enabled; validated=false, validationRequired=true. Actual OAuth sender acceptance untested.",
     "accountAccess": "Current connection can read Admin user through organization API; direct mailbox account-details query returns Account not exists. Website credentials remain bound to separate urbanprocures mailbox.",
-    "campaignSetup": "Owner approved necessary setup without paid mailbox. Browser login reached OneAuth device approval; waiting for owner."
+    "campaignSetup": "Admin Zoho authentication completed and verified. First-time Campaigns organization setup prepared for Urban Procures, Real Estate & Construction. Waiting for explicit acceptance of Terms and Privacy Policy before Get Started submission. No paid plan selected, no contacts imported, no campaign activated."
   },
   "capacity": {
     "requestedDaily": 100,
