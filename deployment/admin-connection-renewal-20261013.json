@@ -1,0 +1,32 @@
+{
+  "verifiedAt": "2026-10-12T21:03:36.896Z",
+  "phase": "Source and deployed isolated OAuth tests passed; production deployment pending",
+  "originalAccessSeconds": 3600,
+  "originalSessionSeconds": 28740,
+  "confirmedDefect": "Refresh credential consumed before backend validation; upstream temporary errors reported invalid_grant; access tokens also removed on rotation",
+  "newAccessSeconds": 3600,
+  "newIdleDays": 30,
+  "newAbsoluteDays": 90,
+  "sourceChanges": "Purpose-restricted owner-only integration grants, independent of website sessions; revocation on disconnect/password reset; owner status checked on each request; transient errors preserve refresh credential",
+  "localChecks": 29,
+  "localWorkerdChecks": 18,
+  "existingWebsiteAuthChecks": 23,
+  "typescript": "passed",
+  "cloudflareDeployedChecks": 24,
+  "qaWorker": "urbanprocures-advanced-admin-grant-qa-20261013",
+  "qaDatabases": [
+    {
+      "name": "urbanprocures-advanced-admin-grant-qa-data-20261013",
+      "id": "c869b7c0-b59b-4119-ac00-7856d342c3b5"
+    },
+    {
+      "name": "urbanprocures-advanced-admin-grant-qa-auth-20261013",
+      "id": "59df3483-df4b-4672-8d7c-338eee955c6d"
+    }
+  ],
+  "productionModified": false,
+  "frontendModified": false,
+  "recipientCampaignActivated": false,
+  "rollbackBackendVersion": "142650a7-340c-4839-b370-5bc706a2aae3",
+  "ownerReconnection": "One final secure authorization required after deployment; old token families cannot silently acquire the longer grant"
+}

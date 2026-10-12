@@ -5,6 +5,7 @@ import {processPendingDocuments,standardizationRoute} from './standardizedDocume
 
 import { isIsolatedAdvancedRequest } from './isolation.ts';
 import { authRoute, actorFor } from './auth.ts';
+import {adminIntegrationRoute} from './adminIntegration.ts';
 import { termsRoute, termsGate } from './terms.ts';
 import { awardRoute } from './award.ts';
 import {publicDiscoveryRoute} from './publicDiscovery.ts';
@@ -17,6 +18,8 @@ import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
+  ADMIN_INTEGRATION_GRANTS_ENABLED?: string;
+  ADMIN_INTEGRATION_OWNER_ID?: string;
   AI?: Ai;
   INVITATION_OUTREACH_ENABLED?: string;
   EMAIL_AUTOMATION_VALIDATED?: string;
@@ -72,6 +75,7 @@ export default {
       if(!permitted)return Response.json({success:false,error:'REQUEST_ORIGIN_REJECTED'},{status:403});
     }
     try {
+      const integration=await adminIntegrationRoute(request.clone(),env,await actorFor(request,env));if(integration)return integration;
       const automation=await emailAutomationRoute(request.clone(),env,await actorFor(request,env));if(automation)return automation;
       const discovery=await publicDiscoveryRoute(request,env);if(discovery)return discovery;
       const termsResponse=await termsRoute(request,env,await actorFor(request,env));

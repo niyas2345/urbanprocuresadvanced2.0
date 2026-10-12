@@ -5,6 +5,7 @@ import {rateAllowed,recoveryRoute} from './recovery.ts';
 import type { Env } from './index.ts';
 import { publishedTerms, acceptanceFor, organizationFor, evidenceStatement, auditStatement } from './terms.ts';
 import type { Actor, Terms } from './terms.ts';
+import {integrationActor} from './adminIntegration.ts';
 
 const json = (data: unknown, status = 200) => Response.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 const hex = (bytes: ArrayBuffer) => Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, '0')).join('');
@@ -27,7 +28,7 @@ export async function actorFor(request: Request, env: Env): Promise<Actor | null
   if (!token) return null;
   const actor=await env.DB.prepare("SELECT u.id,u.email,u.role,u.status FROM auth_sessions s JOIN users u ON u.id=s.user_id WHERE s.token=? AND s.expires_at>? AND u.status='active'")
     .bind(await tokenDigest(token), new Date().toISOString()).first<Actor>();
-  return actor?.status==='active'?actor:null;
+  return actor?.status==='active'?actor:integrationActor(request,env);
 }
 export const currentAcceptance = acceptanceFor;
 function profileDto(p:any) {
