@@ -1,0 +1,88 @@
+{
+  "verifiedAt": "2026-10-12T12:15:00Z",
+  "repository": "niyas2345/urbanprocuresadvanced2.0",
+  "pr": 1,
+  "implementationHead": "75d646b66690eab1ee4e2be4ed60a84b5745e05f",
+  "phase": "Final activation preflight; blocked before deployment",
+  "production": {
+    "worker": "urbanprocures-advanced-production-20261007",
+    "activeVersion": "142650a7-340c-4839-b370-5bc706a2aae3",
+    "deployment": "d38e744d-02ee-44de-86c4-fae427044337",
+    "cron": "*/5 * * * *",
+    "migrationLatest": "0015_standardized_documents.sql",
+    "invitationRows": 0,
+    "automationTablesPresent": false,
+    "foreignKeyViolations": 0,
+    "modified": false
+  },
+  "staging": {
+    "worker": "urbanprocures-advanced-staging-20261005",
+    "migrationLatest": "0015_standardized_documents.sql",
+    "automationTablesPresent": false,
+    "foreignKeyViolations": 0,
+    "automaticEmailDeliveryEnabled": false,
+    "outbox": {
+      "pending": 42,
+      "sent": 1,
+      "suppressed": 596
+    },
+    "adminAuthentication": "Required fixture credential file and approved runtime credentials unavailable in this session",
+    "newWorkflowGates": "Not run",
+    "modified": false
+  },
+  "zoho": {
+    "connectionReadSucceeded": true,
+    "accountPlanObserved": "free",
+    "invitesAliasPresent": false,
+    "fallbackAlias": "urbanprocures@urbanprocures.com",
+    "fallbackConfirmed": true,
+    "outgoingBlocked": false,
+    "sendAsValidation": "validated=false; validationRequired=true; requires real provider send test",
+    "domain": {
+      "verified": true,
+      "mx": true,
+      "spf": true,
+      "dkim": true
+    },
+    "providerAcceptanceTest": "Not run; staging owner authentication required",
+    "inboxDeliveryTest": "Not run",
+    "aliasCreation": "Rejected by automatic approval review; no mutation"
+  },
+  "capacity": {
+    "requestedDaily": 100,
+    "contractors": 60,
+    "vendors": 40,
+    "start": "09:00 Asia/Dubai",
+    "actualAccountHourly": "Not exposed by connected account API; not verified",
+    "actualAccountDaily": "Dynamic; no fixed verified quota",
+    "publishedExternalHourlyRange": "50-500, rolling hour, all aliases and other sends share account allowance",
+    "providerCampaignPermission": "Zoho Mail policy prohibits promotional/bulk campaigns; provider permission or approved campaign service required",
+    "activeInvitationDaily": 0,
+    "nextInvitationRun": null
+  },
+  "recipients": {
+    "verifiedEligible": 0,
+    "intakeDeployed": false,
+    "sourceApproved": false,
+    "reason": "No eligible recipient source/consent evidence supplied; prospect tables not deployed"
+  },
+  "sourceReview": {
+    "intake": "Admin-only source URL, consent/relationship evidence, address-verification attestation, suppression and duplicate checks in PR",
+    "gaps": [
+      "Address validity is a manual attestation, not a verified external deliverability check",
+      "Provider permission and account quota are not established",
+      "Onboarding rate slot is separate from transactional sending; shared rolling account budget must be implemented against verified provider limits before activation"
+    ]
+  },
+  "nextActions": [
+    "Provide secure staging owner authentication through approved runtime/session (never credentials in chat)",
+    "Approve an appropriate campaign delivery service or obtain Zoho written permission and account-specific quota",
+    "Provide consented eligible UAE contractor/vendor contact source and evidence",
+    "After access, complete deployed staging workflow gates, sender test and separate inbox confirmation; retain 42 pending staging transactional messages undrained",
+    "Only after release and rollback gates pass, deploy existing production Worker, configure verified capacity and activate via audited admin workflow"
+  ],
+  "officialReferences": [
+    "https://www.zoho.com/mail/help/usage-policy.html",
+    "https://www.zoho.com/mail/help/adminconsole/rates-and-limits.html"
+  ]
+}
