@@ -27,7 +27,7 @@ async function limited(env,k,max,seconds) {
 async function input(request) {
  const reader=request.body?.getReader(); if(!reader) return '';
  let size=0,parts=[];
- for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>32768){await reader.cancel();throw Error('REQUEST_TOO_LARGE');}parts.push(value);}
+ for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>6000000){await reader.cancel();throw Error('REQUEST_TOO_LARGE');}parts.push(value);}
  const bytes=new Uint8Array(size);let offset=0;for(const part of parts){bytes.set(part,offset);offset+=part.length;}return new TextDecoder().decode(bytes);
 }
 async function backend(env,path,method='GET',body,token) {
@@ -49,6 +49,8 @@ async function tokens(env,client,family,encrypted,sessionExpires) {
  return json({access_token:access,token_type:'Bearer',expires_in:expires-now(),refresh_token:refresh,scope:SCOPE});
 }
 const tools = [
+ {name:'urbanprocures_admin_rfq_standard',description:'Owner-requested standardized RFQ draft, corrections, authenticated preview and reviewed publication. Preserves source documents, hard holds, preliminary award restrictions and revision audits.',inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,128}$'},operation:{type:'string',enum:['read','generate','save','preview','publish','questions_read','questions_review']},contentJson:{type:'string',maxLength:2000000},identityReviewConfirmed:{type:'boolean'},technicalReviewConfirmed:{type:'boolean'},preliminaryApproved:{type:'boolean'}},required:['id','operation'],additionalProperties:false},annotations:{readOnlyHint:false,destructiveHint:true,openWorldHint:false}},
+ {name:'urbanprocures_admin_document',description:'Owner-only authenticated original or standardized document preview and corrections. Corrections reset release approval; originals remain private and unchanged.',inputSchema:{type:'object',properties:{id:{type:'string',pattern:'^[a-zA-Z0-9_-]{1,128}$'},operation:{type:'string',enum:['preview_original','preview_standardized','correct_content','replace_file']},contentJson:{type:'string',maxLength:500000},fileJson:{type:'string',maxLength:5000000},identityReviewConfirmed:{type:'boolean'}},required:['id','operation'],additionalProperties:false},annotations:{readOnlyHint:false,destructiveHint:true,openWorldHint:false}},
  {name:'urbanprocures_admin_status',description:'Verify the connected owner administrator and read current admin revision. Does not change business records.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true,openWorldHint:false}},
  {name:'urbanprocures_admin_read',description:'Read a supported live Urban Procures admin collection. Contains private business records: retrieve only what the owner needs.',inputSchema:{type:'object',properties:{collection:{type:'string',enum:READS}},required:['collection'],additionalProperties:false},annotations:{readOnlyHint:true,openWorldHint:false}},
  {name:'urbanprocures_admin_action',description:'Execute an owner-requested website admin action through existing backend authorization, validation and audit rules. Review identity/document evidence before publishing or releasing. Does not award contracts, send invitations or bypass unavailable website features.',inputSchema:{type:'object',properties:{action:{type:'string',enum:Object.keys(ACTIONS)},id:{type:'string',minLength:1,maxLength:128},details:{type:'object',properties:{status:{type:'string'},identityReviewConfirmed:{type:'boolean'},verified:{type:'boolean'},scheduledDate:{type:'string'},inspectorName:{type:'string'}},additionalProperties:false}},required:['action','id','details'],additionalProperties:false},annotations:{readOnlyHint:false,destructiveHint:true,idempotentHint:false,openWorldHint:false}}
@@ -62,13 +64,36 @@ function scrub(value) {
 async function rpc(env,body,upstream) {
  const result=v=>json({jsonrpc:'2.0',id:body.id,result:v});const error=(code,message)=>json({jsonrpc:'2.0',id:body.id??null,error:{code,message}});
  if(body.jsonrpc!=='2.0'||typeof body.method!=='string')return error(-32600,'Invalid request');
- if(body.method==='initialize')return result({protocolVersion:['2025-03-26','2025-06-18','2025-11-25'].includes(body.params?.protocolVersion)?body.params.protocolVersion:'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'Urban Procures Owner Admin',version:'1.1.0'},instructions:'Use only for the owner’s requested Urban Procures work. Existing backend gates remain authoritative.'});
+ if(body.method==='initialize')return result({protocolVersion:['2025-03-26','2025-06-18','2025-11-25'].includes(body.params?.protocolVersion)?body.params.protocolVersion:'2025-06-18',capabilities:{tools:{listChanged:false}},serverInfo:{name:'Urban Procures Owner Admin',version:'1.2.0'},instructions:'Use only for the owner’s requested Urban Procures work. Existing backend gates remain authoritative.'});
  if(body.method.startsWith('notifications/'))return new Response(null,{status:202,headers:HEADERS});
  if(body.method==='ping')return result({});
  if(body.method==='tools/list')return result({tools});
  if(body.method!=='tools/call')return error(-32601,'Method not found');
  const {name,arguments:a={}}=body.params??{};let response;
- if(name==='urbanprocures_admin_status')response=await backend(env,'/api/admin/revision','GET',undefined,upstream);
+ if(name==='urbanprocures_admin_rfq_standard'){
+  if(typeof a.id!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(a.id)||!['read','generate','save','preview','publish','questions_read','questions_review'].includes(a.operation))return error(-32602,'Invalid RFQ standard operation');
+  const root='/api/admin/rfqs/'+a.id;let path=root+'/standard',method='GET',payload;
+  if(a.operation==='generate'){path+='/generate';method='POST';payload={};}
+  if(a.operation==='save'||a.operation==='questions_review'){method='PUT';try{payload=JSON.parse(a.contentJson);}catch{return error(-32602,'Invalid RFQ content JSON');}}
+  if(a.operation.startsWith('questions_'))path=root+'/questions';
+  if(a.operation==='publish'){path+='/publish';method='POST';payload={identityReviewConfirmed:a.identityReviewConfirmed===true,technicalReviewConfirmed:a.technicalReviewConfirmed===true,preliminaryApproved:a.preliminaryApproved===true};}
+  if(a.operation==='preview'){path+='/preview';const r=await backend(env,path,'GET',undefined,upstream);if(!r.ok)return result({content:[{type:'text',text:JSON.stringify({httpStatus:r.status,body:scrub(await r.json())})}],isError:true});const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>3000000)return error(-32602,'RFQ preview exceeds limit');let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));return result({content:[{type:'text',text:JSON.stringify({httpStatus:200,mimeType:'application/pdf',sizeBytes:bytes.length,base64:btoa(binary)})}],isError:false});}
+  response=await backend(env,path,method,payload,upstream);if(method!=='GET')await env.AUTH_DB.prepare('INSERT INTO activity VALUES(?,?,?,?)').bind(crypto.randomUUID(),'rfq_standard_'+a.operation,response.status,now()).run();
+ }else if(name==='urbanprocures_admin_document'){
+  if(typeof a.id!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(a.id)||!['preview_original','preview_standardized','correct_content','replace_file'].includes(a.operation))return error(-32602,'Invalid document operation');
+  if(a.operation.startsWith('preview_')){
+   const standard=a.operation==='preview_standardized';const r=await backend(env,'/api/documents/'+a.id+'/'+(standard?'standardized/':'')+'view','GET',undefined,upstream);
+   if(!r.ok)return result({content:[{type:'text',text:JSON.stringify({httpStatus:r.status,body:scrub(await r.json())})}],isError:true});
+   if(Number(r.headers.get('Content-Length')||0)>3000000)return error(-32602,'Document exceeds preview limit');
+   const bytes=new Uint8Array(await r.arrayBuffer());if(bytes.length>3000000)return error(-32602,'Document exceeds preview limit');
+   let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+   const mime=r.headers.get('Content-Type')?.split(';')[0]||'application/octet-stream';
+   return result({content:[{type:'text',text:JSON.stringify({httpStatus:200,documentId:a.id,standardized:standard,mimeType:mime,sizeBytes:bytes.length,base64:btoa(binary)})}],isError:false});
+  }
+  let payload;try{payload=a.operation==='correct_content'?{content:JSON.parse(a.contentJson)}:{file:JSON.parse(a.fileJson),identityReviewConfirmed:a.identityReviewConfirmed===true};}catch{return error(-32602,'Invalid document correction JSON');}
+  response=await backend(env,'/api/admin/documents/'+a.id+'/standardize','PUT',payload,upstream);
+  await env.AUTH_DB.prepare('INSERT INTO activity VALUES(?,?,?,?)').bind(crypto.randomUUID(),a.operation,response.status,now()).run();
+ }else if(name==='urbanprocures_admin_status')response=await backend(env,'/api/admin/revision','GET',undefined,upstream);
  else if(name==='urbanprocures_admin_read'){
   if(!READS.includes(a.collection))return error(-32602,'Unsupported admin collection');
   response=await backend(env,'/api/admin/'+a.collection,'GET',undefined,upstream);
@@ -78,7 +103,7 @@ async function rpc(env,body,upstream) {
   const [method,collection,suffix]=ACTIONS[a.action];
   response=await backend(env,'/api/admin/'+collection+'/'+a.id+(suffix?'/'+suffix:''),method,a.details,upstream);
  }else return error(-32602,'Unknown tool');
- const text=await response.text();if(text.length>300000)return result({content:[{type:'text',text:'Result exceeds limit. Request a narrower workflow.'}],isError:true});
+ const text=await response.text();if(text.length>(name==='urbanprocures_admin_rfq_standard'?2000000:300000))return result({content:[{type:'text',text:'Result exceeds limit. Request a narrower workflow.'}],isError:true});
  if(name==='urbanprocures_admin_action')await env.AUTH_DB.prepare('INSERT INTO activity VALUES(?,?,?,?)').bind(crypto.randomUUID(),a.action,response.status,now()).run();
  return result({content:[{type:'text',text:JSON.stringify({httpStatus:response.status,body:scrub(JSON.parse(text))})}],isError:!response.ok});
 }
@@ -90,7 +115,7 @@ export default {
    if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...HEADERS,'Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,POST,DELETE,OPTIONS','Access-Control-Allow-Headers':'Authorization,Content-Type,MCP-Protocol-Version','Access-Control-Expose-Headers':'WWW-Authenticate'}});
    if(p.startsWith('/.well-known/oauth-protected-resource'))return json({resource:RESOURCE,authorization_servers:[ORIGIN],scopes_supported:[SCOPE],bearer_methods_supported:['header']});
    if(p.startsWith('/.well-known/oauth-authorization-server'))return json({issuer:ORIGIN,authorization_endpoint:ORIGIN+'/authorize',token_endpoint:ORIGIN+'/token',registration_endpoint:ORIGIN+'/register',revocation_endpoint:ORIGIN+'/revoke',response_types_supported:['code'],grant_types_supported:['authorization_code','refresh_token'],token_endpoint_auth_methods_supported:['none'],code_challenge_methods_supported:['S256'],scopes_supported:[SCOPE]});
-   if(p==='/health'&&request.method==='GET')return json({service:'Urban Procures owner admin MCP',version:'1.1.0',authenticationRequired:true,backend:'urbanprocures.com'});
+   if(p==='/health'&&request.method==='GET')return json({service:'Urban Procures owner admin MCP',version:'1.2.0',authenticationRequired:true,backend:'urbanprocures.com'});
    const ip=request.headers.get('CF-Connecting-IP')||'unknown';
    if(p==='/register'&&request.method==='POST'){
     if(!await limited(env,'register:'+ip,20,3600))return json({error:'rate_limited'},429);

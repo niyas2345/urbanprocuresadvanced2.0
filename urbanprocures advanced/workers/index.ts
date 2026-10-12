@@ -1,3 +1,4 @@
+import {standardRFQRoute,processStandardHolds} from './rfqStandard.ts';
 import {processPendingDocuments,standardizationRoute} from './standardizedDocuments.ts';
 // Urban Procures Advanced
 // PARTIAL Cloudflare Worker entry point; see WORK_MODE_EXECUTION.md.
@@ -42,6 +43,7 @@ export interface Env {
 
 export default {
   async scheduled(_controller:ScheduledController,env:Env,ctx:ExecutionContext):Promise<void>{
+    ctx.waitUntil(processStandardHolds(env).catch(()=>console.error('RFQ_STANDARD_HOLD_PROCESSING_FAILED')));
     if(env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));
     if(['advanced-staging','advanced-production'].includes(env.ENVIRONMENT)&&env.EMAIL_DELIVERY_ENABLED==='true'){
       ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));
@@ -88,6 +90,7 @@ export default {
           if(rejected)return rejected;
         }
       }
+      const rfqStandard=await standardRFQRoute(request.clone(),env,await actorFor(request,env));if(rfqStandard)return rfqStandard;
       const standardized=await standardizationRoute(request.clone(),env,await actorFor(request,env));if(standardized)return standardized;
       const operations=await operationsRoute(request.clone(),env,await actorFor(request,env));
       if(operations){if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return operations;}

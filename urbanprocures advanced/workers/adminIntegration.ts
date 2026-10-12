@@ -12,6 +12,9 @@ export function integrationPathAllowed(request:Request){
  const p=new URL(request.url).pathname,m=request.method;
  if(m==='GET'&&p==='/api/auth/me')return true;
  if(m==='POST'&&[control+'/refresh',control+'/revoke'].includes(p))return true;
+ if(m==='GET'&&/^\/api\/documents\/[a-zA-Z0-9_-]+\/(standardized\/)?(view|download)$/.test(p))return true;
+ if(['POST','PUT'].includes(m)&&/^\/api\/admin\/documents\/[a-zA-Z0-9_-]+\/standardize$/.test(p))return true;
+ if(['GET','POST','PUT'].includes(m)&&/^\/api\/admin\/rfqs\/[a-zA-Z0-9_-]+\/(standard(\/(preview|publish|generate))?|questions)$/.test(p))return true;
  if(m==='GET'&&p.startsWith('/api/admin/'))return reads.has(p.slice(11));
  if(m==='POST')return /^\/api\/admin\/(rfqs\/[a-zA-Z0-9_-]+\/publish|documents\/[a-zA-Z0-9_-]+\/release)$/.test(p);
  return m==='PATCH'&&/^\/api\/admin\/(vendors\/[a-zA-Z0-9_-]+\/verification|contractors\/[a-zA-Z0-9_-]+\/verification|users\/[a-zA-Z0-9_-]+\/status|public-quotes\/[a-zA-Z0-9_-]+)$/.test(p);

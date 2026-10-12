@@ -1,3 +1,4 @@
+import type {StandardRFQ} from './rfqStandard.ts';
 // Urban Procures Advanced
 // Shared Domain Models & Contracts
 
@@ -100,6 +101,9 @@ export interface DocumentMetadata {
 }
 
 export interface RFQ {
+  standardPackage?:StandardRFQ;
+  revision?:number;
+  preliminary?:boolean;
   pendingDocumentCount?: number;
   quotesCount?:number;
   manpowerPersons?:number;

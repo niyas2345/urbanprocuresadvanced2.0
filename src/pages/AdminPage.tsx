@@ -1,3 +1,4 @@
+import {AdminRFQStandard} from '../components/AdminRFQStandard.tsx';
 import {useDashboardRefresh} from '../hooks/useDashboardRefresh.ts';
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api.ts';
@@ -262,7 +263,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
             <div className="grid grid-cols-1 gap-4">
               {rfqs.map((rfq) => (
-                <div key={rfq.id} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div key={rfq.id} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 shadow-sm flex flex-col justify-between items-start gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono text-xs font-bold text-[#63797b] bg-[#f7f6f2] px-2 py-0.5 rounded border border-[#e1e7e4]">
@@ -279,7 +280,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {rfq.status === 'submitted' && (
+                    {false && rfq.status === 'submitted' && (
                       <button
                         onClick={() => handleApproveRfq(rfq.id)}
                         className="bg-[#123f47] hover:bg-[#0e3037] text-white font-bold px-4 py-2 rounded-[4px] text-xs flex items-center gap-1.5 shadow-sm transition-colors"
@@ -297,6 +298,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                       </button>
                     )}
                   </div>
+                  {!showHistory&&!['awarded','closed','cancelled'].includes(rfq.status)&&<AdminRFQStandard rfqId={rfq.id} onPublished={load}/>}
                 </div>
               ))}
             </div>
