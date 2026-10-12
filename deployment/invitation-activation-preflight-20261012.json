@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-12T12:26:59.607Z",
+  "verifiedAt": "2026-10-12T15:53:16.374Z",
   "repository": "niyas2345/urbanprocuresadvanced2.0",
   "pr": 1,
   "implementationHead": "75d646b66690eab1ee4e2be4ed60a84b5745e05f",
@@ -52,7 +52,29 @@
     "invitesSendAsRecordPresent": true,
     "invitesSendAsValidation": "Record enabled; validated=false, validationRequired=true. Actual OAuth sender acceptance untested.",
     "accountAccess": "Current connection can read Admin user through organization API; direct mailbox account-details query returns Account not exists. Website credentials remain bound to separate urbanprocures mailbox.",
-    "campaignSetup": "Admin Zoho authentication completed and verified. First-time Campaigns organization setup prepared for Urban Procures, Real Estate & Construction. Waiting for explicit acceptance of Terms and Privacy Policy before Get Started submission. No paid plan selected, no contacts imported, no campaign activated."
+    "campaignSetup": "Created and verified Urban Procures Campaigns organization under Admin after explicit Terms/Privacy approval. No paid subscription selected.",
+    "campaigns": {
+      "organizationId": "942616051",
+      "sender": "invites@urbanprocures.com",
+      "senderVerified": true,
+      "domainStatus": "Protected",
+      "spf": true,
+      "dkim": true,
+      "dmarc": true,
+      "customReturnPath": true,
+      "plan": "TRIAL",
+      "expiresOn": "2026-10-26",
+      "emailAllowance": 6000,
+      "emailUsed": 0,
+      "contactAllowance": 2000,
+      "sampleContacts": 3,
+      "paidPlanSelected": false,
+      "contractorListId": "1721330000000051048",
+      "vendorListId": "1721330000000051053",
+      "contractorEligibleCount": 0,
+      "vendorEligibleCount": 0,
+      "externalInvitationsSent": 0
+    }
   },
   "capacity": {
     "requestedDaily": 100,
@@ -62,7 +84,7 @@
     "actualAccountHourly": "Not exposed by connected account API; not verified",
     "actualAccountDaily": "Dynamic; no fixed verified quota",
     "publishedExternalHourlyRange": "50-500, rolling hour, all aliases and other sends share account allowance",
-    "providerCampaignPermission": "Zoho Mail policy prohibits promotional/bulk campaigns; provider permission or approved campaign service required",
+    "providerCampaignPermission": "Zoho Campaigns selected with verified sender; requires explicit-consent eligible contacts and backend Campaigns OAuth/API integration. Existing PR dispatcher still targets Zoho Mail and cannot be activated for marketing.",
     "activeInvitationDaily": 0,
     "nextInvitationRun": null
   },
@@ -70,7 +92,9 @@
     "verifiedEligible": 0,
     "intakeDeployed": false,
     "sourceApproved": false,
-    "reason": "No eligible recipient source/consent evidence supplied; prospect tables not deployed"
+    "reason": "No eligible recipient source/consent evidence supplied; prospect tables not deployed",
+    "campaignListsCreated": true,
+    "sampleContactsExcluded": true
   },
   "sourceReview": {
     "intake": "Admin-only source URL, consent/relationship evidence, address-verification attestation, suppression and duplicate checks in PR",
@@ -81,14 +105,22 @@
     ]
   },
   "nextActions": [
-    "Provide secure staging owner authentication through approved runtime/session (never credentials in chat)",
-    "Approve an appropriate campaign delivery service or obtain Zoho written permission and account-specific quota",
-    "Provide consented eligible UAE contractor/vendor contact source and evidence",
-    "After access, complete deployed staging workflow gates, sender test and separate inbox confirmation; retain 42 pending staging transactional messages undrained",
-    "Only after release and rollback gates pass, deploy existing production Worker, configure verified capacity and activate via audited admin workflow"
+    "Prepare consent-based intake forms for the two empty lists",
+    "Establish Campaigns OAuth/API access via secure server-side integration; never use the existing Mail refresh token as Campaigns authorization",
+    "Authenticate existing staging Admin through secure sign-in and complete deployed workflow gates",
+    "Verify owner-only Campaigns test acceptance and inbox delivery separately",
+    "Recheck plan continuity before trial expiry; no paid subscription without approval",
+    "Deploy existing production Worker only after staged release and rollback gates pass; activate only with eligible consented contacts"
   ],
   "officialReferences": [
     "https://www.zoho.com/mail/help/usage-policy.html",
     "https://www.zoho.com/mail/help/adminconsole/rates-and-limits.html"
-  ]
+  ],
+  "emailDnsChanges": {
+    "spf": "Existing Zoho Mail include retained; include:zcsend.net added to the single existing SPF record",
+    "dkim": "Campaigns selector 12530._domainkey added; existing Mail DKIM retained",
+    "dmarc": "Existing policy unchanged",
+    "returnPath": "zma.urbanprocures.com DNS-only CNAME -> 942616051.zcsend.net",
+    "providerValidation": "Campaigns UI Protected and email channel Completed 3/3"
+  }
 }
