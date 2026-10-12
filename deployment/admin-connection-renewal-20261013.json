@@ -57,5 +57,11 @@
     "link": "https://chatgpt.com/plugins/plugin_379833e392dc8191842584568327bb6e"
   },
   "hostStatus": "Longer-lived owner grant not yet established; one post-release reconnect and successful status call required",
-  "rfqFormat": "Owner accepted PDF proposal; authentication deployment did not alter RFQ format"
+  "rfqFormat": "Owner accepted PDF proposal; authentication deployment did not alter RFQ format",
+  "qaCleanup": {
+    "workerRemoved": true,
+    "isolatedFixtureDatabasesRemoved": true,
+    "productionResourcesDeleted": false
+  },
+  "ownerInputRequired": "One secure post-release reconnect to exchange the legacy eight-hour authorization for the renewable grant, then successful live Admin status verification"
 }
