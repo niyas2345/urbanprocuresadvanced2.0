@@ -1,5 +1,5 @@
 {
-  "verifiedAt": "2026-10-12T21:10:17.475Z",
+  "verifiedAt": "2026-10-12T21:20:23.157Z",
   "phase": "Production backend and Admin connector deployed and source/settings verified; owner host reauthorization pending",
   "originalAccessSeconds": 3600,
   "originalSessionSeconds": 28740,
@@ -56,12 +56,21 @@
     "release": "pluginrel_6acd4c88e7f08191a9755a767ef9b808",
     "link": "https://chatgpt.com/plugins/plugin_379833e392dc8191842584568327bb6e"
   },
-  "hostStatus": "Longer-lived owner grant not yet established; one post-release reconnect and successful status call required",
+  "hostStatus": "Owner reconnected after release; URBANPROCURES ADMIN live status HTTP 200 revision 129; documents collection read succeeded",
   "rfqFormat": "Owner accepted PDF proposal; authentication deployment did not alter RFQ format",
   "qaCleanup": {
     "workerRemoved": true,
     "isolatedFixtureDatabasesRemoved": true,
     "productionResourcesDeleted": false
   },
-  "ownerInputRequired": "One secure post-release reconnect to exchange the legacy eight-hour authorization for the renewable grant, then successful live Admin status verification"
+  "ownerInputRequired": null,
+  "productionOwnerGrant": {
+    "nonrevoked": 1,
+    "idleExpiry": "2026-11-11T21:15:14.733Z",
+    "absoluteExpiry": "2027-01-10T21:15:14.733Z"
+  },
+  "remaining": {
+    "rfqProfessionalFormat": "Approved proposal, not implemented or released yet; original visual inspection and corrected-document workflow still required",
+    "linkedIn": "Company Page requires a genuine person as administrator; standalone business-name login is not an allowed route"
+  }
 }
