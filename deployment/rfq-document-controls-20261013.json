@@ -1,0 +1,33 @@
+{
+  "phase": "authenticated_document_controls",
+  "status": "deployed_verified",
+  "checkedAt": "2026-10-12T23:59:49.598Z",
+  "repository": "niyas2345/urbanprocuresadvanced2.0",
+  "production": {
+    "worker": "urbanprocures-advanced-production-20261007",
+    "version": "381f5927-100a-47c4-88d4-38ce6758c0ac",
+    "bridge": "urbanprocures-admin-mcp",
+    "bridgeVersion": "e4e95891-550a-46a7-bc38-48bd48c0e15d",
+    "adminStatusHTTP": 200,
+    "adminRevision": 129,
+    "frontendAssetsPreserved": true,
+    "productionDatabaseBusinessRecordsChanged": false
+  },
+  "validation": {
+    "localNativeServiceBindingChecks": 24,
+    "remoteChecksBeforeAssertionCorrection": 23,
+    "remoteFinalAssertion": "Owner-scoped query independently verifies owner-runtime-fixture-4 revoked=1; original assertion incorrectly selected another staging fixture.",
+    "externalEmailsSent": 0
+  },
+  "remaining": {
+    "rfqLayout": "prepared_not_deployed",
+    "ktlRepublished": false,
+    "originalDocumentVisualReview": "blocked_until_host_discovers_urbanprocures_admin_document",
+    "migration0018": "not_applied_to_production"
+  },
+  "automaticReview": {
+    "rejectedAction": "Broad staging data reset",
+    "reason": "Could not independently verify isolated database authorization",
+    "resolvedBy": "Created fresh named isolated staging databases; production was untouched; did not retry rejected reset"
+  }
+}
