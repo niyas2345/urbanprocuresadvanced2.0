@@ -1,0 +1,55 @@
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
+import {integrationActor,integrationPathAllowed,adminIntegrationRoute} from '../urbanprocures advanced/workers/adminIntegration.ts';
+import bridge from '../integrations/admin-mcp/worker.mjs';
+const db=new DatabaseSync(':memory:');
+db.exec('CREATE TABLE users(id TEXT PRIMARY KEY,email TEXT,role TEXT,status TEXT); CREATE TABLE auth_sessions(token TEXT PRIMARY KEY,user_id TEXT,expires_at TEXT); CREATE TABLE audit_logs(id TEXT,actor_user_id TEXT,actor_role TEXT,action_type TEXT,resource_type TEXT,resource_id TEXT,payload_json TEXT,timestamp TEXT);');
+db.exec(readFileSync('urbanprocures advanced/database/migrations/0017_admin_integration_grants.sql','utf8'));
+const adapter={prepare(sql){const statement=db.prepare(sql);let params=[];return {bind(...v){params=v;return this},async first(){return statement.get(...params)||null},async run(){const r=statement.run(...params);return {meta:{changes:Number(r.changes)}}}}},async batch(statements){db.exec('BEGIN');try{const out=[];for(const s of statements)out.push(await s.run());db.exec('COMMIT');return out}catch(e){db.exec('ROLLBACK');throw e}}};
+let checks=0;const check=(v,label)=>{assert.ok(v,label);checks++};
+const digest=async t=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t))),b=>b.toString(16).padStart(2,'0')).join('');
+const owner={id:'owner-fixture',email:'owner@example.invalid',role:'admin',status:'active'};
+db.prepare('INSERT INTO users VALUES(?,?,?,?)').run(owner.id,owner.email,owner.role,owner.status);
+const session='a'.repeat(64);db.prepare('INSERT INTO auth_sessions VALUES(?,?,?)').run(await digest(session),owner.id,new Date(Date.now()+28800000).toISOString());
+const env={DB:adapter,ADMIN_INTEGRATION_GRANTS_ENABLED:'true',ADMIN_INTEGRATION_OWNER_ID:owner.id};
+const req=(path,token,method='POST',body='{}')=>new Request('https://urbanprocures.com'+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},...(method==='GET'?{}:{body})});
+const route=(path,token,actor=owner)=>adminIntegrationRoute(req(path,token),env,actor);
+check((await adminIntegrationRoute(req('/api/auth/admin-integration',session),{DB:adapter},owner)).status===503,'Feature disabled by default');
+check((await route('/api/auth/admin-integration',session,null)).status===403,'Owner authentication required');
+const create=await route('/api/auth/admin-integration',session);check(create.status===200,'Owner can explicitly connect');const grant=await create.json();
+check(grant.token.length===64&&grant.token!==session,'Separate random integration credential');
+check(!db.prepare('SELECT token_digest FROM admin_integration_grants WHERE token_digest=?').get(grant.token),'Only digest stored in website DB');
+check(db.prepare('SELECT count(*) AS n FROM audit_logs').get().n===1,'Connect audited without secrets');
+check((await integrationActor(req('/api/admin/revision',grant.token,'GET'),env))?.id===owner.id,'Allowlisted Admin read authorized');
+db.exec('DELETE FROM auth_sessions');
+check((await integrationActor(req('/api/admin/revision',grant.token,'GET'),env))?.id===owner.id,'Integration survives normal website logout/expiry');
+for(const p of ['/api/vendor/rfqs','/api/contractor/rfqs/x/award','/api/admin/email/workflow-test','/api/admin/terms/publish','/api/documents/x/view','/api/admin/rfqs/history?x=1']){
+ if(p.includes('?'))continue;
+ check(!await integrationActor(req(p,grant.token),env),'Grant cannot use unrelated workflow '+p);
+}
+check((await route('/api/auth/admin-integration',grant.token)).status===403,'Cannot mint grants from integration credentials');
+check((await route('/api/auth/admin-integration/refresh',grant.token)).status===200,'Renewal works without website session');
+const row=db.prepare('SELECT * FROM admin_integration_grants').get();check(Date.parse(row.expires_at)-Date.now()>29*86400000,'Thirty-day idle limit');
+check(Date.parse(row.absolute_expires_at)-Date.now()>89*86400000,'Ninety-day absolute bound');
+db.prepare("UPDATE users SET status='suspended'").run();check(!await integrationActor(req('/api/admin/revision',grant.token,'GET'),env),'Suspended owner immediately denied');
+db.prepare("UPDATE users SET status='active',role='vendor'").run();check(!await integrationActor(req('/api/admin/revision',grant.token,'GET'),env),'Changed owner role immediately denied');
+db.prepare("UPDATE users SET role='admin'").run();check((await route('/api/auth/admin-integration/revoke',grant.token)).status===200,'Disconnect revokes grant');check(!await integrationActor(req('/api/admin/revision',grant.token,'GET'),env),'Revoked grant denied');
+check(!integrationPathAllowed(req('/api/admin/users/x/status',session,'GET')),'Unknown read paths denied');
+
+// Exercise the actual OAuth handler with real SQLite persistence and a controlled backend transport.
+const auth=new DatabaseSync(':memory:');auth.exec('CREATE TABLE tokens(hash TEXT PRIMARY KEY,kind TEXT,client TEXT,family TEXT,encrypted TEXT,expires INTEGER,session_expires INTEGER);CREATE TABLE limits(key TEXT PRIMARY KEY,count INTEGER,expires INTEGER);');
+const authDb={prepare(sql){const s=auth.prepare(sql);let p=[];return {bind(...v){p=v;return this},async first(){return s.get(...p)||null},async run(){const r=s.run(...p);return {meta:{changes:Number(r.changes)}}}}},async batch(stmts){const r=[];for(const s of stmts)r.push(await s.run());return r}};
+const keyBytes=crypto.getRandomValues(new Uint8Array(32)),key=btoa(String.fromCharCode(...keyBytes));
+const aes=await crypto.subtle.importKey('raw',keyBytes,{name:'AES-GCM'},false,['encrypt']);
+const iv=crypto.getRandomValues(new Uint8Array(12));const sealed=btoa(String.fromCharCode(...iv))+'.'+btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.encrypt({name:'AES-GCM',iv},aes,new TextEncoder().encode(session)))));
+const oauthHash=async t=>btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t))))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const refresh='b'.repeat(64),access='c'.repeat(64),now=Math.floor(Date.now()/1000);
+for(const [t,kind] of [[refresh,'refresh'],[access,'access']])auth.prepare('INSERT INTO tokens VALUES(?,?,?,?,?,?,?)').run(await oauthHash(t),kind,'client','family',sealed,now+3600,now+28800);
+let outage=true;
+const bridgeEnv={AUTH_DB:authDb,SESSION_KEY:key,OWNER_USER_ID:owner.id,BACKEND:{fetch:async()=>outage?new Response('unavailable',{status:503}):Response.json({authenticated:true,user:owner})}};
+const renew=()=>bridge.fetch(new Request('https://urbanprocures-admin-mcp.abdeenniyas23.workers.dev/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'refresh_token',refresh_token:refresh,client_id:'client'})}),bridgeEnv);
+const failed=await renew();check(failed.status===503,'Backend outage produces retryable OAuth error');check((await failed.json()).error==='temporarily_unavailable','Outage not reported as invalid grant');check(auth.prepare("SELECT count(*) AS n FROM tokens WHERE kind='refresh'").get().n===1,'Outage does not consume refresh credential');
+outage=false;const success=await renew();check(success.status===200,'Same credential succeeds after recovery');const next=await success.json();check(next.access_token&&next.refresh_token,'OAuth renewal issues rotating tokens');check(auth.prepare('SELECT hash FROM tokens WHERE hash=?').get(await oauthHash(access)),'Existing access remains valid during rotation');
+check(!auth.prepare('SELECT hash FROM tokens WHERE hash=?').get(await oauthHash(refresh)),'Consumed refresh cannot be reused');
+console.log(JSON.stringify({checksPassed:checks,backend:'disposable real SQLite',handler:'actual OAuth Worker module under Node Web APIs',cloudflareRuntimeTested:false,productionModified:false}));

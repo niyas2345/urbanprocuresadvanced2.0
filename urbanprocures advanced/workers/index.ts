@@ -1,3 +1,4 @@
+import {standardRFQRoute,processStandardHolds} from './rfqStandard.ts';
 import {processPendingDocuments,standardizationRoute} from './standardizedDocuments.ts';
 // Urban Procures Advanced
 // PARTIAL Cloudflare Worker entry point; see WORK_MODE_EXECUTION.md.
@@ -5,6 +6,7 @@ import {processPendingDocuments,standardizationRoute} from './standardizedDocume
 
 import { isIsolatedAdvancedRequest } from './isolation.ts';
 import { authRoute, actorFor } from './auth.ts';
+import {adminIntegrationRoute} from './adminIntegration.ts';
 import { termsRoute, termsGate } from './terms.ts';
 import { awardRoute } from './award.ts';
 import {publicDiscoveryRoute} from './publicDiscovery.ts';
@@ -12,11 +14,16 @@ import { publicQuoteRoute } from './publicQuote.ts';
 import { procurementRoute } from './procurement.ts';
 import { operationsRoute } from './operations.ts';
 import { dispatchNotifications } from './notifications.ts';
+import {emailAutomationRoute,generateInvitations,dispatchInvitations} from './emailAutomation.ts';
 import { ServiceChargeEngine } from './serviceChargeEngine.ts';
 import { RFQStateMachine } from './rfqStateMachine.ts';
 
 export interface Env {
+  ADMIN_INTEGRATION_GRANTS_ENABLED?: string;
+  ADMIN_INTEGRATION_OWNER_ID?: string;
   AI?: Ai;
+  INVITATION_OUTREACH_ENABLED?: string;
+  EMAIL_AUTOMATION_VALIDATED?: string;
   EMAIL_DELIVERY_ENABLED?: string;
   ZOHO_CLIENT_ID?: string;
   ZOHO_CLIENT_SECRET?: string;
@@ -36,10 +43,12 @@ export interface Env {
 
 export default {
   async scheduled(_controller:ScheduledController,env:Env,ctx:ExecutionContext):Promise<void>{
+    ctx.waitUntil(processStandardHolds(env).catch(()=>console.error('RFQ_STANDARD_HOLD_PROCESSING_FAILED')));
     if(env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));
     if(['advanced-staging','advanced-production'].includes(env.ENVIRONMENT)&&env.EMAIL_DELIVERY_ENABLED==='true'){
       ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));
     }
+    if(env.INVITATION_OUTREACH_ENABLED==='true')ctx.waitUntil((async()=>{await generateInvitations(env);await dispatchInvitations(env);})().catch(()=>console.error('INVITATION_SCHEDULER_FAILED')));
   },
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (!isIsolatedAdvancedRequest(request, env.ENVIRONMENT, env.PLATFORM_DOMAIN)) {
@@ -68,6 +77,8 @@ export default {
       if(!permitted)return Response.json({success:false,error:'REQUEST_ORIGIN_REJECTED'},{status:403});
     }
     try {
+      const integration=await adminIntegrationRoute(request.clone(),env,await actorFor(request,env));if(integration)return integration;
+      const automation=await emailAutomationRoute(request.clone(),env,await actorFor(request,env));if(automation)return automation;
       const discovery=await publicDiscoveryRoute(request,env);if(discovery)return discovery;
       const termsResponse=await termsRoute(request,env,await actorFor(request,env));
       if(termsResponse)return termsResponse;
@@ -79,6 +90,7 @@ export default {
           if(rejected)return rejected;
         }
       }
+      const rfqStandard=await standardRFQRoute(request.clone(),env,await actorFor(request,env));if(rfqStandard)return rfqStandard;
       const standardized=await standardizationRoute(request.clone(),env,await actorFor(request,env));if(standardized)return standardized;
       const operations=await operationsRoute(request.clone(),env,await actorFor(request,env));
       if(operations){if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.AI)ctx.waitUntil(processPendingDocuments(env).catch(()=>{}));if(operations.ok&&['POST','PUT','PATCH'].includes(method)&&env.EMAIL_DELIVERY_ENABLED==='true')ctx.waitUntil(dispatchNotifications(env).catch(()=>{}));return operations;}

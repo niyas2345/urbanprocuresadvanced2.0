@@ -1,3 +1,4 @@
+import {VendorRFQStandard} from '../components/VendorRFQStandard.tsx';
 import {PortalHome} from '../components/PortalHome.tsx';
 import {TradeLicenseInput,type LicenseFile} from '../components/TradeLicenseInput.tsx';
 import {DocumentAttachments,type Attachment} from '../components/DocumentAttachments.tsx';
@@ -59,6 +60,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
   const [quoteNotes, setQuoteNotes] = useState('');
   const [itemRates, setItemRates] = useState<Record<string, number>>({});
   const [quoteAttachments,setQuoteAttachments]=useState<Attachment[]>([]);
+  const [itemAmounts,setItemAmounts]=useState<Record<string,number>>({});
   const [filesBusy,setFilesBusy]=useState(false),[pricingMode,setPricingMode]=useState<'itemized'|'total'|'file'>('itemized'),[packageTotal,setPackageTotal]=useState('');
   const quoteLock=useRef(false);
   const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
@@ -83,7 +85,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
     if(pricingMode!=='itemized')return Number(packageTotal)||0;
     return rfq.items.reduce((sum, item) => {
       const rate = itemRates[item.id] || 0;
-      return sum + rate * item.quantity;
+      return sum + (item.quantity===null?(itemAmounts[item.id]||0):rate * item.quantity);
     }, 0);
   };
 
@@ -108,7 +110,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
     quoteLock.current=true;setIsSubmittingQuote(true);
     try{
       const attachments=quoteAttachments;
-      await api.vendor.submitQuote(selectedRfq.id,{attachments,pricingMode,totalAmountAed:Number(packageTotal),leadTimeDays:Number(quoteLeadTime),validityDays:Number(quoteValidity),paymentTerms:quotePaymentTerms,notes:quoteNotes,items:selectedRfq.items.map(item=>({rfqItemId:item.id,unitRateAed:itemRates[item.id]||0}))});
+      await api.vendor.submitQuote(selectedRfq.id,{attachments,pricingMode,totalAmountAed:Number(packageTotal),leadTimeDays:Number(quoteLeadTime),validityDays:Number(quoteValidity),paymentTerms:quotePaymentTerms,notes:quoteNotes,items:selectedRfq.items.map(item=>({rfqItemId:item.id,unitRateAed:itemRates[item.id]||0,...(item.quantity===null&&itemAmounts[item.id]!==undefined?{amountAed:itemAmounts[item.id]}:{})}))});
       await refreshVendor();setSelectedRfq(null);setActiveTab('my_quotes');showToast('Quotation saved.','success');
     }catch(err:any){setQuoteError(err.message);}finally{quoteLock.current=false;setIsSubmittingQuote(false);}
   };
@@ -485,7 +487,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                                     setTermsModalOpen(true);
                                     return;
                                   }
-                                  setSelectedRfq(rfq);setPricingMode('itemized');setPackageTotal('');setQuoteAttachments([]);setItemRates({});setQuoteError(null);
+                                  setSelectedRfq(rfq);setPricingMode('itemized');setPackageTotal('');setQuoteAttachments([]);setItemRates({});setItemAmounts({});setQuoteError(null);
                                 }}
                                 className="bg-[#eb6a32] hover:bg-[#bd4b1c] text-white font-bold px-4 py-2 rounded-[5px] text-xs flex items-center gap-1.5 transition-colors shadow-sm active:translate-y-0.5"
                               >
@@ -593,17 +595,18 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                     </div>
                   )}
 
-                  <div className="py-4 border-b border-[#e1e7e4]">
+                  {!selectedRfq.standardPackage&&<div className="py-4 border-b border-[#e1e7e4]">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#63797b] mb-2 font-['Manrope']">Scope Summary</h4>
                     <p className="text-xs text-[#123540] leading-relaxed">{selectedRfq.scopeDescription}</p>
-                  </div>
+                  </div>}
                 </div>
 
                 {/* Quotation Submission Form */}
                 <form onSubmit={handleQuotationSubmit} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 sm:p-8 shadow-[0_9px_25px_rgba(25,60,65,0.05)] space-y-6">
-                  <label className="block text-xs font-semibold">Quotation method<select aria-label="Quotation method" value={pricingMode} onChange={e=>setPricingMode(e.target.value as typeof pricingMode)} className="block border border-[#bccbca] p-2 mt-2 rounded"><option value="itemized">Item-by-item pricing</option><option value="total">Total package amount</option><option value="file">Upload quotation file with total</option></select></label>
+                  {!selectedRfq.standardPackage&&<label className="block text-xs font-semibold">Quotation method<select aria-label="Quotation method" value={pricingMode} onChange={e=>setPricingMode(e.target.value as typeof pricingMode)} className="block border border-[#bccbca] p-2 mt-2 rounded"><option value="itemized">Item-by-item pricing</option><option value="total">Total package amount</option><option value="file">Upload quotation file with total</option></select></label>}
+                  {selectedRfq.standardPackage&&<VendorRFQStandard rfqId={selectedRfq.id} content={selectedRfq.standardPackage} rates={itemRates} amounts={itemAmounts} onRate={(id,value)=>setItemRates(previous=>({...previous,[id]:value}))} onAmount={(id,value)=>setItemAmounts(previous=>({...previous,[id]:value}))} onDocument={id=>{const doc=selectedRfq.documents.find(d=>d.id===id);if(doc)setInspectDoc(doc);}}/>}
                   {pricingMode!=='itemized'&&<label className="block text-xs font-semibold">Total quotation amount (AED)<input aria-label="Total quotation amount (AED)" type="number" required min="0.01" step="0.01" value={packageTotal} onChange={e=>setPackageTotal(e.target.value)} className="block border border-[#bccbca] p-2 mt-2 rounded"/></label>}
-                  {pricingMode==='itemized'&&<div>
+                  {pricingMode==='itemized'&&!selectedRfq.standardPackage&&<div>
                     <h3 className="text-base font-extrabold text-[#123540] font-['Manrope'] mb-1">
                       Itemized Quotation Pricing (Bill of Quantities)
                     </h3>
@@ -698,7 +701,7 @@ export const VendorPage: React.FC<VendorPageProps> = ({ onNavigate }) => {
                       </label>
                       <input
                         type="number"
-                        value={quoteValidity}
+                        min={selectedRfq.standardPackage?30:1} value={quoteValidity}
                         onChange={(e) => setQuoteValidity(e.target.value)}
                         className="w-full px-3 py-2 border border-[#bccbca] rounded-[5px] font-mono"
                       />

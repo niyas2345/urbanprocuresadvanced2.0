@@ -148,6 +148,15 @@ export const api = {
 
   // Admin
   admin: {
+    emailAutomation:{
+      get:async()=>{const res=await request('/admin/email/automation');return res.data;},
+      settings:(data:unknown)=>request('/admin/email/automation/settings',{method:'PATCH',body:JSON.stringify(data)}),
+      pause:()=>request('/admin/email/automation/pause',{method:'POST',body:'{}'}),
+      resume:()=>request('/admin/email/automation/resume',{method:'POST',body:'{}'}),
+      prospect:(data:unknown)=>request('/admin/email/automation/prospects',{method:'POST',body:JSON.stringify(data)}),
+      template:(data:unknown)=>request('/admin/email/automation/templates',{method:'PATCH',body:JSON.stringify(data)}),
+      suppress:(data:unknown)=>request('/admin/email/automation/suppress',{method:'POST',body:JSON.stringify(data)})
+    },
     getRevision:async()=>{const res=await request('/admin/revision');return res.data.revision;},
     getNotifications:async()=>{const res=await request('/admin/notifications');return res.data;},
     getDocumentHistory:async()=>{const res=await request('/admin/documents/history');return res.data;},

@@ -12,8 +12,10 @@ export async function awardRoute(request:Request,env:Env,actor:Actor|null):Promi
   if(!body || typeof body.quotationId!=='string')return Response.json({success:false,error:'INVALID_QUOTATION'},{status:400});
   const rfq=await env.DB.prepare('SELECT * FROM rfqs WHERE id=? AND contractor_id=?').bind(match[1],contractor?.id||'').first<any>();
   if(!rfq)return Response.json({success:false,error:'RFQ_NOT_FOUND'},{status:404});
+  if(rfq.standard_published_json&&JSON.parse(rfq.standard_published_json).requestType==='Preliminary Quotation')return Response.json({success:false,error:'PRELIMINARY_RFQ_NOT_AWARDABLE'},{status:409});
   if(!['receiving_quotations','under_evaluation'].includes(rfq.status))return Response.json({success:false,error:'INVALID_AWARD_STATE'},{status:409});
   const quote=await env.DB.prepare("SELECT q.*,v.user_id FROM vendor_quotes q JOIN vendors v ON v.id=q.vendor_id JOIN users u ON u.id=v.user_id WHERE q.id=? AND q.rfq_id=? AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL AND q.status IN ('submitted','shortlisted','under_review') AND v.verification_status='verified' AND u.status='active'").bind(body.quotationId,rfq.id).first<any>();
+  if(quote&&(quote.rfq_revision??0)!==(rfq.standard_revision??0))return Response.json({success:false,error:'QUOTATION_REVISION_OUTDATED'},{status:409});
   if(!quote)return Response.json({success:false,error:'ELIGIBLE_QUOTATION_REQUIRED'},{status:409});
   if(Date.now()>Date.parse(quote.submitted_at)+quote.validity_days*86400000)return Response.json({success:false,error:'QUOTATION_EXPIRED'},{status:409});
   const vendorActor={id:quote.user_id,email:'',role:'vendor',status:'active'};
@@ -32,6 +34,7 @@ export async function awardRoute(request:Request,env:Env,actor:Actor|null):Promi
       FROM rfqs r JOIN vendor_quotes q ON q.rfq_id=r.id JOIN vendors v ON v.id=q.vendor_id JOIN users u ON u.id=v.user_id
       WHERE r.id=? AND r.contractor_id=? AND q.id=? AND r.deleted_at IS NULL AND r.status IN ('receiving_quotations','under_evaluation')
       AND q.withdrawn_at IS NULL AND q.deleted_at IS NULL AND q.status IN ('submitted','shortlisted','under_review') AND v.verification_status='verified' AND u.status='active'
+      AND q.rfq_revision=r.standard_revision AND coalesce(json_extract(r.standard_published_json,'$.requestType'),'')!='Preliminary Quotation'
       AND q.total_amount_aed=? AND r.procurement_type=? AND r.approved_manpower_quantity IS ? AND r.manpower_persons IS ? AND r.manpower_hours_per_person_per_day IS ? AND r.manpower_days IS ?
       AND EXISTS(SELECT 1 FROM terms_acceptance_evidence e JOIN terms_versions t ON t.id=e.terms_version_id
         WHERE e.acceptance_id=? AND e.user_id=u.id AND t.status IN ('published','retired')

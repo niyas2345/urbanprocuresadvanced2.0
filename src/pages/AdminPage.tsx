@@ -1,7 +1,9 @@
+import {AdminRFQStandard} from '../components/AdminRFQStandard.tsx';
 import {useDashboardRefresh} from '../hooks/useDashboardRefresh.ts';
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../services/api.ts';
 import { AdminTermsPanel } from '../components/AdminTermsPanel.tsx';
+import {AdminEmailAutomationPanel} from '../components/AdminEmailAutomationPanel.tsx';
 import { RFQ, PublicQuoteRequest, DocumentMetadata, AuditEvent, InvitationRecord, User } from '../types/index.ts';
 import { useToast } from '../components/ToastContext.tsx';
 import { ShieldCheck, FileText, CheckCircle2, Eye, Download, UserCheck, Calculator, Send, AlertTriangle, Layers, Clock, HardDrive, RefreshCw, Users, Check, X, Calendar, ArrowUpRight } from 'lucide-react';
@@ -38,7 +40,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
   useDashboardRefresh(async()=>{const revision=await api.admin.getRevision();if(revisionRef.current!==revision){await load();revisionRef.current=revision;}},authorized);
   const action=async(task:()=>Promise<any>,message:string)=>{try{await task();await load();showToast(message,'success');}catch(err:any){showToast(err.message,'error');}};
   const handleApproveRfq=(id:string)=>{if(window.confirm('Confirm that all RFQ text and BoQ have been reviewed and contain no protected identity or contact information.'))action(()=>api.admin.publishRfq(id),'RFQ approved and published.');};
-  const handleSendInvite=(e:React.FormEvent)=>{e.preventDefault();showToast('Zoho Mail delivery is not configured. No invitation was sent.','error');};
   const handleToggleUserStatus=(id:string,status:User['status'])=>action(()=>api.admin.updateUserStatus(id,status==='active'?'suspended':'active'),'Account status updated.');
   const handleUpdateQuoteStatus=(id:string,status:PublicQuoteRequest['status'])=>action(()=>api.admin.updatePublicQuoteStatus(id,status),'Request status updated.');
   if(!authorized)return <div className="min-h-screen bg-[#f7f6f2] p-8 text-[#123540]"><form className="bg-white border rounded p-6 max-w-md mx-auto space-y-4" onSubmit={async e=>{e.preventDefault();try{const session=await api.auth.login(email,password);if(session.user.role!=='admin'){await api.auth.logout();throw Error('Active Admin account required.');}await load();}catch(err:any){setError(err.message);}}}><h1 className="font-bold text-xl">Urban Procures Operations Console</h1>{error&&<p role="alert">{error}</p>}<label className="block">Admin email<input className="border p-2 w-full" type="email" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label className="block">Password<input className="border p-2 w-full" type="password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button className="bg-[#123f47] text-white p-2 rounded">Sign In</button></form></div>;
@@ -262,7 +263,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
 
             <div className="grid grid-cols-1 gap-4">
               {rfqs.map((rfq) => (
-                <div key={rfq.id} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div key={rfq.id} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 shadow-sm flex flex-col justify-between items-start gap-4">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-mono text-xs font-bold text-[#63797b] bg-[#f7f6f2] px-2 py-0.5 rounded border border-[#e1e7e4]">
@@ -279,7 +280,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {rfq.status === 'submitted' && (
+                    {false && rfq.status === 'submitted' && (
                       <button
                         onClick={() => handleApproveRfq(rfq.id)}
                         className="bg-[#123f47] hover:bg-[#0e3037] text-white font-bold px-4 py-2 rounded-[4px] text-xs flex items-center gap-1.5 shadow-sm transition-colors"
@@ -297,6 +298,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
                       </button>
                     )}
                   </div>
+                  {!showHistory&&!['awarded','closed','cancelled'].includes(rfq.status)&&<AdminRFQStandard rfqId={rfq.id} onPublished={load}/>}
                 </div>
               ))}
             </div>
@@ -577,96 +579,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
           </div>
         )}
 
-        {/* SECTION 7: INVITATION ENGINE QUEUE */}
-        {activeSection === 'invitations' && (
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-[#123540] font-['Manrope']">
-                Candidate Invitation & Onboarding Queue
-              </h2>
-              <p className="text-xs text-[#63797b] mt-1">
-                Zoho Mail delivery must be configured before invitations can be sent.
-              </p>
-            </div>
-
-            <form onSubmit={handleSendInvite} className="bg-white border border-[#e1e7e4] rounded-[6px] p-6 shadow-sm grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
-              <div>
-                <label className="block font-semibold text-[#123540] mb-1">Company / Organization</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Al Habtoor Glazing LLC"
-                  value={inviteOrg}
-                  onChange={(e) => setInviteOrg(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#bccbca] rounded-[5px]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#123540] mb-1">Candidate Email</label>
-                <input
-                  type="email"
-                  required
-                  placeholder="tenders@org.ae"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-[#bccbca] rounded-[5px]"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#123540] mb-1">Portal Type</label>
-                <select
-                  value={inviteType}
-                  onChange={(e) => setInviteType(e.target.value as any)}
-                  className="w-full px-3 py-2 border border-[#bccbca] rounded-[5px] bg-white"
-                >
-                  <option value="vendor">Vendor / Supplier</option>
-                  <option value="contractor">Main Contractor</option>
-                </select>
-              </div>
-
-              <div className="flex items-end">
-                <button
-                  type="submit"
-                  className="w-full bg-[#123540] hover:bg-[#082631] text-white font-bold py-2.5 px-4 rounded-[5px] flex items-center justify-center gap-1.5 transition-colors shadow-sm"
-                >
-                  <Send className="w-3.5 h-3.5 text-[#eb6a32]" />
-                  <span>Dispatch Invitation</span>
-                </button>
-              </div>
-            </form>
-
-            <div className="bg-white border border-[#e1e7e4] rounded-[6px] overflow-hidden shadow-sm">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-[#f7f6f2] text-[#63797b] uppercase font-mono text-[10px] border-b border-[#e1e7e4]">
-                  <tr>
-                    <th className="py-3 px-4">Organization</th>
-                    <th className="py-3 px-4">Email</th>
-                    <th className="py-3 px-4">Type</th>
-                    <th className="py-3 px-4">Invitation Token</th>
-                    <th className="py-3 px-4">Queue Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#e1e7e4]">
-                  {invitations.map((inv) => (
-                    <tr key={inv.id}>
-                      <td className="py-3 px-4 font-bold text-[#123540]">{inv.organizationName}</td>
-                      <td className="py-3 px-4 text-[#63797b]">{inv.recipientEmail}</td>
-                      <td className="py-3 px-4 uppercase font-mono text-[10px]">{inv.inviteType}</td>
-                      <td className="py-3 px-4 font-mono text-[#63797b]">{inv.invitationToken}</td>
-                      <td className="py-3 px-4">
-                        <span className="text-white bg-[#123f47] px-2 py-0.5 rounded font-mono font-bold uppercase text-[10px]">
-                          {inv.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {activeSection === 'invitations' && <AdminEmailAutomationPanel/>}
 
         {/* SECTION 8: IMMUTABLE AUDIT TRAIL */}
         {activeSection === 'audit' && (

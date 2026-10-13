@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-13 Dubai",
+  "status": "in_progress_not_deployed",
+  "ownerAuthorizedLiveImplementation": true,
+  "productionBaselineVersion": "5405dbc6-3700-4e87-9050-3e9a2e7fe04c",
+  "bridgeBaselineVersion": "31643d58-8fea-4083-9f44-cc518252e31c",
+  "rfqTarget": "2e34c55f-7355-431d-8242-968eb6319682",
+  "prepared": [
+    "Authenticated document preview/correction",
+    "Unified six-section RFQ schema and nine-column pricing",
+    "Additive migration 0018 (not applied to production)",
+    "Admin draft/edit/preview/release UI",
+    "Vendor standard schedule and moderated shared Q&A",
+    "Preliminary and outdated-revision award guards",
+    "48-hour reminder / seven-day draft expiration processor"
+  ],
+  "verified": {
+    "adminHttpStatus": 200,
+    "adminRevision": 129,
+    "localWorkerdDocumentOAuthChecks": 24,
+    "typecheck": true,
+    "frontendBuild": true
+  },
+  "remaining": [
+    "Resolve deployed QA test harness execution; genuine native service-binding staging validation not yet passed",
+    "Full RFQ negative/security/regression and browser/PDF checks",
+    "Integrate and validate clarification/revision notification behavior",
+    "Verify source/asset preservation and scoped deployment patch",
+    "Production deployment and migration",
+    "Original KTL attachment inspection, identity-safe corrections and reviewed revision publication",
+    "Host discovery of added purpose-specific tools"
+  ],
+  "qaResources": {
+    "worker": "urbanprocures-advanced-rfq-qa-20261013",
+    "backend": "urbanprocures-advanced-rfq-qa-backend-20261013",
+    "bridge": "urbanprocures-advanced-rfq-qa-bridge-20261013",
+    "initialDataDb": "27dc2bfe-a015-49cc-b89a-0f1749fb7a22",
+    "initialAuthDb": "bddc371e-1eaa-41a4-8048-662c90e74611",
+    "nativeDataDb": "e523ecf9-3cec-4b3b-9782-4ce096e8958e",
+    "nativeAuthDb": "f1f58485-db08-4e67-892c-183c26441da6",
+    "bucket": "urbanprocures-advanced-rfq-qa-20261013-documents",
+    "cronDisabled": true
+  },
+  "productionRfqsChanged": false,
+  "productionSchema18Applied": false,
+  "productionAssetsChanged": false,
+  "invitationAutomationPromoted": false,
+  "securityNote": "Bulk QA reset was rejected by automatic review; new empty isolated databases were created instead. No production deletion or authentication bypass authorized or performed."
+}

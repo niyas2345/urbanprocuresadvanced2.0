@@ -1,0 +1,76 @@
+{
+  "verifiedAt": "2026-10-12T21:20:23.157Z",
+  "phase": "Production backend and Admin connector deployed and source/settings verified; owner host reauthorization pending",
+  "originalAccessSeconds": 3600,
+  "originalSessionSeconds": 28740,
+  "confirmedDefect": "Refresh credential consumed before backend validation; upstream temporary errors reported invalid_grant; access tokens also removed on rotation",
+  "newAccessSeconds": 3600,
+  "newIdleDays": 30,
+  "newAbsoluteDays": 90,
+  "sourceChanges": "Purpose-restricted owner-only integration grants, independent of website sessions; revocation on disconnect/password reset; owner status checked on each request; transient errors preserve refresh credential",
+  "localChecks": 29,
+  "localWorkerdChecks": 18,
+  "existingWebsiteAuthChecks": 23,
+  "typescript": "passed",
+  "cloudflareDeployedChecks": 24,
+  "qaWorker": "urbanprocures-advanced-admin-grant-qa-20261013",
+  "qaDatabases": [
+    {
+      "name": "urbanprocures-advanced-admin-grant-qa-data-20261013",
+      "id": "c869b7c0-b59b-4119-ac00-7856d342c3b5"
+    },
+    {
+      "name": "urbanprocures-advanced-admin-grant-qa-auth-20261013",
+      "id": "59df3483-df4b-4672-8d7c-338eee955c6d"
+    }
+  ],
+  "productionModified": true,
+  "frontendModified": false,
+  "recipientCampaignActivated": false,
+  "rollbackBackendVersion": "142650a7-340c-4839-b370-5bc706a2aae3",
+  "ownerReconnection": "One final secure authorization required after deployment; old token families cannot silently acquire the longer grant",
+  "production": {
+    "worker": "urbanprocures-advanced-production-20261007",
+    "version": "5405dbc6-3700-4e87-9050-3e9a2e7fe04c",
+    "deployment": "79d60362-f753-4966-bc55-aac166892f42",
+    "assetsRetained": true,
+    "database": "3412487b-954b-4f21-92d3-20d85d30dc11",
+    "counts": {
+      "rfqs": 4,
+      "documents": 12,
+      "users": 5
+    },
+    "foreignKeyViolations": 0,
+    "migration": "0017_admin_integration_grants.sql",
+    "pendingInvitationMigrationNotApplied": true
+  },
+  "bridge": {
+    "worker": "urbanprocures-admin-mcp",
+    "version": "31643d58-8fea-4083-9f44-cc518252e31c",
+    "deployment": "1001ff0c-e540-4124-93b5-76cfc2471781",
+    "applicationVersion": "1.1.0",
+    "secretAndServiceBindingsInherited": true
+  },
+  "plugin": {
+    "version": "0.5.2",
+    "release": "pluginrel_6acd4c88e7f08191a9755a767ef9b808",
+    "link": "https://chatgpt.com/plugins/plugin_379833e392dc8191842584568327bb6e"
+  },
+  "hostStatus": "Owner reconnected after release; URBANPROCURES ADMIN live status HTTP 200 revision 129; documents collection read succeeded",
+  "rfqFormat": "Owner accepted PDF proposal; authentication deployment did not alter RFQ format",
+  "qaCleanup": {
+    "workerRemoved": true,
+    "isolatedFixtureDatabasesRemoved": true,
+    "productionResourcesDeleted": false
+  },
+  "ownerInputRequired": null,
+  "productionOwnerGrant": {
+    "nonrevoked": 1,
+    "idleExpiry": "2026-11-11T21:15:14.733Z",
+    "absoluteExpiry": "2027-01-10T21:15:14.733Z"
+  },
+  "remaining": {
+    "rfqProfessionalFormat": "Approved proposal, not implemented or released yet; original visual inspection and corrected-document workflow still required",
+    "linkedIn": "Company Page requires a genuine person as administrator; standalone business-name login is not an allowed route"
+  }
+}

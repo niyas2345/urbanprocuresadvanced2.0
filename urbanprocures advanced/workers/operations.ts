@@ -1,3 +1,4 @@
+import {standardRFQRoute} from './rfqStandard.ts';
 import type { Env } from './index.ts';
 import {verifyZohoAuthentication,ZohoOAuthError,ZohoDeliveryError,sendZohoMail} from './zohoMail.ts';
 import {rateAllowed} from './recovery.ts';
@@ -172,10 +173,8 @@ export async function operationsRoute(request:Request,env:Env,actor:Actor|null):
  if(path==='/api/admin/public-quotes'&&method==='GET'){const rows=await env.DB.prepare('SELECT * FROM get_a_quote_requests ORDER BY created_at DESC').all<any>();const data=[];for(const row of rows.results){const attachments=await env.DB.prepare('SELECT * FROM rfq_documents WHERE public_quote_id=?').bind(row.id).all();data.push({...camel(row),siteVisitRequested:!!row.site_visit_requested,attachments:attachments.results.map(d=>documentDto(d,true))});}return ok(data);}
  const publish=path.match(/^\/api\/admin\/rfqs\/([^/]+)\/publish$/);
  if(publish&&method==='POST') {
-  const row=await env.DB.prepare('SELECT * FROM rfqs WHERE id=?').bind(publish[1]).first<any>();if(!row)return fail('RFQ_NOT_FOUND',404);
-  if(row.deleted_at||row.status!=='submitted'||Date.parse(row.submission_deadline)<=Date.now())return fail('RFQ_NOT_READY',409);
-  if(body.identityReviewConfirmed!==true)return fail('IDENTITY_REVIEW_REQUIRED',409);
-  const results=await env.DB.batch([env.DB.prepare("UPDATE rfqs SET status='reviewed_published',published_at=? WHERE id=? AND status='submitted' AND deleted_at IS NULL").bind(new Date().toISOString(),row.id),audit(env,actor,'RFQ_PUBLISH','rfq',row.id,{identityReviewConfirmed:true})]);return results[0].meta.changes?ok({id:row.id,status:'reviewed_published'}):fail('RFQ_CONFLICT',409);
+  const endpoint=new URL(request.url);endpoint.pathname='/api/admin/rfqs/'+publish[1]+'/standard/publish';
+  return standardRFQRoute(new Request(endpoint.toString(),{method:'POST',headers:request.headers,body:JSON.stringify(body)}),env,actor);
  }
  const verify=path.match(/^\/api\/admin\/vendors\/([^/]+)\/verification$/);
  if(verify&&method==='PATCH') {

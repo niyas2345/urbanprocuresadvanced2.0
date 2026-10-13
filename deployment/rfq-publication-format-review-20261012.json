@@ -1,0 +1,41 @@
+{
+  "verifiedAt": "2026-10-12T19:38:55.694Z",
+  "scope": "Read-only masking and vendor RFQ publication review; professional layout sample prepared outside repository",
+  "worker": "urbanprocures-advanced-production-20261007",
+  "version": "142650a7-340c-4839-b370-5bc706a2aae3",
+  "productionModified": false,
+  "codeModified": false,
+  "databaseModified": false,
+  "websiteAdminConnection": "Authentication required",
+  "sourceCompared": "Deployed renderStandardized, maskedText, rfqDto, and preview/release gates match reviewed local logic",
+  "liveActivePublishedRfqs": 1,
+  "standaloneCableRfqFound": false,
+  "documents": {
+    "mainBoqRows": 67,
+    "mainBoqOutput": "text/html",
+    "supplementRows": 41,
+    "supplementExactDuplicateRows": 39,
+    "supplementOutput": "text/html",
+    "referenceImageOutput": "Description-only PDF, not visual redaction"
+  },
+  "findings": [
+    "Pipe-separated paragraphs and duplicate extraction transcript",
+    "Non-ASCII characters change output to HTML",
+    "No explicit primary document order; first attachment summary replaces RFQ overview",
+    "Generic file identifiers and drawing purpose for BOQ",
+    "Photo converted to description loses visual geometry",
+    "Source return date differs from live deadline; Admin reconciliation required"
+  ],
+  "recommendedScope": [
+    "Structured vendor publication package with explicit primary brief and BOQ",
+    "Consistent Unicode-capable rendering",
+    "Reviewed flattened visual redaction preserving geometry",
+    "Admin source/output comparison and fresh release"
+  ],
+  "validationLimits": [
+    "No logged-in vendor inspection",
+    "No visual comparison with private originals",
+    "No new end-to-end release tests"
+  ],
+  "nextAction": "Owner review of sample; authenticated application access required for private originals and live re-release. Do not use D1 updates to bypass Admin release."
+}

@@ -1,0 +1,159 @@
+{
+  "verifiedAt": "2026-10-12T16:36:32.252Z",
+  "repository": "niyas2345/urbanprocuresadvanced2.0",
+  "pr": 1,
+  "implementationHead": "75d646b66690eab1ee4e2be4ed60a84b5745e05f",
+  "phase": "Campaigns sender/domain ready; consent intake drafts saved; blocked at staging Admin authentication and Campaigns backend OAuth integration",
+  "production": {
+    "worker": "urbanprocures-advanced-production-20261007",
+    "activeVersion": "142650a7-340c-4839-b370-5bc706a2aae3",
+    "deployment": "d38e744d-02ee-44de-86c4-fae427044337",
+    "cron": "*/5 * * * *",
+    "migrationLatest": "0015_standardized_documents.sql",
+    "invitationRows": 0,
+    "automationTablesPresent": false,
+    "foreignKeyViolations": 0,
+    "modified": false,
+    "browserAuthentication": "Live Admin secure sign-in declined; no authenticated live session established in agent browser. Owner mobile session is separate."
+  },
+  "staging": {
+    "worker": "urbanprocures-advanced-staging-20261005",
+    "migrationLatest": "0015_standardized_documents.sql",
+    "automationTablesPresent": false,
+    "foreignKeyViolations": 0,
+    "automaticEmailDeliveryEnabled": false,
+    "outbox": {
+      "pending": 42,
+      "sent": 1,
+      "suppressed": 596
+    },
+    "adminAuthentication": "Secure submitted sign-in rejected by website: Invalid credentials or unavailable account. No authentication established. Manual browser handoff offered; no reset or duplicate Admin created.",
+    "newWorkflowGates": "Not run",
+    "modified": false
+  },
+  "zoho": {
+    "connectionReadSucceeded": true,
+    "accountPlanObserved": "free",
+    "invitesAliasPresent": true,
+    "fallbackAlias": "urbanprocures@urbanprocures.com",
+    "fallbackConfirmed": true,
+    "outgoingBlocked": false,
+    "sendAsValidation": "validated=false; validationRequired=true; requires real provider send test",
+    "domain": {
+      "verified": true,
+      "mx": true,
+      "spf": true,
+      "dkim": true
+    },
+    "providerAcceptanceTest": "Not run; staging owner authentication required",
+    "inboxDeliveryTest": "Not run",
+    "aliasCreation": "Not required: organization-level inventory and user-specific API confirmed existing Admin-owned alias. Prior absence finding was limited to connected mailbox.",
+    "invitesAliasOwner": "admin@urbanprocures.com",
+    "invitesAliasConfirmed": true,
+    "invitesSendAsRecordPresent": true,
+    "invitesSendAsValidation": "Record enabled; validated=false, validationRequired=true. Actual OAuth sender acceptance untested.",
+    "accountAccess": "Current connection can read Admin user through organization API; direct mailbox account-details query returns Account not exists. Website credentials remain bound to separate urbanprocures mailbox.",
+    "campaignSetup": "Created and verified Urban Procures Campaigns organization under Admin after explicit Terms/Privacy approval. No paid subscription selected.",
+    "campaigns": {
+      "organizationId": "942616051",
+      "sender": "invites@urbanprocures.com",
+      "senderVerified": true,
+      "domainStatus": "Protected",
+      "spf": true,
+      "dkim": true,
+      "dmarc": true,
+      "customReturnPath": true,
+      "plan": "TRIAL",
+      "expiresOn": "2026-10-26",
+      "emailAllowance": 6000,
+      "emailUsed": 0,
+      "contactAllowance": 2000,
+      "sampleContacts": 3,
+      "paidPlanSelected": false,
+      "contractorListId": "1721330000000051048",
+      "vendorListId": "1721330000000051053",
+      "contractorEligibleCount": 0,
+      "vendorEligibleCount": 0,
+      "externalInvitationsSent": 0,
+      "intakeForms": [
+        {
+          "role": "vendor",
+          "id": "1721330000000051059",
+          "status": "draft",
+          "listId": "1721330000000051053",
+          "consentInitiallyUnchecked": true
+        },
+        {
+          "role": "contractor",
+          "id": "1721330000000051067",
+          "status": "draft",
+          "listId": "1721330000000051048",
+          "consentInitiallyUnchecked": true
+        }
+      ]
+    }
+  },
+  "capacity": {
+    "requestedDaily": 100,
+    "contractors": 60,
+    "vendors": 40,
+    "start": "09:00 Asia/Dubai",
+    "actualAccountHourly": "Not exposed by connected account API; not verified",
+    "actualAccountDaily": "Dynamic; no fixed verified quota",
+    "publishedExternalHourlyRange": "50-500, rolling hour, all aliases and other sends share account allowance",
+    "providerCampaignPermission": "Zoho Campaigns selected with verified sender; requires explicit-consent eligible contacts and backend Campaigns OAuth/API integration. Existing PR dispatcher still targets Zoho Mail and cannot be activated for marketing.",
+    "activeInvitationDaily": 0,
+    "nextInvitationRun": null
+  },
+  "recipients": {
+    "verifiedEligible": 0,
+    "intakeDeployed": false,
+    "sourceApproved": false,
+    "reason": "Public business research register established; no explicit campaign consent or suppression clearance established for these records",
+    "campaignListsCreated": true,
+    "sampleContactsExcluded": true,
+    "formsPublished": false,
+    "intakeCompletion": "Drafts saved; business eligibility fields, confirmed-address flow, published invitation privacy notice, and D1 consent synchronization remain to validate before publishing.",
+    "research": {
+      "plugin": "Exa",
+      "candidateRecordsReviewed": 99,
+      "publicBusinessRecords": 76,
+      "contractors": 42,
+      "vendorsOrSpecialists": 34,
+      "addressValidation": "Published on linked company/official brand page; inbox activity and delivery unverified",
+      "consent": "Unknown",
+      "suppression": "Not checked",
+      "importedToCampaigns": false,
+      "importedToLiveDatabase": false,
+      "invitationsSent": 0
+    }
+  },
+  "sourceReview": {
+    "intake": "Admin-only source URL, consent/relationship evidence, address-verification attestation, suppression and duplicate checks in PR",
+    "gaps": [
+      "Address validity is a manual attestation, not a verified external deliverability check",
+      "Provider permission and account quota are not established",
+      "Onboarding rate slot is separate from transactional sending; shared rolling account budget must be implemented against verified provider limits before activation"
+    ]
+  },
+  "nextActions": [
+    "Prepare consent-based intake forms for the two empty lists",
+    "Establish Campaigns OAuth/API access via secure server-side integration; never use the existing Mail refresh token as Campaigns authorization",
+    "Authenticate existing staging Admin through secure sign-in and complete deployed workflow gates",
+    "Verify owner-only Campaigns test acceptance and inbox delivery separately",
+    "Recheck plan continuity before trial expiry; no paid subscription without approval",
+    "Deploy existing production Worker only after staged release and rollback gates pass; activate only with eligible consented contacts"
+  ],
+  "officialReferences": [
+    "https://www.zoho.com/mail/help/usage-policy.html",
+    "https://www.zoho.com/mail/help/adminconsole/rates-and-limits.html",
+    "https://www.zoho.com/campaigns/terms.html"
+  ],
+  "emailDnsChanges": {
+    "spf": "Existing Zoho Mail include retained; include:zcsend.net added to the single existing SPF record",
+    "dkim": "Campaigns selector 12530._domainkey added; existing Mail DKIM retained",
+    "dmarc": "Existing policy unchanged",
+    "returnPath": "zma.urbanprocures.com DNS-only CNAME -> 942616051.zcsend.net",
+    "providerValidation": "Campaigns UI Protected and email channel Completed 3/3"
+  }
+}
