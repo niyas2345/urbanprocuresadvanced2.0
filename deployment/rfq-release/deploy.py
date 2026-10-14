@@ -10,13 +10,13 @@ base=f'/accounts/{ACCOUNT}/workers/scripts/{WORKER}'
 current=cf(base)
 # Compare the known recovered module bytes without printing any source or document contents.
 # The GET response is multipart; the module byte sequence must be unchanged.
-expected=(P/'recovery/worker.js').read_bytes()
+expected=(P/'recovery/pre-refresh-worker.mjs').read_bytes()
 if expected not in current:raise RuntimeError('Production changed since recovery. Reinspect before deployment.')
 settings=json.loads(cf(base+'/settings'))['result']
 byname={b['name']:b for b in settings['bindings']}
 assert byname['DB']['id']=='3412487b-954b-4f21-92d3-20d85d30dc11'
 assert byname['DOCUMENTS_BUCKET']['bucket_name']=='urbanprocures-advanced-production-20261007-documents'
-assert byname['SOURCE_COMMIT']['text']=='8b321eb8310859293f7d1592a90c4fb65abff23e'
+assert byname['SOURCE_COMMIT']['text']=='d3b1c24bc3c4bb8aac26ba54ce468244c4080f72'
 schedules=json.loads(cf(base+'/schedules'))
 bindings=[]
 for b in settings['bindings']:
@@ -28,7 +28,7 @@ for b in settings['bindings']:
  elif t=='r2_bucket':bindings.append({'name':name,'type':t,'bucket_name':b['bucket_name']})
  else:raise RuntimeError('Unexpected binding type; inspect before deploy: '+t)
 metadata={k:settings[k] for k in ['compatibility_date','compatibility_flags','usage_model','tags','tail_consumers','logpush','observability','limits'] if k in settings}
-metadata.update({'main_module':'worker.mjs','bindings':bindings,'keep_assets':True,'keep_bindings':['secret_text','assets'],'annotations':{'workers/message':'Reviewed corporate quotation PDFs; vendor PDF and completed-XLSX submissions'}})
+metadata.update({'main_module':'worker.mjs','bindings':bindings,'keep_assets':True,'keep_bindings':['secret_text','assets'],'annotations':{'workers/message':'Fix portal statistics and accepting-bids filter; owner-authorized RFQ removal'}})
 # Additive schema only. No direct publication, approval or business-state mutation.
 query((P/'quotation-schema.sql').read_text())
 boundary='up-'+uuid.uuid4().hex

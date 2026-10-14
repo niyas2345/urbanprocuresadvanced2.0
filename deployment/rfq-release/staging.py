@@ -4,7 +4,7 @@ import json,uuid,hashlib,secrets,datetime,urllib.error,sys
 P=Path(__file__).resolve().parent
 name='urbanprocures-quotation-validation-20261014'
 state=P/'build/staging-state.json'
-if state.exists(): cfg=json.loads(state.read_text())
+if state.exists() and not json.loads(state.read_text()).get("removed"): cfg=json.loads(state.read_text())
 else:
  d=json.loads(cf(f'/accounts/{ACCOUNT}/d1/database','POST',{'name':name}))
  cfg={'worker':name,'database':d['result']['uuid'],'bucket':name+'-documents'}

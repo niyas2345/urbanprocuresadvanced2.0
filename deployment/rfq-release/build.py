@@ -24,6 +24,8 @@ replace('content = canonicalContent(body.content, {});','content = canonicalCont
 replace('if (body.file) {\n        const decoded', 'if (body.file) {\n        if(doc2.quotation_id) throw Error("QUOTATION_STRUCTURED_CORRECTION_REQUIRED");\n        const decoded')
 # Avoid processing superseded quotation originals as current extraction candidates.
 replace("AND (q.id IS NULL OR (q.withdrawn_at IS NULL AND q.deleted_at IS NULL)) AND d.standardization_status='pending'", "AND (q.id IS NULL OR (q.withdrawn_at IS NULL AND q.deleted_at IS NULL)) AND (NOT EXISTS(SELECT 1 FROM quotation_pdf_revisions p WHERE p.document_id=d.id) OR EXISTS(SELECT 1 FROM quotation_pdf_revisions p WHERE p.document_id=d.id AND p.revision_nonce=q.revision_nonce)) AND d.standardization_status='pending'")
+# Owner-authorized removal of remaining RFQs belonging to other test accounts.
+replace('  const user = path.match(/^\\/api\\/admin\\/users\\/([^/]+)\\/status$/);', '  const adminRemoval=path.match(/^\\/api\\/admin\\/rfqs\\/([^/]+)\\/remove$/);\n  if(adminRemoval && method===\'POST\')return adminRemoveRfq(request,env,actor,adminRemoval[1]);\n  const user = path.match(/^\\/api\\/admin\\/users\\/([^/]+)\\/status$/);')
 # Route ahead of Excel handler; both paths preserve existing auth/terms/origin checks.
 replace('const contractorExcelQuote = await contractorWorkbookQuoteRoute', 'const pdfQuote = await pdfQuotationRoute(request.clone(), env, await actorFor(request, env));\n      if (pdfQuote) { if(pdfQuote.ok && env.AI) ctx.waitUntil(processPendingDocuments(env).catch(()=>{})); return pdfQuote; }\n      const contractorExcelQuote = await contractorWorkbookQuoteRoute')
 replace('const ready = await env.DB.prepare("SELECT standardized_at,standardized_r2_key,standardization_status,standardized_content_json,rfq_id FROM rfq_documents WHERE id=?")','const ready = await env.DB.prepare("SELECT * FROM rfq_documents WHERE id=?")')
@@ -56,6 +58,15 @@ replace("AND (quotation_id IS NULL OR EXISTS(SELECT 1 FROM vendor_quotes q WHERE
 f=(P/'baseline/assets/assets/rfq-f7c3d82b59a2.js').read_text()
 start=f.index('var Qe = ({ rfq: e, onSubmitted: t }) => {');end=f.index('  $e = ({ onNavigate: e }) => {',start)
 f=f[:start]+(P/'src/frontend-submission.js').read_text()+',\n'+f[end:]
+# Fix existing Home statistics response handling; preserve its layout.
+old_home='let e = await L.discovery();\n        (r(e.data), a(``));'
+assert f.count(old_home)==1
+f=f.replace(old_home,'let e = await L.discovery();\n        (r(e), a(``));')
+# Newly approved RFQs accept bids before the first vendor quotation arrives.
+old_bids='? e.status === `under_evaluation` ||\n              e.status === `receiving_quotations`'
+assert f.count(old_bids)==1
+f=f.replace(old_bids,'? [`reviewed_published`, `receiving_quotations`].includes(e.status) && Date.parse(e.submissionDeadline) > Date.now()')
+
 anchor=' (0, x.jsx)(WorkbookPriceTable, { response: e.workbookResponse }),'
 if f.count(anchor)!=2:raise RuntimeError('frontend card anchors differ')
 f=f.replace(anchor,anchor+'\n (0, x.jsx)(QuotationPdfHistory, { quote: e }),')
@@ -66,7 +77,7 @@ assets[asset]={'type':'text/javascript; charset=utf-8','gzip':base64.b64encode(g
 html=gzip.decompress(base64.b64decode(assets['/index.html']['gzip'])).decode().replace('/assets/rfq-f7c3d82b59a2.js',asset)
 assets['/index.html']={'type':'text/html; charset=utf-8','gzip':base64.b64encode(gzip.compress(html.encode(),mtime=0)).decode(),'sha256':hashlib.sha256(html.encode()).hexdigest()}
 s=re.sub(r'var assets_default = .*;\n','var assets_default = '+json.dumps(assets,separators=(',',':'))+';\n',s)
-s+='\n'+(P/'src/quotation.js').read_text()
+s+='\n'+(P/'src/quotation.js').read_text()+'\n'+(P/'src/refresh.js').read_text()
 (P/'build').mkdir(exist_ok=True);(P/'build/patched.mjs').write_text(s)
 subprocess.run([str(P/'node_modules/.bin/esbuild'),str(P/'build/patched.mjs'),'--bundle','--format=esm','--platform=neutral','--main-fields=module,main','--target=es2022','--outfile='+str(P/'build/worker.mjs')],check=True)
 (P/'build/frontend.js').write_text(f)
